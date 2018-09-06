@@ -44,11 +44,10 @@ namespace detail
   struct gen_seq
       : concat<T,
                typename gen_seq<T, integral_constant<T, N_t::value / 2>>::type,
-               typename gen_seq<T,
-                                integral_constant<T,
-                                                  N_t::value
-                                                      - N_t::value / 2>>::
-                   type>::type {
+               typename gen_seq<
+                   T,
+                   integral_constant<T, N_t::value - N_t::value / 2>>::type>::
+            type {
   };
 
   template <typename T>
@@ -58,7 +57,7 @@ namespace detail
   struct gen_seq<T, integral_constant<T, 1>> : int_seq<T, 0> {
   };
 #endif
-}
+}  // namespace detail
 
 // TODO: document
 template <idx_t Upper>
@@ -71,17 +70,6 @@ struct make_idx_seq {
 // TODO: document
 template <idx_t Upper>
 using make_idx_seq_t = typename make_idx_seq<Upper>::type;
-
-#if defined(CAMP_TEST)
-namespace test
-{
-  CHECK_TSAME((make_idx_seq_t<3>), (idx_seq<0, 1, 2>));
-  CHECK_TSAME((make_idx_seq_t<2>), (idx_seq<0, 1>));
-  CHECK_TSAME((make_idx_seq_t<1>), (idx_seq<0>));
-  CHECK_TSAME((make_idx_seq_t<0>), (idx_seq<>));
-}
-#endif
-
 
 // TODO: document
 template <class... Ts>

@@ -50,11 +50,12 @@ namespace detail
   };
   template <template <class...> class T, idx_t Idx, typename... Rest>
   struct _at<T<Rest...>, Idx> {
+    static_assert(Idx < sizeof...(Rest), "at: index out of range");
     using type = typename _lookup<T<Rest...>,
                                   make_idx_seq_t<sizeof...(Rest)>,
                                   Idx>::type;
   };
-}
+}  // namespace detail
 
 // TODO: document
 template <typename Seq, typename Num>
@@ -78,7 +79,7 @@ using at_v = typename at<T, num<Idx>>::type;
 // TODO: document
 template <typename T, typename U>
 using at_t = typename at<T, U>::type;
-}
+}  // namespace camp
 
 
 #endif /* __CAMP_list_at_hpp */

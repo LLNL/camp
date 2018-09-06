@@ -60,10 +60,10 @@ namespace detail
   template <template <typename...> class expr, typename... vals>
   struct caller;
 
-  template <template <typename...> class expr,
-            typename... vals,
-            typename std::enable_if<is_value<expr<vals...>>::value>::type* =
-                nullptr>
+  template <
+      template <typename...> class expr,
+      typename... vals,
+      typename std::enable_if<is_value<expr<vals...>>::value>::type* = nullptr>
   value<expr<vals...>> sfinae(caller<expr, vals...>*);
 
   value<> sfinae(...);
@@ -78,7 +78,7 @@ namespace detail
 
   template <template <typename...> class Expr, typename... Vals>
   using call = Expr<Vals...>;
-};
+};  // namespace detail
 /// \endcond
 
 }  // end namespace camp

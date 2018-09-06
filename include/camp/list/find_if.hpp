@@ -69,7 +69,7 @@ namespace detail
   struct _find_if<Cond> {
     using type = nil;
   };
-}
+}  // namespace detail
 /// \endcond
 
 template <template <typename...> class Cond, typename Seq>
@@ -82,30 +82,6 @@ struct find_if<Cond, list<Elements...>> {
 };
 
 CAMP_MAKE_L(find_if);
-
-#if defined(CAMP_TEST)
-#include "camp/lambda.hpp"
-namespace test
-{
-  template <typename Index, typename ForPol>
-  struct index_matches {
-    using type = typename std::is_same<Index, typename ForPol::index>::type;
-  };
-  template <typename Index, typename T>
-  struct For {
-    using index = Index;
-    constexpr static std::size_t value = Index::value;
-  };
-  CHECK_TSAME((find_if<std::is_pointer, list<float, double, int*>>), (int*));
-  CHECK_TSAME((find_if<std::is_pointer, list<float, double>>), (nil));
-  CHECK_TSAME((find_if_l<bind_front<std::is_same, For<num<1>, int>>,
-                         list<For<num<0>, int>, For<num<1>, int>>>),
-              (For<num<1>, int>));
-  CHECK_TSAME((find_if_l<bind_front<index_matches, num<1>>,
-                         list<For<num<0>, int>, For<num<1>, int>>>),
-              (For<num<1>, int>));
-}
-#endif
 
 }  // end namespace camp
 

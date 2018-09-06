@@ -97,7 +97,7 @@ namespace detail
   struct get_bound_arg<arg<i>, Args...> {
     using type = typename arg<i>::template expr<Args...>;
   };
-}
+}  // namespace detail
 
 template <template <typename...> class Expr, typename... ArgBindings>
 struct bind {
@@ -108,14 +108,6 @@ struct bind {
   using type = bind;
 };
 
-#if defined(CAMP_TEST)
-namespace test
-{
-  CHECK_TSAME((invoke_l<bind<list, _1, int, _2>, float, double>),
-              (list<float, int, double>));
-}
-#endif
-
 template <template <typename...> class Expr, typename... BoundArgs>
 struct bind_front {
   template <typename... Ts>
@@ -124,14 +116,6 @@ struct bind_front {
 };
 
 CAMP_MAKE_L(bind_front);
-
-#if defined(CAMP_TEST)
-namespace test
-{
-  CHECK_TSAME((invoke_l<bind_front<list, int>, float, double>),
-              (list<int, float, double>));
-}
-#endif
 
 }  // end namespace camp
 

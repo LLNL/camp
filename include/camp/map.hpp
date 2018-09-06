@@ -21,8 +21,7 @@ namespace detail
   struct lookup_table;
 
   template <typename... Keys, typename... Values>
-  struct lookup_table<list<list<Keys, Values>...>>
-      : list<Keys, Values>... {
+  struct lookup_table<list<list<Keys, Values>...>> : list<Keys, Values>... {
   };
 }  // namespace detail
 
@@ -42,16 +41,6 @@ struct at_key_s {
 template <typename Map, typename Key>
 using at_key = typename at_key_s<Map, Key>::type;
 
-
-#if defined(CAMP_TEST)
-namespace test
-{
-  using tl1 = list<list<int, num<0>>, list<char, num<1>>>;
-  CHECK_TSAME((at_key<tl1, int>), (num<0>));
-  CHECK_TSAME((at_key<tl1, char>), (num<1>));
-  CHECK_TSAME((at_key<tl1, bool>), (nil));
-}  // namespace test
-#endif
 
 }  // namespace camp
 

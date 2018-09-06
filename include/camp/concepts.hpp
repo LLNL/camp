@@ -5,8 +5,8 @@
 #include <type_traits>
 
 #include "camp/helpers.hpp"
-#include "camp/number.hpp"
 #include "camp/list.hpp"
+#include "camp/number.hpp"
 
 namespace camp
 {
