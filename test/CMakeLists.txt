@@ -1,4 +1,9 @@
 # Build google test
+if(ENABLE_CUDA)
+  # Work around -pthread argument to nvcc propagating from thread
+  # detection in gtest
+  set(gtest_disable_pthreads On)
+endif()
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest")
 
 mark_as_advanced(
@@ -27,6 +32,12 @@ function(camp_add_test TESTNAME)
     list(REMOVE_DUPLICATES ABT_BUILD)
   endif()
 
+  if(ENABLE_CUDA)
+    set(source_files ${ABT_BUILD})
+    list(FILTER source_files INCLUDE REGEX ".*\.cpp$")
+    set_source_files_properties( ${source_files} PROPERTIES LANGUAGE CUDA )
+  endif()
+
 
   # target that is run by the test, build and run
   if(ABT_GTEST OR ABT_RUN)
@@ -50,7 +61,7 @@ function(camp_add_test TESTNAME)
   target_link_libraries(${TESTNAME} camp)
 
   if(ABT_GTEST)
-    target_link_libraries(${TESTNAME} gtest gmock gtest_main)
+    target_link_libraries(${TESTNAME} gtest gtest_main)
   endif()
 
   # The test itself, invoke the runner
