@@ -23,6 +23,7 @@ http://github.com/llnl/camp
 #include "camp/size.hpp"
 #include "camp/tuple.hpp"
 #include "camp/value.hpp"
+#include "camp/devices.hpp"
 
 namespace camp
 {
