@@ -50,6 +50,26 @@ struct size<list<Args...>> {
   using type = num<sizeof...(Args)>;
 };
 
+// Merge two list
+template <typename ListA, typename ListB>
+struct merge_list {
+};
+
+template <typename... itemsA, typename... itemsB>
+struct merge_list<list<itemsA...>, list<itemsB...>> {
+  using type = typename list<itemsA..., itemsB...>;
+};
+
+template <typename... itemsA>
+struct merge_list<list<itemsA...>, list<>> {
+  using type = typename list<itemsA...>;
+};
+
+template <typename... itemsB>
+struct merge_list<list<>, list<itemsB...>> {
+  using type = typename list<itemsB...>;
+};
+
 }  // namespace camp
 
 #endif /* CAMP_LIST_LIST_HPP */
