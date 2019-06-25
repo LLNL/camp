@@ -38,8 +38,8 @@ extensions = [
 ]
 
 # Setup the `breathe` extension
-breathe_projects = { "ExhaleCompanion": "./doxyoutput/xml" }
-breathe_default_project = "ExhaleCompanion"
+breathe_projects = { "camp": "./doxyoutput/xml" }
+breathe_default_project = "camp"
 
 # Setup the `exhale` extension
 import textwrap
