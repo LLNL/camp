@@ -50,16 +50,17 @@ exhale_args = {
     "containmentFolder":     "./api",
     "rootFileName":          "library_root.rst",
     "rootFileTitle":         "Library API",
-    "doxygenStripFromPath":  "../include/camp",
+    "doxygenStripFromPath":  "../include",
     ############################################################################
     # Suggested optional arguments.                                            #
     ############################################################################
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
     "exhaleDoxygenStdin": textwrap.dedent('''
-        INPUT       = ../include/camp
-        EXCLUDE_SYMBOLS = detail detail::* internal internal::*
+        INPUT       = ../include
+        EXCLUDE_SYMBOLS = detail detail::* internal internal::* test test::*
         CLANG_ASSISTED_PARSING = YES
+        CLANG_OPTIONS = -std=c++14 -stdlib=libc++ -DCAMP_DOX
         PREDEFINED += CAMP_HOST_DEVICE=""
         PREDEFINED += CAMP_DEVICE=""
         PREDEFINED += CAMP_CONSTEXPR14=constexpr
