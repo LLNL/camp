@@ -349,6 +349,7 @@ namespace type_traits
   namespace detail
   {
 
+    /// \cond
     template <typename, template <typename...> class, typename...>
     struct IsSpecialized : camp::false_type {
     };
@@ -373,6 +374,7 @@ namespace type_traits
     struct SpecializationOf<Expected, Actual, true, Args...>
         : camp::concepts::metalib::is_same<Expected<Args...>, Actual<Args...>> {
     };
+    /// \endcond
 
   }  // end namespace detail
 
