@@ -11,11 +11,58 @@ http://github.com/llnl/camp
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
-#if defined(__NVCC__)
-TEST(CampDevices, DefaultDevice)
+
+template <typename T>
+class DeviceTest : public ::testing::Test
 {
-  camp::CudaDevice device;
+};
+
+TYPED_TEST_CASE_P(DeviceTest);
+
+TYPED_TEST_P(DeviceTest, Default)
+{
+  auto device = TypeParam::get_default();
+  SUCCEED();
+}
+
+TYPED_TEST_P(DeviceTest, DefaultSync)
+{
+  auto device = TypeParam::get_default_sync();
+  SUCCEED();
+}
+
+TYPED_TEST_P(DeviceTest, Get)
+{
+  auto device = TypeParam::get(0, nullptr);
 
   SUCCEED();
 }
-#endif
+
+TYPED_TEST_P(DeviceTest, SyncAll)
+{
+  auto device = TypeParam::get_default();
+
+  device.sync_all();
+
+  SUCCEED();
+}
+
+TYPED_TEST_P(DeviceTest, Sync)
+{
+  auto device = TypeParam::get_default();
+
+  device.sync();
+
+  SUCCEED();
+}
+
+REGISTER_TYPED_TEST_CASE_P(
+    DeviceTest, 
+    Default,
+    DefaultSync,
+    Get,
+    Sync,
+    SyncAll
+    );
+
+INSTANTIATE_TYPED_TEST_CASE_P(Templated, DeviceTest, ::testing::Types<camp::devices::CudaDevice>);

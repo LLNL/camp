@@ -2,7 +2,8 @@
 if(ENABLE_CUDA)
   # Work around -pthread argument to nvcc propagating from thread
   # detection in gtest
-  set(gtest_disable_pthreads On)
+  set(gtest_disable_pthreads On CACHE BOOL "")
+  set(BUILD_GMOCK Off CACHE BOOL "")
 endif()
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest")
 
@@ -13,12 +14,12 @@ mark_as_advanced(
   )
 set_target_properties(gtest PROPERTIES FOLDER extern)
 set_target_properties(gtest_main PROPERTIES FOLDER extern)
-set_target_properties(gmock PROPERTIES FOLDER extern)
-set_target_properties(gmock_main PROPERTIES FOLDER extern)
+#set_target_properties(gmock PROPERTIES FOLDER extern)
+#set_target_properties(gmock_main PROPERTIES FOLDER extern)
 
 function(camp_add_gtest TESTNAME)
   add_executable(${TESTNAME} ${ARGN})
-  target_link_libraries(${TESTNAME} camp gtest gmock gtest_main)
+  target_link_libraries(${TESTNAME} camp gtest gtest_main) #gmock gtest_main)
   add_test(${TESTNAME} ${TESTNAME})
   set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
 endfunction()
@@ -109,3 +110,7 @@ camp_add_test(number)
 camp_add_test(size)
 camp_add_test(transform)
 
+if (ENABLE_CUDA)
+  camp_add_gtest(device device.cpp)
+  set_source_files_properties( device.cpp PROPERTIES LANGUAGE CUDA)
+endif ()
