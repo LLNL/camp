@@ -74,6 +74,8 @@ using idx_t = std::ptrdiff_t;
   }
 
 
+///\cond
+#ifndef CAMP_DOX
 namespace test
 {
   template <typename T1, typename T2>
@@ -99,6 +101,8 @@ namespace test
 #define CAMP_CHECK_IEQ(X, Y) \
   static_assert(::camp::test::AssertValue<CAMP_UNQUOTE X, CAMP_UNQUOTE Y>::value, #X "::value == " #Y)
 }  // namespace test
+#endif // CAMP_DOX
+///\endcond
 
 }  // namespace camp
 
