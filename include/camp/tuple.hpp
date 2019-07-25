@@ -70,10 +70,6 @@ namespace internal
       typename unwrap_refwrapper<typename std::decay<T>::type>::type;
 }  // namespace internal
 
-template <typename... Args>
-CAMP_HOST_DEVICE constexpr auto make_tuple(Args&&... args)
-    -> tuple<internal::special_decay_t<Args>...>;
-
 template <camp::idx_t index, class Tuple>
 CAMP_HOST_DEVICE constexpr auto get(const Tuple& t) noexcept
     -> tuple_element_t<index, Tuple> const&;
@@ -143,6 +139,8 @@ namespace internal
         : tuple_storage<Indices, Types>(std::forward<Args>(args))...
     {
     }
+
+    CAMP_HOST_DEVICE tuple_helper& operator=(const tuple_helper& rhs) = default;
 
     template <typename RTuple>
     CAMP_HOST_DEVICE tuple_helper& operator=(const RTuple& rhs)
@@ -411,14 +409,12 @@ struct tuple_size<tagged_tuple<L, Args...>&> {
 
 template <typename... Args>
 CAMP_HOST_DEVICE constexpr auto make_tuple(Args&&... args)
-    -> tuple<internal::special_decay_t<Args>...>
 {
   return tuple<internal::special_decay_t<Args>...>{std::forward<Args>(args)...};
 }
 
 template <typename TagList, typename... Args>
 CAMP_HOST_DEVICE constexpr auto make_tagged_tuple(Args&&... args)
-    -> tagged_tuple<TagList, internal::special_decay_t<Args>...>
 {
   return tagged_tuple<TagList, internal::special_decay_t<Args>...>{
       std::forward<Args>(args)...};

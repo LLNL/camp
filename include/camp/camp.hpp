@@ -24,11 +24,11 @@ http://github.com/llnl/camp
 #include "camp/tuple.hpp"
 #include "camp/value.hpp"
 
+#include "camp/detail/test.hpp"
+
 namespace camp
 {
 // Fwd
-template <typename... Ts>
-struct list;
 template <typename Seq>
 struct flatten;
 

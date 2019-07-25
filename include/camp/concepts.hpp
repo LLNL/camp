@@ -18,6 +18,8 @@ http://github.com/llnl/camp
 #include "camp/list.hpp"
 #include "camp/number.hpp"
 
+#include "camp/type_traits/is_same.hpp"
+
 namespace camp
 {
 
@@ -26,23 +28,7 @@ namespace concepts
 
   namespace metalib
   {
-
-    template <typename T, typename U>
-    struct is_same_s : false_type {
-    };
-
-    template <typename T>
-    struct is_same_s<T, T> : true_type {
-    };
-
-#if defined(CAMP_COMPILER_MSVC)
-    template <typename... Ts>
-    using is_same = typename is_same_s<Ts...>::type;
-#else
-    template <typename T, typename U>
-    using is_same = typename is_same_s<T, U>::type;
-#endif
-
+    using camp::is_same;
 
     /// negation metafunction of a value type
     template <typename T>

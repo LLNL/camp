@@ -26,7 +26,6 @@ struct integral_constant {
   constexpr value_type operator()() const noexcept { return value; }
 };
 
-// TODO: document
 /**
  * @brief Short-form for a whole number
  *
