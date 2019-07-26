@@ -4,7 +4,8 @@ if(ENABLE_CUDA)
   # detection in gtest
   set(gtest_disable_pthreads On)
 endif()
-add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest")
+add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest"
+  EXCLUDE_FROM_ALL)
 
 mark_as_advanced(
   BUILD_GMOCK BUILD_GTEST BUILD_SHARED_LIBS
