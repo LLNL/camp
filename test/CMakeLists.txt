@@ -71,7 +71,7 @@ function(camp_add_test TESTNAME)
   # The test itself, invoke the runner
   add_test(NAME ${TESTNAME}
     COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME}.runner
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
     ${TEST})
   set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
 
