@@ -50,14 +50,14 @@ function(camp_add_test TESTNAME)
     add_custom_target(${TESTNAME}.runner
       COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
       COMMAND "$<TARGET_FILE:${TESTNAME}>"
-      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+      WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )
   else()
     # Actual build setup, do not build by default, use a lib so no main required
     add_library(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
     add_custom_target(${TESTNAME}.runner
       COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
-      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+      WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )
   endif()
 
