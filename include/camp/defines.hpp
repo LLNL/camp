@@ -14,6 +14,10 @@ http://github.com/llnl/camp
 #include <cstddef>
 #include <cstdint>
 
+#if defined(__HIPCC__)
+#include <hip/hip_runtime.h>
+#endif
+
 namespace camp
 {
 
@@ -49,6 +53,11 @@ namespace camp
 #else
 #define CAMP_SUPPRESS_HD_WARN _Pragma("nv_exec_check_disable")
 #endif
+
+#elif defined(__HIPCC__)
+#define CAMP_DEVICE __device__
+#define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_SUPPRESS_HD_WARN
 
 #else
 #define CAMP_DEVICE
