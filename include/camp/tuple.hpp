@@ -90,6 +90,10 @@ namespace internal
   struct tuple_storage {
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
+#if defined(__HIPCC__)
+    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : val(v) {}
+#endif
+
     CAMP_SUPPRESS_HD_WARN
     template <typename T>
     CAMP_HOST_DEVICE constexpr tuple_storage(T&& v)
@@ -134,12 +138,20 @@ namespace internal
     {
     }
 
+#if defined(__HIPCC__)
+    CAMP_HOST_DEVICE constexpr tuple_helper(Types... args)
+        : tuple_storage<Indices, Types>(args)...
+    {
+    }
+#endif
+
     template <typename... Args>
     CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
         : tuple_storage<Indices, Types>(std::forward<Args>(args))...
     {
     }
 
+    CAMP_HOST_DEVICE 
     tuple_helper& operator=(const tuple_helper& rhs) = default;
 
     template <typename RTuple>
@@ -211,6 +223,12 @@ public:
   CAMP_HOST_DEVICE constexpr tuple() : base()
   {
   }
+
+#if defined(__HIPCC__)
+  CAMP_HOST_DEVICE constexpr tuple(Elements... vals) : base(vals...)
+  {
+  }
+#endif
 
   CAMP_HOST_DEVICE constexpr tuple(tuple const& o) : base(o.base) {}
 
