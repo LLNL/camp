@@ -23,8 +23,10 @@ namespace devices
   class CudaEvent
   {
     public:
-      CudaEvent(){ cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming); }
-      void capture(cudaStream_t stream){ cudaEventRecord(m_event, stream); }
+      CudaEvent(cudaStream_t stream){ 
+	cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming); 
+	cudaEventRecord(m_event, stream); 
+      }
       bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
       void wait() const { while(!check()){} }
     private:
@@ -115,14 +117,10 @@ namespace devices
       return h;
     }
     CudaEvent get_event() { 
-      CudaEvent e;
-      e.capture(get_stream());
-      return e;
+      return CudaEvent(get_stream());
     }
     Event get_event_erased() {
-      Event e{CudaEvent()};
-      e.get<CudaEvent>()->capture(get_stream());
-      return e;
+      return Event{CudaEvent(get_stream())};
     }
     void wait() { cudaStreamSynchronize(stream); }
     void wait_on(Event *e) { e->wait(); }
