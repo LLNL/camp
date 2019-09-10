@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <memory>
+#include <mutex>
 
 #include <cuda_runtime.h>
 namespace camp
@@ -63,15 +64,15 @@ namespace devices
       }
 
     private:
-      class EventConcept {
+      class EventInterface {
 	public:
-	  virtual ~EventConcept(){}
+	  virtual ~EventInterface(){}
 	  virtual bool check() const = 0;
 	  virtual void wait() const = 0;
       };
 
       template<typename T>
-      class EventModel : public EventConcept {
+      class EventModel : public EventInterface {
 	public:
 	  EventModel(T const& modelVal) : m_modelVal(modelVal) {}
 	  bool check() const override { return m_modelVal.check(); }
@@ -81,25 +82,33 @@ namespace devices
 	  T m_modelVal;
       };
 
-      std::unique_ptr<EventConcept> m_value;
+      std::unique_ptr<EventInterface> m_value;
   };
 
   class Cuda 
   {
+
     static cudaStream_t get_a_stream(int num)
     {
-      // TODO consider pool size
       static cudaStream_t streams[16] = {};
       static int previous = 0;
-      // TODO deal with parallel init
-      if (streams[0] == nullptr) {
-        for (auto &s : streams) {
-          cudaStreamCreate(&s);
-        }
-      }
+
+      static std::once_flag m_onceFlag;
+      static std::mutex m_mtx;
+
+      std::call_once(m_onceFlag,
+	[] {
+	  if (streams[0] == nullptr) {
+	    for (auto &s : streams) {
+	      cudaStreamCreate(&s);
+	    }
+	  }
+	});
 
       if (num < 0) {
+	m_mtx.lock();
         previous = (previous + 1) % 16;
+	m_mtx.unlock();
         return streams[previous];
       }
 
@@ -224,9 +233,9 @@ namespace devices
       void wait_on(Event *e) { m_value->wait_on(e); }
 
     private:
-      class ContextConcept {
+      class ContextInterface {
 	public:
-	  virtual ~ContextConcept(){}
+	  virtual ~ContextInterface(){}
 	  virtual Platform get_platform() = 0;
 	  virtual void *calloc(size_t size) = 0;
 	  virtual void free(void *p) = 0;
@@ -237,7 +246,7 @@ namespace devices
       };
 
       template<typename T>
-      class ContextModel : public ContextConcept {
+      class ContextModel : public ContextInterface {
 	public:
 	  ContextModel(T const& modelVal) : m_modelVal(modelVal) {}
           Platform get_platform() override { return m_modelVal.get_platform(); }
@@ -258,7 +267,7 @@ namespace devices
 	  T m_modelVal;
       };
 
-      std::unique_ptr<ContextConcept> m_value;
+      std::unique_ptr<ContextInterface> m_value;
   };
   
 /*
