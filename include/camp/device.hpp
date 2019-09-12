@@ -17,8 +17,7 @@ namespace devices
     omp = 2,
     tbb = 4,
     cuda = 8,
-    // omp_target = 16, not sure this is a meaningful difference
-    hip = 32
+    hip = 16
   };
 
   class CudaEvent
@@ -86,7 +85,6 @@ namespace devices
 
   class Cuda 
   {
-
     static cudaStream_t get_a_stream(int num)
     {
       static cudaStream_t streams[16] = {};
@@ -132,6 +130,8 @@ namespace devices
     }
     void wait() { cudaStreamSynchronize(stream); }
     void wait_on(Event *e) { e->wait(); }
+
+    // Memory
     template <typename T>
     T *allocate(size_t size)
     {
@@ -178,8 +178,9 @@ namespace devices
       Event e{HostEvent()};
       return e;
     }
-    void wait() {} // nothing to wait for, sequential/simd host is always synchronous
+    void wait() {}
     void wait_on(Event *e) { }
+
     // Memory
     template <typename T>
     T *allocate(size_t n)
@@ -267,52 +268,6 @@ namespace devices
 
       std::shared_ptr<ContextInterface> m_value;
   };
-  
-/*
-  class Omp : public Host
-  {
-    // TODO: see if using fake addresses is an issue
-    char *dep = nullptr;
-
-  public:
-    Omp(int device = 0, int group = -1) : dep((char *)group) {}
-
-    // Methods
-    Platform get_platform() { return Platform::omp; }
-
-    Omp &get_default()
-    {
-      static Omp h;
-      return h;
-    }
-
-    void wait()
-    {
-// TODO: see if taskwait depend has wide enough support
-#pragma omp task if (0) depend(dep[0])
-      {
-      }
-      // #pragma omp taskwait depend(dep[0])
-    }
-
-    char *get_dep() { return dep; }
-
-    // Memory: inherited from Host
-    void memset(void *p, int val, size_t size)
-    {
-      if (omp_get_level() != 0) {
-        ::std::memset(p, val, size);
-      } else {
-        char *c = (char *)p;
-#pragma omp parallel for simd
-        for (size_t i = 0; i < size; ++i) {
-          c[i] = val;
-        }
-      }
-    }
-  };
-*/
-
 }  // namespace devices
 }  // namespace camp
 #endif /* __CAMP_DEVICES_HPP */
