@@ -29,7 +29,7 @@ namespace devices
 	cudaEventRecord(m_event, stream); 
       }
       bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
-      void wait() const { while(!check()){} }
+      void wait() const { cudaEventSynchronize(m_event); }
     private:
       cudaEvent_t m_event;
   };
@@ -46,7 +46,6 @@ namespace devices
   class Event
   {
     public:
-      Event(){}
       template<typename T>
       Event(T&& value){ m_value.reset(new EventModel<T>(value));}
 
@@ -169,7 +168,7 @@ namespace devices
 
     // Methods
     Platform get_platform() { return Platform::host; }
-    Host &get_default()
+    static Host &get_default()
     {
       static Host h;
       return h;
@@ -204,7 +203,6 @@ namespace devices
   class Context
   {
     public:
-      Context(){}
       template<typename T>
       Context(T&& value){ m_value.reset(new ContextModel<T>(value));}
       template<typename T>
