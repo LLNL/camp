@@ -54,7 +54,7 @@ namespace devices
       void wait() const { m_value->wait(); }
 
       template<typename T>
-      T* get() {
+      T get() {
 	auto result = dynamic_cast<EventModel<T>*>(m_value.get());
 	if (result ==nullptr)
 	{
@@ -77,12 +77,12 @@ namespace devices
 	  EventModel(T const& modelVal) : m_modelVal(modelVal) {}
 	  bool check() const override { return m_modelVal.check(); }
 	  void wait() const override { m_modelVal.wait(); }
-	  T *get() { return &m_modelVal; }
+	  T get() { return m_modelVal; }
 	private:
 	  T m_modelVal;
       };
 
-      std::unique_ptr<EventInterface> m_value;
+      std::shared_ptr<EventInterface> m_value;
   };
 
   class Cuda 
