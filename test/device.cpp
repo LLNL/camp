@@ -62,7 +62,9 @@ TEST(CampDevice, GetEvent)
   ASSERT_EQ(typeid(eh), typeid(e1));
 
   auto e2 = c1.get_event();
-  Event ec{CudaEvent()};
+  cudaStream_t s;
+  cudaStreamCreate(&s);
+  Event ec{CudaEvent(s)};
   ASSERT_EQ(typeid(ec), typeid(e2));
 }
 
