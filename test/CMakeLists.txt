@@ -108,6 +108,9 @@ function(camp_add_test TESTNAME)
   endforeach()
 endfunction()
 
+if(ENABLE_CUDA)
+  camp_add_test(device GTEST)
+endif()
 camp_add_test(tuple GTEST)
 
 camp_add_test(tuple_out_of_range RUN)
@@ -122,4 +125,3 @@ camp_add_test(lambda)
 camp_add_test(number)
 camp_add_test(size)
 camp_add_test(transform)
-
