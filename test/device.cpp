@@ -19,7 +19,7 @@
 
 using namespace camp::devices;
 
-TEST(CampDevice, Construct)
+TEST(CampDevice, Reassignment)
 {
   Context h1{Host()};
   Context c1{Cuda()};
@@ -31,7 +31,6 @@ TEST(CampDevice, Construct)
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
-
 
 TEST(CampDevice, GetPlatform)
 {
@@ -47,9 +46,13 @@ TEST(CampDevice, Get)
   Context dev_host{Host()};
   Context dev_cuda{Cuda()};
 
-  auto h = dev_host.get<Host>();
-  Host pure_host();
-  //ASSERT_EQ(typeid(h), typeid(pure_host));
+  auto erased_host = dev_host.get<Host>();
+  Host pure_host;
+  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
+
+  auto erased_cuda = dev_cuda.get<Cuda>();
+  Cuda pure_cuda;
+  ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
 }
 
 TEST(CampDevice, GetEvent)
@@ -57,33 +60,33 @@ TEST(CampDevice, GetEvent)
   Context h1{Host()};
   Context c1{Cuda()};
 
-  auto e1 = h1.get_event();
-  Event eh{HostEvent()};
-  ASSERT_EQ(typeid(eh), typeid(e1));
+  auto ev1 = h1.get_event();
+  Event evh{HostEvent()};
+  ASSERT_EQ(typeid(evh), typeid(ev1));
 
-  auto e2 = c1.get_event();
+  auto ev2 = c1.get_event();
   cudaStream_t s;
   cudaStreamCreate(&s);
-  Event ec{CudaEvent(s)};
-  ASSERT_EQ(typeid(ec), typeid(e2));
-}
-
-TEST(CampEvent, WaitOn)
-{
-}
-
-TEST(CampEvent, Construct)
-{
-}
-
-TEST(CampEvent, Check)
-{
-}
-
-TEST(CampEvent, Wait)
-{
+  Event evc{CudaEvent(s)};
+  ASSERT_EQ(typeid(evc), typeid(ev2));
 }
 
 TEST(CampEvent, Get)
 {
+  Context h1{Host()};
+  Context c1{Cuda()};
+
+  Event erased_host_event = h1.get_event();
+  Event erased_cuda_event = c1.get_event();
+
+  auto pure_host_event = erased_host_event.get<HostEvent>();
+  auto pure_cuda_event = erased_cuda_event.get<CudaEvent>();
+
+  HostEvent host_event;
+  cudaStream_t s;
+  cudaStreamCreate(&s);
+  CudaEvent cuda_event(s);
+
+  ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
+  ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
 }
