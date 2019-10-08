@@ -15,11 +15,11 @@
 
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
-#include "camp/device.hpp"
+#include "camp/resources.hpp"
 
-using namespace camp::devices;
+using namespace camp::resources;
 
-TEST(CampDevice, Reassignment)
+TEST(CampResource, Reassignment)
 {
   Context h1{Host()};
   Context c1{Cuda()};
@@ -32,7 +32,7 @@ TEST(CampDevice, Reassignment)
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
-TEST(CampDevice, GetPlatform)
+TEST(CampResource, GetPlatform)
 {
   Context dev_host{Host()};
   Context dev_cuda{Cuda()};
@@ -41,7 +41,7 @@ TEST(CampDevice, GetPlatform)
   ASSERT_EQ(dev_cuda.get_platform(), Platform::cuda);
 }
 
-TEST(CampDevice, Get)
+TEST(CampResource, Get)
 {
   Context dev_host{Host()};
   Context dev_cuda{Cuda()};
@@ -55,7 +55,7 @@ TEST(CampDevice, Get)
   ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
 }
 
-TEST(CampDevice, GetEvent)
+TEST(CampResource, GetEvent)
 {
   Context h1{Host()};
   Context c1{Cuda()};

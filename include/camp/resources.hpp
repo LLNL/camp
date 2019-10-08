@@ -13,7 +13,7 @@
 
 namespace camp
 {
-namespace devices
+namespace resources
 {
 inline namespace v1
 {
