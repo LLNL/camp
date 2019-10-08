@@ -7,9 +7,9 @@
 
 #include <cuda_runtime.h>
 
-#ifdef(CAMP_ENABLE_HIP)
+#ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.hpp>
-#endif //#ifdef(CAMP_ENABEL_HIP)
+#endif //#ifdef CAMP_ENABLE_HIP
 
 namespace camp
 {
@@ -39,7 +39,7 @@ inline namespace v1
       cudaEvent_t m_event;
   };
 
-#ifdef(CAMP_ENABLE_HIP)
+#ifdef CAMP_ENABLE_HIP
   class HipEvent
   {
     public:
@@ -50,7 +50,7 @@ inline namespace v1
       bool check() const { return (hipEventQuery(m_event) == hipSuccess); }
       void wait() const { hipEventSynchronize(m_event); }
   };
-#endif //#ifdef(CAMP_ENABEL_HIP)
+#endif //#ifdef CAMP_ENABLE_HIP
 
   class HostEvent
   {
@@ -180,7 +180,7 @@ inline namespace v1
     cudaStream_t stream;
   };
 
-#ifdef(CAMP_ENABLE_HIP)
+#ifdef CAMP_ENABLE_HIP
   class Hip
   {
     static hipStream_t get_a_stream(int num)
@@ -258,7 +258,7 @@ inline namespace v1
   private:
     hipStream_t stream;
   };
-#endif //#ifdef(CAMP_ENABEL_HIP)
+#endif //#ifdef CAMP_ENABLE_HIP
 
   class Host
   {
