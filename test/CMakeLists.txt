@@ -109,7 +109,7 @@ function(camp_add_test TESTNAME)
 endfunction()
 
 if(ENABLE_CUDA)
-  camp_add_test(device GTEST)
+  camp_add_test(resource GTEST)
 endif()
 camp_add_test(tuple GTEST)
 
