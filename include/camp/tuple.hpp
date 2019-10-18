@@ -90,8 +90,11 @@ namespace internal
   struct tuple_storage {
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
-#if defined(__HIPCC__)
-    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : val(v) {}
+    /* Workaround for bug in hipcc compiler */
+    //  This likely causes issues when building with hip
+    //  and using tuples in host code. Will be patched in the future
+#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
+    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : val{v} {}
 #endif
 
     CAMP_SUPPRESS_HD_WARN
@@ -138,7 +141,10 @@ namespace internal
     {
     }
 
-#if defined(__HIPCC__)
+    /* Workaround for bug in hipcc compiler */
+    //  This likely causes issues when building with hip
+    //  and using tuples in host code. Will be patched in the future
+#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
     CAMP_HOST_DEVICE constexpr tuple_helper(Types... args)
         : tuple_storage<Indices, Types>(args)...
     {
@@ -224,8 +230,11 @@ public:
   {
   }
 
-#if defined(__HIPCC__)
-  CAMP_HOST_DEVICE constexpr tuple(Elements... vals) : base(vals...)
+  /* Workaround for bug in hipcc compiler */
+  //  This likely causes issues when building with hip
+  //  and using tuples in host code. Will be patched in the future
+#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
+  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...)
   {
   }
 #endif
