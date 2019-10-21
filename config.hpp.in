@@ -1,0 +1,7 @@
+#ifndef __CAMP_CONFIG_HPP
+#define __CAMP_CONFIG_HPP
+
+#cmakedefine CAMP_ENABLE_CUDA
+#cmakedefine CAMP_ENABLE_HIP
+
+#endif //__CAMP_CONFIG_HPP
