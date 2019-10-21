@@ -140,7 +140,7 @@ inline namespace v1
     }
 
   public:
-    Cuda(int device = 0, int group = -1) : stream(get_a_stream(group)) {}
+    Cuda(int group = -1) : stream(get_a_stream(group)) {}
 
     // Methods
     Platform get_platform() { return Platform::cuda; }
@@ -221,7 +221,7 @@ inline namespace v1
     }
 
   public:
-    Hip(int device = 0, int group = -1) : stream(get_a_stream(group)) {}
+    Hip(int group = -1) : stream(get_a_stream(group)) {}
 
     // Methods
     Platform get_platform() { return Platform::hip; }
@@ -274,7 +274,7 @@ inline namespace v1
   class Host
   {
   public:
-    Host(int device = 0, int group = -1) {}
+    Host() {}
 
     // Methods
     Platform get_platform() { return Platform::host; }
@@ -289,7 +289,7 @@ inline namespace v1
       return e;
     }
     void wait() {}
-    void wait_on(Event *e) { }
+    void wait_on(Event *e) { e->wait(); }
     bool is_async() { return false; }
 
     // Memory
