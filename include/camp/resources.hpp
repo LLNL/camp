@@ -5,7 +5,11 @@
 #include <memory>
 #include <mutex>
 
+#include "camp/config.hpp"
+
+#ifdef CAMP_ENABLE_CUDA
 #include <cuda_runtime.h>
+#endif //#ifdef CAMP_ENABLE_CUDA
 
 #ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.hpp>
@@ -26,6 +30,7 @@ inline namespace v1
     hip = 16
   };
 
+#ifdef CAMP_ENABLE_CUDA
   class CudaEvent
   {
     public:
@@ -38,6 +43,7 @@ inline namespace v1
     private:
       cudaEvent_t m_event;
   };
+#endif //#ifdef CAMP_ENABLE_CUDA
 
 #ifdef CAMP_ENABLE_HIP
   class HipEvent
@@ -64,6 +70,7 @@ inline namespace v1
   class Event
   {
     public:
+      Event(){}
       template<typename T>
       Event(T&& value){ m_value.reset(new EventModel<T>(value));}
 
@@ -102,6 +109,7 @@ inline namespace v1
       std::shared_ptr<EventInterface> m_value;
   };
 
+#ifdef CAMP_ENABLE_CUDA
   class Cuda 
   {
     static cudaStream_t get_a_stream(int num)
@@ -149,6 +157,7 @@ inline namespace v1
     }
     void wait() { cudaStreamSynchronize(stream); }
     void wait_on(Event *e) { e->wait(); }
+    bool is_async() { return true; }
 
     // Memory
     template <typename T>
@@ -179,6 +188,7 @@ inline namespace v1
   private:
     cudaStream_t stream;
   };
+#endif //#ifdef CAMP_ENABLE_CUDA
 
 #ifdef CAMP_ENABLE_HIP
   class Hip
@@ -228,6 +238,7 @@ inline namespace v1
     }
     void wait() { hipStreamSynchronize(stream); }
     void wait_on(Event *e) { e->wait(); }
+    bool is_async() { return true; }
 
     // Memory
     template <typename T>
@@ -279,6 +290,7 @@ inline namespace v1
     }
     void wait() {}
     void wait_on(Event *e) { }
+    bool is_async() { return false; }
 
     // Memory
     template <typename T>
@@ -329,6 +341,7 @@ inline namespace v1
       void memset(void *p, int val, size_t size) { m_value->memset(p, val, size); }
       Event get_event() { return m_value->get_event(); }
       void wait_on(Event *e) { m_value->wait_on(e); }
+      bool is_async() { return m_value->is_async(); }
 
     private:
       class ContextInterface {
@@ -341,6 +354,7 @@ inline namespace v1
 	  virtual void memset(void *p, int val, size_t size) = 0;
 	  virtual Event get_event() = 0;
 	  virtual void wait_on(Event *e) = 0;
+	  virtual bool is_async() = 0;
       };
 
       template<typename T>
@@ -360,6 +374,7 @@ inline namespace v1
 	  }
 	  Event get_event() { return m_modelVal.get_event_erased(); }
 	  void wait_on(Event *e) { m_modelVal.wait_on(e); }
+	  bool is_async() { return m_modelVal.is_async(); }
 	  T get() { return m_modelVal; }
 	private:
 	  T m_modelVal;
