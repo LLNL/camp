@@ -41,6 +41,7 @@ namespace resources
       }
       bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
       void wait() const { cudaEventSynchronize(m_event); }
+      cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
       cudaEvent_t m_event;
@@ -84,6 +85,12 @@ namespace resources
       bool check() const { return m_value->check(); }
       void wait() const { m_value->wait(); }
 
+      template <typename T>
+      bool test_get()
+      {
+        auto result = dynamic_cast<EventModel<T> *>(m_value.get());
+        return (result != nullptr);
+      }
       template <typename T>
       T get()
       {
@@ -161,7 +168,16 @@ namespace resources
       CudaEvent get_event() { return CudaEvent(get_stream()); }
       Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
       void wait() { cudaStreamSynchronize(stream); }
-      void wait_on(Event *e) { e->wait(); }
+      void wait_on(Event *e)
+      {
+        if (e->test_get<CudaEvent>()) {
+          cudaStreamWaitEvent(get_stream(),
+                              e->get<CudaEvent>().getCudaEvent_t(),
+                              0);
+        } else {
+          e->wait();
+        }
+      }
       bool is_async() { return true; }
 
       // Memory
@@ -320,6 +336,12 @@ namespace resources
       Context(T &&value)
       {
         m_value.reset(new ContextModel<T>(value));
+      }
+      template <typename T>
+      bool test_get()
+      {
+        auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
+        return (result != nullptr);
       }
       template <typename T>
       T get()
