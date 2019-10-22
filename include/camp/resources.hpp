@@ -35,8 +35,8 @@ inline namespace v1
   {
     public:
       CudaEvent(cudaStream_t stream){ 
-	cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming); 
-	cudaEventRecord(m_event, stream);
+        cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming); 
+        cudaEventRecord(m_event, stream);
       }
       bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
       void wait() const { cudaEventSynchronize(m_event); }
@@ -50,8 +50,8 @@ inline namespace v1
   {
     public:
       HipEvent(hipStream_t stream){
-	hipEventCreateWithFlags(&m_event, hipEventDisableTiming);
-	hipEventRecord(m_event, stream);
+        hipEventCreateWithFlags(&m_event, hipEventDisableTiming);
+        hipEventRecord(m_event, stream);
       }
       bool check() const { return (hipEventQuery(m_event) == hipSuccess); }
       void wait() const { hipEventSynchronize(m_event); }
@@ -79,31 +79,31 @@ inline namespace v1
 
       template<typename T>
       T get() {
-	auto result = dynamic_cast<EventModel<T>*>(m_value.get());
-	if (result ==nullptr)
-	{
-	  std::runtime_error("Incompatible Event type get cast.");
-	}
-	return result->get();
+        auto result = dynamic_cast<EventModel<T>*>(m_value.get());
+        if (result ==nullptr)
+        {
+          std::runtime_error("Incompatible Event type get cast.");
+        }
+        return result->get();
       }
 
     private:
       class EventInterface {
-	public:
-	  virtual ~EventInterface(){}
-	  virtual bool check() const = 0;
-	  virtual void wait() const = 0;
+        public:
+          virtual ~EventInterface(){}
+          virtual bool check() const = 0;
+          virtual void wait() const = 0;
       };
 
       template<typename T>
       class EventModel : public EventInterface {
-	public:
-	  EventModel(T const& modelVal) : m_modelVal(modelVal) {}
-	  bool check() const override { return m_modelVal.check(); }
-	  void wait() const override { m_modelVal.wait(); }
-	  T get() { return m_modelVal; }
-	private:
-	  T m_modelVal;
+        public:
+          EventModel(T const& modelVal) : m_modelVal(modelVal) {}
+          bool check() const override { return m_modelVal.check(); }
+          void wait() const override { m_modelVal.wait(); }
+          T get() { return m_modelVal; }
+        private:
+          T m_modelVal;
       };
 
       std::shared_ptr<EventInterface> m_value;
@@ -121,18 +121,18 @@ inline namespace v1
       static std::mutex m_mtx;
 
       std::call_once(m_onceFlag,
-	[] {
-	  if (streams[0] == nullptr) {
-	    for (auto &s : streams) {
-	      cudaStreamCreate(&s);
-	    }
-	  }
-	});
+        [] {
+          if (streams[0] == nullptr) {
+            for (auto &s : streams) {
+              cudaStreamCreate(&s);
+            }
+          }
+        });
 
       if (num < 0) {
-	m_mtx.lock();
+        m_mtx.lock();
         previous = (previous + 1) % 16;
-	m_mtx.unlock();
+        m_mtx.unlock();
         return streams[previous];
       }
 
@@ -202,18 +202,18 @@ inline namespace v1
       static std::mutex m_mtx;
 
       std::call_once(m_onceFlag,
-	[] {
-	  if (streams[0] == nullptr) {
-	    for (auto &s : streams) {
-	      hipStreamCreate(&s);
-	    }
-	  }
-	});
+        [] {
+          if (streams[0] == nullptr) {
+            for (auto &s : streams) {
+              hipStreamCreate(&s);
+            }
+          }
+        });
 
       if (num < 0) {
-	m_mtx.lock();
+        m_mtx.lock();
         previous = (previous + 1) % 16;
-	m_mtx.unlock();
+        m_mtx.unlock();
         return streams[previous];
       }
 
@@ -319,24 +319,24 @@ inline namespace v1
       Context(T&& value){ m_value.reset(new ContextModel<T>(value));}
       template<typename T>
       T get() {
-	auto result = dynamic_cast<ContextModel<T>*>(m_value.get()); 
-	if (result ==nullptr)
-	{
-	  std::runtime_error("Incompatible Context type get cast.");
-	}
-	return result->get();
+        auto result = dynamic_cast<ContextModel<T>*>(m_value.get()); 
+        if (result ==nullptr)
+        {
+          std::runtime_error("Incompatible Context type get cast.");
+        }
+        return result->get();
       }
       Platform get_platform() { return m_value->get_platform(); }
       template <typename T>
       T *allocate(size_t size)
       {
-	return (T *)m_value->calloc(size * sizeof(T));
+        return (T *)m_value->calloc(size * sizeof(T));
       }
       void *calloc(size_t size) { return m_value->calloc(size); }
       void free(void *p) { m_value->free(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
-	m_value->memcpy(dst, src, size);
+        m_value->memcpy(dst, src, size);
       }
       void memset(void *p, int val, size_t size) { m_value->memset(p, val, size); }
       Event get_event() { return m_value->get_event(); }
@@ -345,39 +345,39 @@ inline namespace v1
 
     private:
       class ContextInterface {
-	public:
-	  virtual ~ContextInterface(){}
-	  virtual Platform get_platform() = 0;
-	  virtual void *calloc(size_t size) = 0;
-	  virtual void free(void *p) = 0;
-	  virtual void memcpy(void *dst, const void *src, size_t size) = 0;
-	  virtual void memset(void *p, int val, size_t size) = 0;
-	  virtual Event get_event() = 0;
-	  virtual void wait_on(Event *e) = 0;
-	  virtual bool is_async() = 0;
+        public:
+          virtual ~ContextInterface(){}
+          virtual Platform get_platform() = 0;
+          virtual void *calloc(size_t size) = 0;
+          virtual void free(void *p) = 0;
+          virtual void memcpy(void *dst, const void *src, size_t size) = 0;
+          virtual void memset(void *p, int val, size_t size) = 0;
+          virtual Event get_event() = 0;
+          virtual void wait_on(Event *e) = 0;
+          virtual bool is_async() = 0;
       };
 
       template<typename T>
       class ContextModel : public ContextInterface {
-	public:
-	  ContextModel(T const& modelVal) : m_modelVal(modelVal) {}
+        public:
+          ContextModel(T const& modelVal) : m_modelVal(modelVal) {}
           Platform get_platform() override { return m_modelVal.get_platform(); }
-	  void *calloc(size_t size) override { return m_modelVal.calloc(size); }
-	  void free(void *p) override { m_modelVal.free(p); }
-	  void memcpy(void *dst, const void *src, size_t size) override
-	  {
-	    m_modelVal.memcpy(dst, src, size);
-	  }
-	  void memset(void *p, int val, size_t size) override
-	  {
-	    m_modelVal.memset(p, val, size);
-	  }
-	  Event get_event() { return m_modelVal.get_event_erased(); }
-	  void wait_on(Event *e) { m_modelVal.wait_on(e); }
-	  bool is_async() { return m_modelVal.is_async(); }
-	  T get() { return m_modelVal; }
-	private:
-	  T m_modelVal;
+          void *calloc(size_t size) override { return m_modelVal.calloc(size); }
+          void free(void *p) override { m_modelVal.free(p); }
+          void memcpy(void *dst, const void *src, size_t size) override
+          {
+            m_modelVal.memcpy(dst, src, size);
+          }
+          void memset(void *p, int val, size_t size) override
+          {
+            m_modelVal.memset(p, val, size);
+          }
+          Event get_event() { return m_modelVal.get_event_erased(); }
+          void wait_on(Event *e) { m_modelVal.wait_on(e); }
+          bool is_async() { return m_modelVal.is_async(); }
+          T get() { return m_modelVal; }
+        private:
+          T m_modelVal;
       };
 
       std::shared_ptr<ContextInterface> m_value;
