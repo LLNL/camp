@@ -8,14 +8,12 @@ option(ENABLE_CUDA "whether to build with cuda" Off)
 option(ENABLE_CLANG_CUDA "use clang cuda support rather than nvcc" Off)
 
 if(ENABLE_CLANG_CUDA)
-  set(CAMP_ENABLE_CUDA ${ENABLE_CLANG_CUDA})
   if(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     message(ERROR "clang cuda can only be used with clang")
   endif()
 endif()
 
 if(ENABLE_CUDA)
-  set(CAMP_ENABLE_CUDA ${ENABLE_CUDA})
   find_package(CUDA REQUIRED)
   if(NOT ENABLE_CLANG_CUDA)
     include(CheckLanguage)
@@ -33,10 +31,6 @@ if(ENABLE_CUDA)
     message(STATUS "CUDA LIBS: ${CUDA_LIBRARIES}")
   endif(NOT ENABLE_CLANG_CUDA)
 endif()
-
-configure_file(
-  ${PROJECT_SOURCE_DIR}/config.hpp.in
-  ${CMAKE_BINARY_DIR}/include/camp/config.hpp)
 
 add_library (camp INTERFACE)
 target_include_directories (camp INTERFACE
