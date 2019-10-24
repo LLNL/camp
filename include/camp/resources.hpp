@@ -178,7 +178,6 @@ namespace resources
           e->wait();
         }
       }
-      bool is_async() { return true; }
 
       // Memory
       template <typename T>
@@ -254,7 +253,6 @@ namespace resources
       Event get_event_erased() { return Event{HipEvent(get_stream())}; }
       void wait() { hipStreamSynchronize(stream); }
       void wait_on(Event *e) { e->wait(); }
-      bool is_async() { return true; }
 
       // Memory
       template <typename T>
@@ -307,7 +305,6 @@ namespace resources
       }
       void wait() {}
       void wait_on(Event *e) { e->wait(); }
-      bool is_async() { return false; }
 
       // Memory
       template <typename T>
@@ -370,7 +367,6 @@ namespace resources
       }
       Event get_event() { return m_value->get_event(); }
       void wait_on(Event *e) { m_value->wait_on(e); }
-      bool is_async() { return m_value->is_async(); }
 
     private:
       class ContextInterface
@@ -384,7 +380,6 @@ namespace resources
         virtual void memset(void *p, int val, size_t size) = 0;
         virtual Event get_event() = 0;
         virtual void wait_on(Event *e) = 0;
-        virtual bool is_async() = 0;
       };
 
       template <typename T>
@@ -405,7 +400,6 @@ namespace resources
         }
         Event get_event() { return m_modelVal.get_event_erased(); }
         void wait_on(Event *e) { m_modelVal.wait_on(e); }
-        bool is_async() { return m_modelVal.is_async(); }
         T get() { return m_modelVal; }
 
       private:
