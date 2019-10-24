@@ -15,7 +15,7 @@
 
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
-#include "camp/resources.hpp"
+#include "camp/contexts.hpp"
 
 using namespace camp::resources;
 

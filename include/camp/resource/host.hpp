@@ -1,0 +1,63 @@
+#ifndef __CAMP_HOST_HPP
+#define __CAMP_HOST_HPP
+
+#include "camp/resource/event.hpp"
+#include "camp/resource/platform.hpp"
+
+namespace camp
+{
+namespace resources
+{
+  inline namespace v1
+  {
+
+    class HostEvent
+    {
+    public:
+      HostEvent() {}
+      bool check() const { return true; }
+      void wait() const {}
+    };
+
+    class Host
+    {
+    public:
+      Host() {}
+
+      // Methods
+      Platform get_platform() { return Platform::host; }
+      static Host &get_default()
+      {
+        static Host h;
+        return h;
+      }
+      HostEvent get_event() { return HostEvent(); }
+      Event get_event_erased()
+      {
+        Event e{HostEvent()};
+        return e;
+      }
+      void wait() {}
+      void wait_on(Event *e) { e->wait(); }
+
+      // Memory
+      template <typename T>
+      T *allocate(size_t n)
+      {
+        return (T *)malloc(sizeof(T) * n);
+      }
+      void *calloc(size_t size)
+      {
+        void *p = allocate<char>(size);
+        this->memset(p, 0, size);
+        return p;
+      }
+      void free(void *p) { free(p); }
+      void memcpy(void *dst, const void *src, size_t size) { memcpy(dst, src, size); }
+      void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
+    };
+
+  }  // namespace v1
+}  // namespace resources
+}  // namespace camp
+#endif /* __CAMP_DEVICES_HPP */
