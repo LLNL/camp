@@ -1,0 +1,120 @@
+#ifndef __CAMP_CUDA_HPP
+#define __CAMP_CUDA_HPP
+
+#include "camp/resource/event.hpp"
+#include "camp/resource/platform.hpp"
+
+#ifdef CAMP_HAVE_CUDA
+#include <cuda_runtime.h>
+
+namespace camp
+{
+namespace resources
+{
+  inline namespace v1
+  {
+
+    class CudaEvent
+    {
+    public:
+      CudaEvent(cudaStream_t stream)
+      {
+        cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming);
+        cudaEventRecord(m_event, stream);
+      }
+      bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
+      void wait() const { cudaEventSynchronize(m_event); }
+      cudaEvent_t getCudaEvent_t() const { return m_event; }
+
+    private:
+      cudaEvent_t m_event;
+    };
+
+    class Cuda
+    {
+      static cudaStream_t get_a_stream(int num)
+      {
+        static cudaStream_t streams[16] = {};
+        static int previous = 0;
+
+        static std::once_flag m_onceFlag;
+        static std::mutex m_mtx;
+
+        std::call_once(m_onceFlag, [] {
+          if (streams[0] == nullptr) {
+            for (auto &s : streams) {
+              cudaStreamCreate(&s);
+            }
+          }
+        });
+
+        if (num < 0) {
+          m_mtx.lock();
+          previous = (previous + 1) % 16;
+          m_mtx.unlock();
+          return streams[previous];
+        }
+
+        return streams[num % 16];
+      }
+
+    public:
+      Cuda(int group = -1) : stream(get_a_stream(group)) {}
+
+      // Methods
+      Platform get_platform() { return Platform::cuda; }
+      static Cuda &get_default()
+      {
+        static Cuda h;
+        return h;
+      }
+      CudaEvent get_event() { return CudaEvent(get_stream()); }
+      Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
+      void wait() { cudaStreamSynchronize(stream); }
+      void wait_on(Event *e)
+      {
+        if (e->test_get<CudaEvent>()) {
+          cudaStreamWaitEvent(get_stream(),
+                              e->get<CudaEvent>().getCudaEvent_t(),
+                              0);
+        } else {
+          e->wait();
+        }
+      }
+
+      // Memory
+      template <typename T>
+      T *allocate(size_t size)
+      {
+        T *ret = nullptr;
+        cudaMallocManaged(&ret, sizeof(T) * size);
+        return ret;
+      }
+      void *calloc(size_t size)
+      {
+        void *p = allocate<char>(size);
+        this->memset(p, 0, size);
+        return p;
+      }
+      void free(void *p) { cudaFree(p); }
+      void memcpy(void *dst, const void *src, size_t size)
+      {
+        cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
+      }
+      void memset(void *p, int val, size_t size)
+      {
+        cudaMemsetAsync(p, val, size, stream);
+      }
+
+      cudaStream_t get_stream() { return stream; }
+
+    private:
+      cudaStream_t stream;
+    };
+
+  }  // namespace v1
+}  // namespace resources
+}  // namespace camp
+#endif  //#ifdef CAMP_HAVE_CUDA
+
+#endif /* __CAMP_CUDA_HPP */
