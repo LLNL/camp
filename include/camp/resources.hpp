@@ -5,15 +5,13 @@
 #include <memory>
 #include <mutex>
 
-#include "camp/config.hpp"
-
-#ifdef CAMP_ENABLE_CUDA
+#ifdef CAMP_HAVE_CUDA
 #include <cuda_runtime.h>
-#endif  //#ifdef CAMP_ENABLE_CUDA
+#endif  //#ifdef CAMP_HAVE_CUDA
 
-#ifdef CAMP_ENABLE_HIP
+#ifdef CAMP_HAVE_HIP
 #include <hip/hip_runtime.hpp>
-#endif  //#ifdef CAMP_ENABLE_HIP
+#endif  //#ifdef CAMP_HAVE_HIP
 
 namespace camp
 {
@@ -30,7 +28,7 @@ namespace resources
       hip = 16
     };
 
-#ifdef CAMP_ENABLE_CUDA
+#ifdef CAMP_HAVE_CUDA
     class CudaEvent
     {
     public:
@@ -46,9 +44,9 @@ namespace resources
     private:
       cudaEvent_t m_event;
     };
-#endif  //#ifdef CAMP_ENABLE_CUDA
+#endif  //#ifdef CAMP_HAVE_CUDA
 
-#ifdef CAMP_ENABLE_HIP
+#ifdef CAMP_HAVE_HIP
     class HipEvent
     {
     public:
@@ -60,7 +58,7 @@ namespace resources
       bool check() const { return (hipEventQuery(m_event) == hipSuccess); }
       void wait() const { hipEventSynchronize(m_event); }
     };
-#endif  //#ifdef CAMP_ENABLE_HIP
+#endif  //#ifdef CAMP_HAVE_HIP
 
     class HostEvent
     {
@@ -126,7 +124,7 @@ namespace resources
       std::shared_ptr<EventInterface> m_value;
     };
 
-#ifdef CAMP_ENABLE_CUDA
+#ifdef CAMP_HAVE_CUDA
     class Cuda
     {
       static cudaStream_t get_a_stream(int num)
@@ -208,9 +206,9 @@ namespace resources
     private:
       cudaStream_t stream;
     };
-#endif  //#ifdef CAMP_ENABLE_CUDA
+#endif  //#ifdef CAMP_HAVE_CUDA
 
-#ifdef CAMP_ENABLE_HIP
+#ifdef CAMP_HAVE_HIP
     class Hip
     {
       static hipStream_t get_a_stream(int num)
@@ -283,7 +281,7 @@ namespace resources
     private:
       hipStream_t stream;
     };
-#endif  //#ifdef CAMP_ENABLE_HIP
+#endif  //#ifdef CAMP_HAVE_HIP
 
     class Host
     {
