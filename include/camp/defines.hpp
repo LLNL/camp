@@ -88,6 +88,9 @@ using nullptr_t = decltype(nullptr);
     using type = typename X<Lambda::template expr, Rest...>::type; \
   }
 
+#define CAMP_STRINGIFY_IMPL(x) #x
+#define CAMP_STRINGIFY(x) CAMP_STRINGIFY_IMPL(x)
+#define CAMP_UNQUOTE(...) __VA_ARGS__
 }  // namespace camp
 
 #endif

@@ -117,6 +117,7 @@ camp_add_test(tuple_out_of_range RUN)
 
 camp_add_test(accumulate)
 camp_add_test(at_key)
+camp_add_test(convertible)
 camp_add_test(filter)
 camp_add_test(find_if)
 camp_add_test(flatten)

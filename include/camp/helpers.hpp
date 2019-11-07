@@ -20,28 +20,6 @@ http://github.com/llnl/camp
 namespace camp
 {
 
-/// metafunction to get instance of pointer type
-template <typename T>
-T* declptr();
-
-/// metafunction to get instance of value type
-template <typename T>
-auto val() noexcept -> decltype(std::declval<T>());
-
-/// metafunction to get instance of const type
-template <typename T>
-auto cval() noexcept -> decltype(std::declval<T const>());
-
-/// metafunction to expand a parameter pack and ignore result
-template <typename... Ts>
-CAMP_HOST_DEVICE void sink(Ts...)
-{
-}
-
-// bring common utility routines into scope to allow ADL
-using std::begin;
-using std::swap;
-
 namespace type
 {
   namespace ref
@@ -143,6 +121,35 @@ namespace type
     using add = const volatile T;
   }  // namespace cv
 }  // end namespace type
+
+/// metafunction to get instance of pointer type
+template <typename T>
+T* declptr();
+
+/// metafunction to get instance of value type
+template <typename T>
+type::rvref::add<T> val() noexcept;
+/// metafunction to get instance of value type
+template <typename T>
+type::rvref::add<T> declval() noexcept;
+
+/// metafunction to get instance of const type
+template <typename T>
+auto cval() noexcept -> decltype(declval<T const>());
+
+/// metafunction to expand a parameter pack and ignore result
+template <typename... Ts>
+CAMP_HOST_DEVICE void sink(Ts...)
+{
+}
+
+/// metafunction to return a specific type if arg can be instantiated
+template <typename Ret, typename T>
+Ret returns(T const&) noexcept;
+
+// bring common utility routines into scope to allow ADL
+using std::begin;
+using std::swap;
 
 template <typename T>
 using decay = type::cv::rem<type::ref::rem<T>>;
