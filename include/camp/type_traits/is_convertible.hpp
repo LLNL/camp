@@ -13,8 +13,9 @@ namespace camp
 
 namespace detail
 {
-  template <typename T>
-  constexpr void test_conversion(T &&u) noexcept;
+  template <typename TO>
+  constexpr void test_conversion(TO) noexcept;
+
 }
 
 /// type trait to validate T is convertible to U
@@ -23,8 +24,8 @@ struct is_convertible : false_type {
 };
 
 /// type trait to validate T is convertible to U
-template <typename T, typename U>
-struct is_convertible<T, U, decltype(detail::test_conversion<U>(val<T>()))> : true_type {
+template <typename FROM, typename TO>
+struct is_convertible<FROM, TO, decltype(detail::test_conversion<TO>(val<FROM>()))> : true_type {
 };
 
 /// type trait to validate T is convertible to U
