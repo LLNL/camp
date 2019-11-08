@@ -42,7 +42,7 @@ function(camp_add_test TESTNAME)
     # Actual build setup, do not build by default
     add_executable(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
     add_custom_target(${TESTNAME}.runner
-      COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
+      COMMAND ${CMAKE_COMMAND} --build . -j ${CMAKE_BUILD_PARALLEL_LEVEL} --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
       COMMAND "$<TARGET_FILE:${TESTNAME}>"
       WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )

@@ -6,18 +6,20 @@
 #define CAMP_DETECT_HPP
 
 #include "../number/number.hpp"
-#include "../type_traits/is_convertible.hpp"
-#include "../type_traits/is_same.hpp"
+#include "is_convertible.hpp"
+#include "is_same.hpp"
 
 namespace camp
 {
 
+/// meta-type that always produces void
+template <class...>
+struct void_t {
+  using type = void;
+};
+
 namespace detail
 {
-  template <class...>
-  struct void_t {
-    using type = void;
-  };
 
   struct nonesuch {
 
@@ -53,6 +55,8 @@ namespace detail
   camp::true_type ___valid_expr___(T &&...) noexcept;
 }  // namespace detail
 
+/// Detect whether a given template/alias Op can be expanded to a valid type
+/// expression with Args...
 template <template <class...> class Op, class... Args>
 using is_detected = detail::_detector<detail::nonesuch, void, Op, Args...>;
 
@@ -77,18 +81,24 @@ using is_detected_convertible = is_convertible<detected_t<Op, Args...>, To>;
   template <CAMP_UNQUOTE params, typename __Res = __VA_ARGS__> \
   using name = __Res
 
-#define CAMP_DEF_DETECTOR_T(name, ...)                   \
+#define CAMP_DEF_DETECTOR_T(name, ...)             \
   template <class T, typename __Res = __VA_ARGS__> \
   using name = __Res
 
-#define CAMP_DEF_DETECTOR_TU(name, ...)                   \
+#define CAMP_DEF_DETECTOR_TU(name, ...)                     \
   template <class T, class U, typename __Res = __VA_ARGS__> \
   using name = __Res
 
 #define CAMP_DEF_CONCEPT(name, params, ...) \
   CAMP_DEF_DETECTOR(name,                   \
                     params,                 \
-                    decltype(detail::___valid_expr___(__VA_ARGS__)))
+                    decltype(::camp::detail::___valid_expr___(__VA_ARGS__)))
+
+#define CAMP_DEF_CONCEPT_T(name, ...) \
+  CAMP_DEF_CONCEPT(name, (class T), __VA_ARGS__)
+
+#define CAMP_DEF_CONCEPT_TU(name, ...) \
+  CAMP_DEF_CONCEPT(name, (class T, class U), __VA_ARGS__)
 
 }  // namespace camp
 #endif  // CAMP_DETECT_HPP

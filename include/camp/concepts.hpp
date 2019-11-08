@@ -14,11 +14,12 @@ http://github.com/llnl/camp
 #include <iterator>
 #include <type_traits>
 
-#include "camp/helpers.hpp"
-#include "camp/list.hpp"
-#include "camp/number.hpp"
+#include "helpers.hpp"
+#include "list.hpp"
+#include "number.hpp"
 
-#include "camp/type_traits/is_same.hpp"
+#include "type_traits/detect.hpp"
+#include "type_traits/is_same.hpp"
 
 namespace camp
 {
@@ -86,41 +87,6 @@ namespace concepts
 
   namespace detail
   {
-
-    template <class...>
-    struct TL {
-    };
-
-    template <class...>
-    struct voider {
-      using type = void;
-    };
-
-    template <class Default,
-              class /* always void*/,
-              template <class...> class Concept,
-              class TArgs>
-    struct detector {
-      using value_t = false_type;
-      using type = Default;
-    };
-
-    template <class Default, template <class...> class Concept, class... Args>
-    struct detector<Default,
-                    typename voider<Concept<Args...>>::type,
-                    Concept,
-                    TL<Args...>> {
-      using value_t = true_type;
-      using type = Concept<Args...>;
-    };
-
-    template <template <class...> class Concept, class TArgs>
-    using is_detected = detector<void, void, Concept, TArgs>;
-
-    template <template <class...> class Concept, class TArgs>
-    using detected = typename is_detected<Concept, TArgs>::value_t;
-
-
     template <typename Ret, typename T>
     Ret returns(T const &) noexcept;
 
@@ -169,37 +135,25 @@ namespace concepts
 
   /// SFINAE concept checking
   template <template <class...> class Op, class... Args>
-  struct requires_ : detail::detected<Op, detail::TL<Args...>> {
+  struct requires_ : is_detected<Op, Args...> {
   };
 
-  template <typename T>
-  struct Swappable : DefineConcept(swap(val<T>(), val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(Swappable, swap(val<T>(), val<T>()));
 
-  template <typename T>
-  struct LessThanComparable
-      : DefineConcept(convertible_to<bool>(val<T>() < val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(LessThanComparable,
+                     convertible_to<bool>(val<T>() < val<T>()));
 
-  template <typename T>
-  struct GreaterThanComparable
-      : DefineConcept(convertible_to<bool>(val<T>() > val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(GreaterThanComparable,
+                     convertible_to<bool>(val<T>() > val<T>()));
 
-  template <typename T>
-  struct LessEqualComparable
-      : DefineConcept(convertible_to<bool>(val<T>() <= val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(LessEqualComparable,
+                     convertible_to<bool>(val<T>() <= val<T>()));
 
-  template <typename T>
-  struct GreaterEqualComparable
-      : DefineConcept(convertible_to<bool>(val<T>() >= val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(GreaterEqualComparable,
+                     convertible_to<bool>(val<T>() >= val<T>()));
 
-  template <typename T>
-  struct EqualityComparable
-      : DefineConcept(convertible_to<bool>(val<T>() == val<T>())) {
-  };
+  CAMP_DEF_CONCEPT_T(EqualityComparable,
+                     convertible_to<bool>(val<T>() == val<T>()));
 
   template <typename T, typename U>
   struct ComparableTo
@@ -341,21 +295,23 @@ namespace type_traits
     };
 
     template <template <typename...> class Template, typename... T>
-    struct IsSpecialized<typename concepts::detail::voider<decltype(
-                             camp::val<Template<T...>>())>::type,
-                         Template,
-                         T...> : camp::true_type {
+    struct IsSpecialized<
+        typename void_t<decltype(camp::val<Template<T...>>())>::type,
+        Template,
+        T...> : camp::true_type {
     };
 
     template <template <class...> class,
-              template <class...> class,
+              template <class...>
+              class,
               bool,
               class...>
     struct SpecializationOf : camp::false_type {
     };
 
     template <template <class...> class Expected,
-              template <class...> class Actual,
+              template <class...>
+              class Actual,
               class... Args>
     struct SpecializationOf<Expected, Actual, true, Args...>
         : camp::concepts::metalib::is_same<Expected<Args...>, Actual<Args...>> {
@@ -373,7 +329,8 @@ namespace type_traits
   };
 
   template <template <class...> class Expected,
-            template <class...> class Actual,
+            template <class...>
+            class Actual,
             class... Args>
   struct SpecializationOf<Expected, Actual<Args...>>
       : detail::SpecializationOf<Expected,

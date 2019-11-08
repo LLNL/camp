@@ -2,10 +2,10 @@
 // Created by Tom Scogland on 11/5/19.
 //
 
-#include <camp/concepts/detect.hpp>
 #include <camp/detail/test.hpp>
 #include <camp/helpers.hpp>
 #include <camp/list.hpp>
+#include <camp/type_traits/detect.hpp>
 
 using namespace camp;
 
