@@ -1,10 +1,4 @@
 # Build google test
-if(ENABLE_CUDA)
-  # Work around -pthread argument to nvcc propagating from thread
-  # detection in gtest
-  set(gtest_disable_pthreads On)
-endif()
-
 if (NOT TARGET gtest)
   add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest"
     EXCLUDE_FROM_ALL)
@@ -19,6 +13,12 @@ if (NOT TARGET gtest)
   set_target_properties(gmock PROPERTIES FOLDER extern)
   set_target_properties(gmock_main PROPERTIES FOLDER extern)
 endif (NOT TARGET gtest)
+
+if(ENABLE_CUDA)
+  # Work around -pthread argument to nvcc propagating from thread
+  # detection in gtest
+  set(gtest_disable_pthreads On)
+endif()
 
 function(camp_add_gtest TESTNAME)
   add_executable(${TESTNAME} ${ARGN})
