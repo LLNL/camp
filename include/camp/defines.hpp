@@ -58,6 +58,7 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
@@ -72,8 +73,14 @@ namespace camp
 #endif
 #endif
 
-#if defined(__HIPCC__)
-#define CAMP_HAVE_HIP
+#if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
+#define CAMP_HAS_VARIABLE_TEMPLATES 1
+#endif
+#if defined(__cpp_inline_variables)
+#define CAMP_HAS_INLINE_VARIABLE 1
+#define CAMP_INLINE_VARIABLE inline
+#else
+#define CAMP_INLINE_VARIABLE
 #endif
 
 // Types

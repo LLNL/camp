@@ -148,8 +148,6 @@ template <typename Ret, typename T>
 Ret returns(T const&) noexcept;
 
 // bring common utility routines into scope to allow ADL
-using std::begin;
-using std::swap;
 
 template <typename T>
 using decay = type::cv::rem<type::ref::rem<T>>;
@@ -162,11 +160,21 @@ using diff_from = decltype(val<plain<T>>() - val<plain<T>>());
 template <typename T, typename U>
 using diff_between = decltype(val<plain<T>>() - val<plain<U>>());
 
-template <typename T>
-using iterator_from = decltype(begin(val<plain<T>>()));
+namespace detail
+{
+  namespace iter_from_
+  {
+    using std::begin;
+    template <typename T>
+    using iterator_from_impl = decltype(begin(val<plain<T>>()));
+  }
+}  // namespace detail
 
-template <class T>
-CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>& t) noexcept
+template <typename T>
+using iterator_from = detail::iter_from_::iterator_from_impl<T>;
+
+    template <class T>
+    CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>& t) noexcept
 {
   return static_cast<T&&>(t);
 }
