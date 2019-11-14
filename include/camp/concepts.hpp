@@ -24,119 +24,8 @@ http://github.com/llnl/camp
 
 namespace camp
 {
-
 namespace concepts
 {
-
-  namespace metalib
-  {
-    using camp::is_same;
-
-    /// negation metafunction of a value type
-    template <typename T>
-    struct negate_t : num<!T::value> {
-    };
-
-    /// all_of metafunction of a value type list -- all must be "true"
-    template <bool... Bs>
-    struct all_of : metalib::is_same<list<t, num<Bs>...>, list<num<Bs>..., t>> {
-    };
-
-    /// none_of metafunction of a value type list -- all must be "false"
-    template <bool... Bs>
-    struct none_of
-        : metalib::is_same<idx_seq<false, Bs...>, idx_seq<Bs..., false>> {
-    };
-
-    /// any_of metafunction of a value type list -- at least one must be "true""
-    template <bool... Bs>
-    struct any_of : negate_t<none_of<Bs...>> {
-    };
-
-    /// all_of metafunction of a bool list -- all must be "true"
-    template <typename... Bs>
-    struct all_of_t : all_of<Bs::value...> {
-    };
-
-    /// none_of metafunction of a bool list -- all must be "false"
-    template <typename... Bs>
-    struct none_of_t : none_of<Bs::value...> {
-    };
-
-    /// any_of metafunction of a bool list -- at least one must be "true""
-    template <typename... Bs>
-    struct any_of_t : any_of<Bs::value...> {
-    };
-
-  }  // end namespace metalib
-
-}  // end namespace concepts
-}  // end namespace camp
-
-#define DefineConcept(...) decltype((__VA_ARGS__, true_type()))
-
-#define DefineTypeTraitFromConcept(TTName, ConceptName)       \
-  template <typename... Args>                                 \
-  struct TTName : ::camp::is_detected<ConceptName, Args...> { \
-  }
-namespace camp
-{
-namespace concepts
-{
-
-  namespace detail
-  {
-    template <typename Ret, typename T>
-    Ret returns(T const &) noexcept;
-
-  }  // end namespace detail
-
-  template <typename T>
-  using negate = metalib::negate_t<T>;
-
-  /// metafunction for use within decltype expression to validate return type is
-  /// convertible to given type
-  template <typename T, typename U>
-  constexpr auto convertible_to(U &&u) noexcept
-      -> decltype(detail::returns<camp::true_type>(static_cast<T>((U &&) u)));
-
-  /// metafunction for use within decltype expression to validate type of
-  /// expression
-  template <typename T, typename U>
-  constexpr auto has_type(U &&) noexcept -> metalib::is_same<T, U>;
-
-  template <typename BoolLike>
-  constexpr auto is(BoolLike) noexcept
-      -> camp::enable_if_t<BoolLike::value, true_type>
-  {
-    return {};
-  }
-
-  template <typename BoolLike, camp::enable_if_t<!BoolLike::value, int> = 0>
-  constexpr true_type is_not(BoolLike) noexcept
-  {
-    return {};
-  }
-
-  /// metaprogramming concept for SFINAE checking of aggregating concepts
-  template <typename... Args>
-  struct all_of : metalib::all_of_t<Args...> {
-  };
-
-  /// metaprogramming concept for SFINAE checking of aggregating concepts
-  template <typename... Args>
-  struct none_of : metalib::none_of_t<Args...> {
-  };
-
-  /// metaprogramming concept for SFINAE checking of aggregating concepts
-  template <typename... Args>
-  struct any_of : metalib::any_of_t<Args...> {
-  };
-
-  /// SFINAE concept checking
-  template <template <class...> class Op, class... Args>
-  struct requires_ : is_detected<Op, Args...> {
-  };
 
   // TODO: add a proper ranges-style swap and update this
   CAMP_DEF_REQUIREMENT_T(Swappable, swap(val<T>(), val<T>()));
@@ -193,8 +82,8 @@ namespace concepts
   CAMP_DEF_CONCEPT_AND_TRAITS_T(integral,
                                 is_integral,
                                 std::is_integral<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(signed, is_signed, std::is_signed<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(unsigned,
+  CAMP_DEF_CONCEPT_AND_TRAITS_T(Signed, is_signed, std::is_signed<T>::value);
+  CAMP_DEF_CONCEPT_AND_TRAITS_T(Unsigned,
                                 is_unsigned,
                                 std::is_unsigned<T>::value);
 
@@ -286,23 +175,6 @@ namespace concepts
       (detect<BeginMember, T>() || detect<BeginFree>())
           && (detect<EndMember, T>() || detect<EndFree>()));
 
-  // template <typename T>
-  // struct Range : DefineConcept(HasBeginEnd<T>(),
-  // Iterator<iterator_from<T>>()) {
-  // };
-  //
-  // template <typename T>
-  // struct ForwardRange
-  //     : DefineConcept(HasBeginEnd<T>(), ForwardIterator<iterator_from<T>>())
-  //     {
-  // };
-  //
-  // template <typename T>
-  // struct BidirectionalRange
-  //     : DefineConcept(HasBeginEnd<T>(),
-  //                     BidirectionalIterator<iterator_from<T>>()) {
-  // };
-
   CAMP_DEF_CONCEPT_AND_TRAITS_T(random_access_range,
                                 is_random_access_range,
                                 CAMP_REQ(has_begin_end, T)
@@ -349,7 +221,7 @@ namespace type_traits
               class Actual,
               class... Args>
     struct SpecializationOf<Expected, Actual, true, Args...>
-        : camp::concepts::metalib::is_same<Expected<Args...>, Actual<Args...>> {
+        : camp::is_same<Expected<Args...>, Actual<Args...>> {
     };
     /// \endcond
 
