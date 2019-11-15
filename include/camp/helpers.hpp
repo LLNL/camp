@@ -12,10 +12,10 @@ http://github.com/llnl/camp
 #define CAMP_HELPERS_HPP
 
 #include <cstddef>
-#include <iterator>
 #include <utility>
 
-#include "camp/defines.hpp"
+#include "defines.hpp"
+#include "type_traits/enable_if.hpp"
 
 namespace camp
 {
@@ -160,21 +160,9 @@ using diff_from = decltype(val<plain<T>>() - val<plain<T>>());
 template <typename T, typename U>
 using diff_between = decltype(val<plain<T>>() - val<plain<U>>());
 
-namespace detail
-{
-  namespace iter_from_
-  {
-    using std::begin;
-    template <typename T>
-    using iterator_from_impl = decltype(begin(val<plain<T>>()));
-  }
-}  // namespace detail
 
-template <typename T>
-using iterator_from = detail::iter_from_::iterator_from_impl<T>;
-
-    template <class T>
-    CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>& t) noexcept
+template <class T>
+CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>& t) noexcept
 {
   return static_cast<T&&>(t);
 }

@@ -11,7 +11,6 @@ http://github.com/llnl/camp
 #ifndef CAMP_CONCEPTS_HPP
 #define CAMP_CONCEPTS_HPP
 
-#include <iterator>
 #include <type_traits>
 
 #include "helpers.hpp"
@@ -21,6 +20,7 @@ http://github.com/llnl/camp
 #include "type_traits/detect.hpp"
 #include "type_traits/enable_if.hpp"
 #include "type_traits/is_same.hpp"
+#include "type_traits/iterator_from.hpp"
 
 namespace camp
 {

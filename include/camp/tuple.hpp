@@ -20,7 +20,6 @@ http://github.com/llnl/camp
 #include "camp/camp.hpp"
 #include "camp/concepts.hpp"
 
-#include <iostream>
 #include <type_traits>
 
 namespace camp
@@ -124,20 +123,20 @@ namespace internal
   template <typename... Types, camp::idx_t... Indices>
   struct tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
       : public internal::tuple_storage<Indices, Types>... {
-    template <bool B = concepts::metalib::all_of<
-                  std::is_default_constructible<Types>::value...>::value,
-              typename std::enable_if<B, void>::type* = nullptr>
+    template <
+        bool B = all_of<std::is_default_constructible<Types>::value...>::value,
+        typename std::enable_if<B, void>::type* = nullptr>
     CAMP_HOST_DEVICE constexpr tuple_helper()
     {
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper const& rhs)
         : tuple_storage<Indices, Types>(
-              rhs.tuple_storage<Indices, Types>::get_inner())...
+            rhs.tuple_storage<Indices, Types>::get_inner())...
     {
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper&& rhs)
         : tuple_storage<Indices, Types>(
-              std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
+            std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
     {
     }
 
@@ -223,9 +222,9 @@ private:
 public:
   // NOTE: __host__ __device__ on constructors causes warnings, and nothing else
   // Constructors
-  template <bool B = concepts::metalib::all_of<
-                std::is_default_constructible<Elements>::value...>::value,
-            typename std::enable_if<B, void>::type* = nullptr>
+  template <
+      bool B = all_of<std::is_default_constructible<Elements>::value...>::value,
+      typename std::enable_if<B, void>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr tuple() : base()
   {
   }
@@ -317,9 +316,9 @@ public:
 public:
   // NOTE: __host__ __device__ on constructors causes warnings, and nothing else
   // Constructors
-  template <bool B = concepts::metalib::all_of<
-                std::is_default_constructible<Elements>::value...>::value,
-            typename std::enable_if<B, void>::type* = nullptr>
+  template <
+      bool B = all_of<std::is_default_constructible<Elements>::value...>::value,
+      typename std::enable_if<B, void>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr tagged_tuple() : base()
   {
   }
@@ -512,24 +511,5 @@ CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f) -> decltype(
       camp::make_idx_seq_t<tuple_size<TupleLike>::value>{});
 }
 }  // namespace camp
-
-namespace internal
-{
-template <class Tuple, camp::idx_t... Idxs>
-void print_tuple(std::ostream& os, Tuple const& t, camp::idx_seq<Idxs...>)
-{
-  camp::sink((void*)&(os << (Idxs == 0 ? "" : ", ") << camp::get<Idxs>(t))...);
-}
-}  // namespace internal
-
-template <class... Args>
-auto operator<<(std::ostream& os, camp::tuple<Args...> const& t)
-    -> std::ostream&
-{
-  os << "(";
-  internal::print_tuple(os, t, camp::make_idx_seq_t<sizeof...(Args)>{});
-  return os << ")";
-}
-
 
 #endif /* camp_tuple_HPP__ */

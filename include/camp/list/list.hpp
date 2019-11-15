@@ -11,8 +11,9 @@ http://github.com/llnl/camp
 #ifndef CAMP_LIST_LIST_HPP
 #define CAMP_LIST_LIST_HPP
 
-#include "camp/number.hpp"
-#include "camp/size.hpp"
+#include "../number.hpp"
+#include "../size.hpp"
+#include "../type_traits/is_same.hpp"
 
 namespace camp
 {
@@ -48,6 +49,37 @@ template <typename... Args>
 struct size<list<Args...>> {
   constexpr static idx_t value{sizeof...(Args)};
   using type = num<sizeof...(Args)>;
+};
+
+/// all_of metafunction of a value type list -- all must be "true"
+template <bool... Bs>
+struct all_of : is_same<list<t, num<Bs>...>, list<num<Bs>..., t>> {
+};
+
+/// none_of metafunction of a value type list -- all must be "false"
+template <bool... Bs>
+struct none_of
+    : is_same<idx_seq<false, Bs...>, idx_seq<Bs..., false>> {
+};
+
+/// any_of metafunction of a value type list -- at least one must be "true""
+template <bool... Bs>
+struct any_of : negate_t<none_of<Bs...>> {
+};
+
+/// all_of metafunction of a bool list -- all must be "true"
+template <typename... Bs>
+struct all_of_t : all_of<Bs::value...> {
+};
+
+/// none_of metafunction of a bool list -- all must be "false"
+template <typename... Bs>
+struct none_of_t : none_of<Bs::value...> {
+};
+
+/// any_of metafunction of a bool list -- at least one must be "true""
+template <typename... Bs>
+struct any_of_t : any_of<Bs::value...> {
 };
 
 }  // namespace camp

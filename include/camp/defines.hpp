@@ -71,7 +71,20 @@ namespace camp
 #if __has_builtin(__make_integer_seq)
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
+#elif _MSC_FULL_VER >= 190023918
+#define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
+
+#if __GNUC__ >= 8
+#define CAMP_USE_INTEGER_PACK 1
+#endif
+
+#if defined(__has_builtin)
+#if __has_builtin(__type_pack_element)
+#define CAMP_USE_TYPE_PACK_ELEMENT 1
+#endif
+#endif
+
 
 #if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
 #define CAMP_HAS_VARIABLE_TEMPLATES 1
