@@ -18,6 +18,7 @@ http://github.com/llnl/camp
 #include "camp/helpers.hpp"
 #include "camp/lambda.hpp"
 #include "camp/list.hpp"
+#include "camp/make_unique.hpp"
 #include "camp/map.hpp"
 #include "camp/number.hpp"
 #include "camp/size.hpp"
