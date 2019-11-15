@@ -35,7 +35,6 @@ endif()
 add_library (camp INTERFACE)
 target_include_directories (camp INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   )
 set_target_properties (camp PROPERTIES
