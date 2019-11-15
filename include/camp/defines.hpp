@@ -85,10 +85,14 @@ namespace camp
 #endif
 #endif
 
+#if defined(__cpp_fold_expressions) && __cpp_fold_expressions >= 201603
+#define CAMP_HAS_FOLD_EXPRESSIONS 1
+#endif
 
 #if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
 #define CAMP_HAS_VARIABLE_TEMPLATES 1
 #endif
+
 #if defined(__cpp_inline_variables)
 #define CAMP_HAS_INLINE_VARIABLE 1
 #define CAMP_INLINE_VARIABLE inline

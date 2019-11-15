@@ -52,15 +52,26 @@ struct size<list<Args...>> {
 };
 
 /// all_of metafunction of a value type list -- all must be "true"
+#if defined(CAMP_HAS_FOLD_EXPRESSIONS)
 template <bool... Bs>
-struct all_of : is_same<list<t, num<Bs>...>, list<num<Bs>..., t>> {
+struct all_of : num<(... && Bs)> {
 };
+#else
+template <bool... Bs>
+struct all_of : is_same<int_seq<bool, true, Bs...>, int_seq<bool, Bs..., true>> {
+};
+#endif
 
 /// none_of metafunction of a value type list -- all must be "false"
+#if defined(CAMP_HAS_FOLD_EXPRESSIONS)
 template <bool... Bs>
-struct none_of
-    : is_same<idx_seq<false, Bs...>, idx_seq<Bs..., false>> {
+struct none_of : num<!(... || Bs)> {
 };
+#else
+template <bool... Bs>
+struct none_of : is_same<int_seq<bool, false, Bs...>, int_seq<bool, Bs..., false>> {
+};
+#endif
 
 /// any_of metafunction of a value type list -- at least one must be "true""
 template <bool... Bs>
