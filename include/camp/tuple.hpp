@@ -87,6 +87,9 @@ namespace internal
 {
   template <camp::idx_t index, typename Type>
   struct tuple_storage {
+#if defined(__NVCC__)
+    // NVCC up until at least 10.1 can't do aggregate initialization of a pack
+    // of base classes, keep this around until that's fixed
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
     /* Workaround for bug in hipcc compiler */
@@ -105,15 +108,8 @@ namespace internal
         : val(std::forward<T>(v))
     {
     }
+#endif
 
-    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
-    {
-      return val;
-    }
-
-    CAMP_HOST_DEVICE CAMP_CONSTEXPR14 Type& get_inner() noexcept { return val; }
-
-  public:
     Type val;
   };
 
@@ -122,16 +118,26 @@ namespace internal
 
   template <typename... Types, camp::idx_t... Indices>
   struct tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
-      : public internal::tuple_storage<Indices, Types>... {
+      : public tuple_storage<Indices, Types>... {
+
+#if !defined(__NVCC__)
+    constexpr tuple_helper() = default;
+    constexpr tuple_helper(tuple_helper const&) = default;
+    constexpr tuple_helper(tuple_helper&&) = default;
+
+#else
+    // NOTE: this is to work around nvcc 9 series issues with incorrect
+    // creation of defaulted constructors
     template <
         bool B = all_of<std::is_default_constructible<Types>::value...>::value,
         typename std::enable_if<B, void>::type* = nullptr>
     CAMP_HOST_DEVICE constexpr tuple_helper()
+        : tuple_storage<Indices, Types>()...
     {
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper const& rhs)
         : tuple_storage<Indices, Types>(
-            rhs.tuple_storage<Indices, Types>::get_inner())...
+            rhs.tuple_storage<Indices, Types>::val)...
     {
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper&& rhs)
@@ -139,6 +145,7 @@ namespace internal
             std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
     {
     }
+#endif
 
     /* Workaround for bug in hipcc compiler */
     //  This likely causes issues when building with hip
@@ -152,7 +159,7 @@ namespace internal
 
     template <typename... Args>
     CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
-        : tuple_storage<Indices, Types>(std::forward<Args>(args))...
+        : tuple_storage<Indices, Types>{std::forward<Args>(args)}...
     {
     }
 
@@ -162,7 +169,7 @@ namespace internal
     template <typename RTuple>
     CAMP_HOST_DEVICE tuple_helper& operator=(const RTuple& rhs)
     {
-      return (camp::sink((this->tuple_storage<Indices, Types>::get_inner() =
+      return (camp::sink((this->tuple_storage<Indices, Types>::val =
                               get<Indices>(rhs))...),
               *this);
     }
@@ -220,12 +227,11 @@ private:
       -> tuple_ebt_t<T, Tuple>&;
 
 public:
-  // NOTE: __host__ __device__ on constructors causes warnings, and nothing else
-  // Constructors
-  template <
-      bool B = all_of<std::is_default_constructible<Elements>::value...>::value,
-      typename std::enable_if<B, void>::type* = nullptr>
-  CAMP_HOST_DEVICE constexpr tuple() : base()
+  // NOTE: __host__ __device__ on constructors causes warnings, and nothing
+  // else Constructors
+  template <bool B = std::is_default_constructible<Base>::value,
+            typename std::enable_if<B, void>::type* = nullptr>
+  CAMP_HOST_DEVICE constexpr tuple() : base{}
   {
   }
 
@@ -314,11 +320,10 @@ public:
 
 
 public:
-  // NOTE: __host__ __device__ on constructors causes warnings, and nothing else
-  // Constructors
-  template <
-      bool B = all_of<std::is_default_constructible<Elements>::value...>::value,
-      typename std::enable_if<B, void>::type* = nullptr>
+  // NOTE: __host__ __device__ on constructors causes warnings, and nothing
+  // else Constructors
+  template <bool B = std::is_default_constructible<Base>::value,
+            typename std::enable_if<B, void>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr tagged_tuple() : base()
   {
   }
@@ -375,7 +380,7 @@ CAMP_HOST_DEVICE constexpr auto get(const Tuple& t) noexcept
 {
   using internal::tpl_get_store;
   static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index> const&>(t.base).get_inner();
+  return static_cast<tpl_get_store<Tuple, index> const&>(t.base).val;
 }
 
 template <camp::idx_t index, class Tuple>
@@ -384,7 +389,7 @@ CAMP_HOST_DEVICE constexpr auto get(Tuple& t) noexcept
 {
   using internal::tpl_get_store;
   static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index>&>(t.base).get_inner();
+  return static_cast<tpl_get_store<Tuple, index>&>(t.base).val;
 }
 
 // by type
@@ -397,8 +402,7 @@ CAMP_HOST_DEVICE constexpr auto get(const Tuple& t) noexcept
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
+  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base).val;
 }
 
 template <typename T, class Tuple>
@@ -409,8 +413,7 @@ CAMP_HOST_DEVICE constexpr auto get(Tuple& t) noexcept -> tuple_ebt_t<T, Tuple>&
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
+  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base).val;
 }
 
 template <typename... Args>

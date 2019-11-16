@@ -90,6 +90,15 @@ TEST(CampTuple, CatPair)
   ASSERT_EQ(get<3>(t5), 5.1f);
 }
 
+TEST(CampTuple, Default)
+{
+  tuple<int, float> t;
+  auto t1 = tuple<int, float>{};
+  auto t2 = tuple<int, float>();
+  t = t1;
+  t1 = t2;
+}
+
 struct NoDefCon {
   NoDefCon() = delete;
   NoDefCon(int i) : num{i} {(void)num;}
