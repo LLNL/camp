@@ -24,4 +24,5 @@ std::unique_ptr<T> make_unique(Args&&... args)
 
 } // end of namespace umpire
 
-#endif /* __CAMP_make_unique_hpp
+#endif /* __CAMP_make_unique_hpp */
+
