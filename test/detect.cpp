@@ -68,6 +68,13 @@ static_assert(CAMP_REQ(concepts::random_access_iterator, decltype(val<std::vecto
 static_assert(!CAMP_REQ(concepts::random_access_range, decltype(val<std::list<int>>())), "list iterator is not random access");
 static_assert(CAMP_REQ(concepts::random_access_range, decltype(val<std::vector<int>>())), "int* is an iterator");
 
+void bah (int, float);
+CAMP_CHECK_VALUE_NOT(camp::concepts::invokable<decltype(bah), int, char*>);
+CAMP_CHECK_VALUE(camp::concepts::invokable<decltype(bah), int, float>);
+CAMP_CHECK_VALUE_NOT(camp::concepts::invokable_returns<decltype(bah), void, int, char*>);
+CAMP_CHECK_VALUE(camp::concepts::invokable_returns<decltype(bah), void, int, float>);
+CAMP_CHECK_VALUE_NOT(camp::concepts::invokable_returns<decltype(bah), int, int, float>);
+
 struct TC1 {
   using my_member_type = C;
 
@@ -179,3 +186,4 @@ CAMP_CHECK_VALUE(
         TC1,
         OuterClass<C>::template _overload_nested_dependent_type_archetype,
         TC1>);
+

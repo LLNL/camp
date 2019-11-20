@@ -30,19 +30,25 @@ namespace concepts
   // TODO: add a proper ranges-style swap and update this
   CAMP_DEF_REQUIREMENT_T(Swappable, swap(val<T>(), val<T>()));
 
-  CAMP_DEF_REQUIREMENT_TU(LessThan, val<T>() < val<U>());
-  CAMP_DEF_REQUIREMENT_TU(GreaterThan, val<T>() > val<U>());
-  CAMP_DEF_REQUIREMENT_TU(LessEqual, val<T>() <= val<U>());
-  CAMP_DEF_REQUIREMENT_TU(GreaterEqual, val<T>() >= val<U>());
+  CAMP_DEF_REQUIREMENT_TU(LessThan, val<T>() < val<U>(), val<U>() < val<T>());
+  CAMP_DEF_REQUIREMENT_TU(GreaterThan,
+                          val<T>() > val<U>(),
+                          val<U>() > val<T>());
+  CAMP_DEF_REQUIREMENT_TU(LessEqual,
+                          val<T>() <= val<U>(),
+                          val<U>() <= val<T>());
+  CAMP_DEF_REQUIREMENT_TU(GreaterEqual,
+                          val<T>() >= val<U>(),
+                          val<U>() >= val<T>());
 
-  CAMP_DEF_REQUIREMENT_TU(Equality, val<T>() == val<U>());
-  CAMP_DEF_REQUIREMENT_TU(Inequality, val<T>() != val<U>());
+  CAMP_DEF_REQUIREMENT_TU(Equality, val<T>() == val<U>(), val<U>() == val<T>());
+  CAMP_DEF_REQUIREMENT_TU(Inequality,
+                          val<T>() != val<U>(),
+                          val<U>() != val<T>());
 
   CAMP_DEF_CONCEPT_TU(__Weakly_equality_comparable_with,
-                      (detect_convertible<bool, Equality, T, U>()
-                       && detect_convertible<bool, Inequality, T, U>()
-                       && detect_convertible<bool, Equality, U, T>()
-                       && detect_convertible<bool, Inequality, U, T>()));
+                      detect_convertible<bool, Equality, T, U>()
+                          && detect_convertible<bool, Inequality, T, U>());
 
   CAMP_DEF_CONCEPT_AND_TRAITS_T(equality_comparable,
                                 is_equality_comparable,
@@ -63,11 +69,7 @@ namespace concepts
           && detect_convertible<bool, LessThan, T, U>()
           && detect_convertible<bool, GreaterThan, T, U>()
           && detect_convertible<bool, LessEqual, T, U>()
-          && detect_convertible<bool, GreaterEqual, T, U>()
-          && detect_convertible<bool, LessThan, U, T>()
-          && detect_convertible<bool, GreaterThan, U, T>()
-          && detect_convertible<bool, LessEqual, U, T>()
-          && detect_convertible<bool, GreaterEqual, U, T>());
+          && detect_convertible<bool, GreaterEqual, T, U>());
 
   CAMP_DEF_CONCEPT_AND_TRAITS_T(comparable,
                                 is_comparable,
@@ -180,6 +182,39 @@ namespace concepts
                                 CAMP_REQ(has_begin_end, T)
                                     && CAMP_REQ(random_access_iterator,
                                                 iterator_from<T>));
+
+  // namespace internal
+  // {
+  //   template <typename Fn, typename Void, typename... Args>
+  //   struct invokable;
+  //   template <typename Fn, typename... Args>
+  //   struct invokable<Fn, <(decltype(Fn(val<Args>()...)), true), void>,
+  //   Args...> {
+  //   };
+  //
+  // }  // namespace internal
+
+  namespace internal
+  {
+    template <typename Fn, typename Void = void, typename... Args>
+    struct invokable : false_type {
+      using ret = detail::nonesuch;
+    };
+    template <typename Fn, typename... Args>
+    struct invokable<Fn,
+                     typename void_t<decltype(val<Fn>()(val<Args>()...))>::type,
+                     Args...> : true_type {
+      using ret = decltype(val<Fn>()(val<Args>()...));
+    };
+  }  // namespace internal
+
+  template <typename Fn, typename... Args>
+  using invokable = internal::invokable<Fn, void, Args...>;
+
+  template <typename Fn, typename Ret, typename... Args>
+  using invokable_returns =
+      is_same_t<typename internal::invokable<Fn, void, Args...>::ret, Ret>;
+
 
 
 }  // end namespace concepts
