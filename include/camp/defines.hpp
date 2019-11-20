@@ -93,6 +93,10 @@ namespace camp
 #define CAMP_HAS_VARIABLE_TEMPLATES 1
 #endif
 
+#if defined(__cpp_concepts) && __cpp_fold_expressions >= 201507
+#define CAMP_HAS_CONCEPTS 1
+#endif
+
 #if defined(__cpp_inline_variables)
 #define CAMP_HAS_INLINE_VARIABLE 1
 #define CAMP_INLINE_VARIABLE inline

@@ -6,6 +6,7 @@
 #define CAMP_DETECT_HPP
 
 #include "../number/number.hpp"
+#include "../detail/loop-macros.h"
 #include "is_convertible.hpp"
 #include "is_same.hpp"
 
@@ -16,6 +17,10 @@ namespace camp
 template <class...>
 struct void_t {
   using type = void;
+};
+template <class First, class...>
+struct first_t {
+  using type = First;
 };
 
 namespace detail
@@ -106,7 +111,7 @@ constexpr bool detect_convertible()
   using name = __Res
 
 #define CAMP_DEF_REQUIREMENT(name, params, ...) \
-  CAMP_DEF_DETECTOR(name, params, decltype((__VA_ARGS__)))
+  CAMP_DEF_DETECTOR(name, params, decltype(__VA_ARGS__))
 
 #define CAMP_DEF_REQUIREMENT_T(name, ...) \
   CAMP_DEF_REQUIREMENT(name, (class T), __VA_ARGS__)
@@ -115,17 +120,19 @@ constexpr bool detect_convertible()
   CAMP_DEF_REQUIREMENT(name, (class T, class U), __VA_ARGS__)
 
 
-#ifdef HAVE_CONCEPTS
+#ifdef CAMP_HAS_CONCEPTS
 #define CAMP_DEF_CONCEPT(name, params, ...) \
   template <CAMP_UNQUOTE params>            \
   concept name = __VA_ARGS__
 
 #define CAMP_REQ(name, ...) name<__VA_ARGS__>
+#define CAMP_REQ_BOOL(name, ...) (bool)name<__VA_ARGS__>
 #elif defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
 #define CAMP_DEF_CONCEPT(name, params, ...) \
   template <CAMP_UNQUOTE params>            \
   CAMP_INLINE_VARIABLE constexpr bool name = __VA_ARGS__
 #define CAMP_REQ(name, ...) name<__VA_ARGS__>
+#define CAMP_REQ_BOOL(name, ...) name<__VA_ARGS__>
 #else
 #define CAMP_DEF_CONCEPT(name, params, ...) \
   template <CAMP_UNQUOTE params>            \
@@ -134,6 +141,7 @@ constexpr bool detect_convertible()
     return (__VA_ARGS__);                   \
   }
 #define CAMP_REQ(name, ...) name##_c<__VA_ARGS__>()
+#define CAMP_REQ_BOOL(name, ...) name##_c<__VA_ARGS__>()
 #endif
 
 #define CAMP_DEF_CONCEPT_T(name, ...) \
@@ -144,7 +152,7 @@ constexpr bool detect_convertible()
 #if defined(CAMP_HAS_VARIABLE_TEMPLATES)
 #define CAMP_MAKE_V_FROM_CONCEPT(CONCEPT, TT) \
   template <typename... Types>                \
-  constexpr auto TT##_v = CAMP_REQ(CONCEPT, Types...)
+  constexpr auto TT##_v = CAMP_REQ_BOOL(CONCEPT, Types...)
 #else
 #define CAMP_MAKE_V_FROM_CONCEPT(X, Y)
 #endif
@@ -152,7 +160,7 @@ constexpr bool detect_convertible()
 
 #define CAMP_TYPE_TRAITS_FROM_CONCEPT(CONCEPT, TT)           \
   template <typename... Types>                               \
-  struct TT : num<CAMP_REQ(CONCEPT, Types...)> { \
+  struct TT : ::camp::num<CAMP_REQ_BOOL(CONCEPT, Types...)> { \
   };                                                         \
   template <typename... Types>                               \
   using TT##_t = typename TT<Types...>::type;          \
@@ -169,6 +177,15 @@ constexpr bool detect_convertible()
 #define CAMP_DEF_CONCEPT_AND_TRAITS_TU(CONCEPT, TT, ...) \
   CAMP_DEF_CONCEPT_TU(CONCEPT, __VA_ARGS__);             \
   CAMP_TYPE_TRAITS_FROM_CONCEPT(CONCEPT, TT)
+
+#ifdef CAMP_HAS_CONCEPTS
+#define CAMP_REQUIRES_RET(RET, ...) \
+  RET requires __VA_ARGS__
+#else
+#define CAMP_REQUIRES_RET(RET, ...) \
+  ::camp::enable_if_t<__VA_ARGS__, RET> 
+#endif
+
 
 }  // namespace camp
 #endif  // CAMP_DETECT_HPP

@@ -26,93 +26,74 @@ namespace camp
 {
 namespace concepts
 {
+  namespace internal
+  {
+    CAMP_DEF_REQUIREMENT_TU(LessThan, val<T>() < val<U>());
+    CAMP_DEF_REQUIREMENT_TU(GreaterThan, val<T>() > val<U>());
+    CAMP_DEF_REQUIREMENT_TU(LessEqual, val<T>() <= val<U>());
+    CAMP_DEF_REQUIREMENT_TU(GreaterEqual, val<T>() >= val<U>());
 
-  // TODO: add a proper ranges-style swap and update this
-  CAMP_DEF_REQUIREMENT_T(Swappable, swap(val<T>(), val<T>()));
+    CAMP_DEF_REQUIREMENT_TU(Equality, val<T>() == val<U>());
+    CAMP_DEF_REQUIREMENT_TU(Inequality, val<T>() != val<U>());
 
-  CAMP_DEF_REQUIREMENT_TU(LessThan, val<T>() < val<U>(), val<U>() < val<T>());
-  CAMP_DEF_REQUIREMENT_TU(GreaterThan,
-                          val<T>() > val<U>(),
-                          val<U>() > val<T>());
-  CAMP_DEF_REQUIREMENT_TU(LessEqual,
-                          val<T>() <= val<U>(),
-                          val<U>() <= val<T>());
-  CAMP_DEF_REQUIREMENT_TU(GreaterEqual,
-                          val<T>() >= val<U>(),
-                          val<U>() >= val<T>());
+    CAMP_DEF_CONCEPT_TU(__Weakly_equality_comparable_with,
+                        detect_convertible<bool, Equality, T, U>()
+                            && detect_convertible<bool, Inequality, T, U>()
+                            && detect_convertible<bool, Equality, U, T>()
+                            && detect_convertible<bool, Inequality, U, T>());
 
-  CAMP_DEF_REQUIREMENT_TU(Equality, val<T>() == val<U>(), val<U>() == val<T>());
-  CAMP_DEF_REQUIREMENT_TU(Inequality,
-                          val<T>() != val<U>(),
-                          val<U>() != val<T>());
+  }  // namespace internal
 
-  CAMP_DEF_CONCEPT_TU(__Weakly_equality_comparable_with,
-                      detect_convertible<bool, Equality, T, U>()
-                          && detect_convertible<bool, Inequality, T, U>());
+  CAMP_DEF_CONCEPT_T(equality_comparable,
+                     CAMP_REQ(internal::__Weakly_equality_comparable_with,
+                              T,
+                              T));
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(equality_comparable,
-                                is_equality_comparable,
-                                CAMP_REQ(__Weakly_equality_comparable_with,
-                                         T,
-                                         T));
-
-  CAMP_DEF_CONCEPT_AND_TRAITS_TU(
+  CAMP_DEF_CONCEPT_TU(
       equality_comparable_with,
-      is_equality_comparable_with,
       CAMP_REQ(equality_comparable, T) && CAMP_REQ(equality_comparable, U)
-          && CAMP_REQ(__Weakly_equality_comparable_with, T, U));
+          && CAMP_REQ(internal::__Weakly_equality_comparable_with, T, U));
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_TU(
+  CAMP_DEF_CONCEPT_TU(
       comparable_with,
-      is_comparable_with,
       CAMP_REQ(equality_comparable_with, T, U)
-          && detect_convertible<bool, LessThan, T, U>()
-          && detect_convertible<bool, GreaterThan, T, U>()
-          && detect_convertible<bool, LessEqual, T, U>()
-          && detect_convertible<bool, GreaterEqual, T, U>());
+          && detect_convertible<bool, internal::LessThan, T, U>()
+          && detect_convertible<bool, internal::GreaterThan, T, U>()
+          && detect_convertible<bool, internal::LessEqual, T, U>()
+          && detect_convertible<bool, internal::GreaterEqual, T, U>()
+          && detect_convertible<bool, internal::LessThan, U, T>()
+          && detect_convertible<bool, internal::GreaterThan, U, T>()
+          && detect_convertible<bool, internal::LessEqual, U, T>()
+          && detect_convertible<bool, internal::GreaterEqual, U, T>());
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(comparable,
-                                is_comparable,
-                                CAMP_REQ(comparable_with, T, T));
+  CAMP_DEF_CONCEPT_T(comparable, CAMP_REQ(comparable_with, T, T));
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(arithmetic,
-                                is_arithmetic,
-                                std::is_arithmetic<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(floating_point,
-                                is_floating_point,
-                                std::is_floating_point<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(integral,
-                                is_integral,
-                                std::is_integral<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(Signed, is_signed, std::is_signed<T>::value);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(Unsigned,
-                                is_unsigned,
-                                std::is_unsigned<T>::value);
+  CAMP_DEF_CONCEPT_T(arithmetic, std::is_arithmetic<T>::value);
+  CAMP_DEF_CONCEPT_T(floating_point, std::is_floating_point<T>::value);
+  CAMP_DEF_CONCEPT_T(integral, std::is_integral<T>::value);
+  CAMP_DEF_CONCEPT_T(signed_, std::is_signed<T>::value);
+  CAMP_DEF_CONCEPT_T(unsigned_, std::is_unsigned<T>::value);
 
   CAMP_DEF_REQUIREMENT_T(Dereference, *(val<T>()));
   CAMP_DEF_REQUIREMENT_T(IncrementPre, ++val<T>());
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(iterator,
-                                is_iterator,
-                                detect<Dereference, T>()
-                                    && detect_exact<T &, IncrementPre, T &>());
+  CAMP_DEF_CONCEPT_T(iterator,
+                     detect<Dereference, T>()
+                         && detect_exact<T &, IncrementPre, T &>());
 
   CAMP_DEF_REQUIREMENT_T(IncrementPost, val<T>()++);
   CAMP_DEF_REQUIREMENT_T(DereferenceIncrementPost, *val<T>()++);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(forward_iterator,
-                                is_forward_iterator,
-                                CAMP_REQ(iterator, T)
-                                    && detect<IncrementPost, T &>()
-                                    && detect<DereferenceIncrementPost, T &>());
+  CAMP_DEF_CONCEPT_T(forward_iterator,
+                     CAMP_REQ(iterator, T) && detect<IncrementPost, T &>()
+                         && detect<DereferenceIncrementPost, T &>());
 
   CAMP_DEF_REQUIREMENT_T(DecrementPre, --val<T>());
   CAMP_DEF_REQUIREMENT_T(DecrementPost, val<T>()--);
   CAMP_DEF_REQUIREMENT_T(DereferenceDecrementPost, *val<T>()--);
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(
-      bidirectional_iterator,
-      is_bidirectional_iterator,
-      CAMP_REQ(forward_iterator, T) && detect_exact<T &, DecrementPre, T &>()
-          && detect_convertible<T const &, DecrementPost, T &>()
-          && detect<DereferenceDecrementPost, T &>());
+  CAMP_DEF_CONCEPT_T(bidirectional_iterator,
+                     CAMP_REQ(forward_iterator, T)
+                         && detect_exact<T &, DecrementPre, T &>()
+                         && detect_convertible<T const &, DecrementPost, T &>()
+                         && detect<DereferenceDecrementPost, T &>());
 
   CAMP_DEF_REQUIREMENT_T(MemberDifferenceType, T::difference_type);
   CAMP_DEF_REQUIREMENT_TU(PlusEq, val<T>() += val<U>());
@@ -120,6 +101,7 @@ namespace concepts
   CAMP_DEF_REQUIREMENT_TU(SubEq, val<T>() -= val<U>());
   CAMP_DEF_REQUIREMENT_TU(Sub, val<T>() - val<U>());
   CAMP_DEF_REQUIREMENT_TU(Index, val<T>()[val<U>()]);
+
   template <class I, typename = void>
   struct incrementable_traits {
   };
@@ -156,43 +138,27 @@ namespace concepts
   CAMP_DEF_REQUIREMENT_T(DiffSubIt, val<difft_from<T>>() - val<T>());
   CAMP_DEF_REQUIREMENT_T(IndexDiff, val<T>()[val<difft_from<T>>()]);
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(random_access_iterator,
-                                is_random_access_iterator,
-                                CAMP_REQ(bidirectional_iterator, T)
-                                    && CAMP_REQ(comparable, T)
-                                    && detect_exact<T &, ItPlusEqDiff, T &>()
-                                    && detect_exact<T, ItPlusDiff, T>()
-                                    && detect_exact<T, DiffPlusIt, T>()
-                                    && detect_exact<T &, ItSubEqDiff, T &>()
-                                    && detect_exact<T, ItSubDiff, T>()
-                                    && detect<IndexDiff, T>());
+  CAMP_DEF_CONCEPT_T(random_access_iterator,
+                     CAMP_REQ(bidirectional_iterator, T)
+                         && CAMP_REQ(comparable, T)
+                         && detect_exact<T &, ItPlusEqDiff, T &>()
+                         && detect_exact<T, ItPlusDiff, T>()
+                         && detect_exact<T, DiffPlusIt, T>()
+                         && detect_exact<T &, ItSubEqDiff, T &>()
+                         && detect_exact<T, ItSubDiff, T>()
+                         && detect<IndexDiff, T>());
 
   CAMP_DEF_REQUIREMENT_T(BeginMember, val<T>().begin());
   CAMP_DEF_REQUIREMENT_T(BeginFree, begin(val<T>()));
   CAMP_DEF_REQUIREMENT_T(EndMember, val<T>().end());
   CAMP_DEF_REQUIREMENT_T(EndFree, end(val<T>()));
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(
-      has_begin_end,
-      trait_has_begin_end,
-      (detect<BeginMember, T>() || detect<BeginFree>())
-          && (detect<EndMember, T>() || detect<EndFree>()));
+  CAMP_DEF_CONCEPT_T(has_begin_end,
+                     (detect<BeginMember, T>() || detect<BeginFree>())
+                         && (detect<EndMember, T>() || detect<EndFree>()));
 
-  CAMP_DEF_CONCEPT_AND_TRAITS_T(random_access_range,
-                                is_random_access_range,
-                                CAMP_REQ(has_begin_end, T)
-                                    && CAMP_REQ(random_access_iterator,
-                                                iterator_from<T>));
-
-  // namespace internal
-  // {
-  //   template <typename Fn, typename Void, typename... Args>
-  //   struct invokable;
-  //   template <typename Fn, typename... Args>
-  //   struct invokable<Fn, <(decltype(Fn(val<Args>()...)), true), void>,
-  //   Args...> {
-  //   };
-  //
-  // }  // namespace internal
+  CAMP_DEF_CONCEPT_T(random_access_range,
+                     CAMP_REQ(has_begin_end, T)
+                         && CAMP_REQ(random_access_iterator, iterator_from<T>));
 
   namespace internal
   {
@@ -214,7 +180,6 @@ namespace concepts
   template <typename Fn, typename Ret, typename... Args>
   using invokable_returns =
       is_same_t<typename internal::invokable<Fn, void, Args...>::ret, Ret>;
-
 
 
 }  // end namespace concepts
@@ -280,6 +245,28 @@ namespace type_traits
                                  IsSpecialized<Expected, Args...>::value,
                                  Args...> {
   };
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::equality_comparable,
+                                is_equality_comparable);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::equality_comparable_with,
+                                is_equality_comparable_with);
+
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::comparable_with, is_comparable_with);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::comparable, is_comparable);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::arithmetic, is_arithmetic);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::floating_point, is_floating_point);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::integral, is_integral);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::signed_, is_signed);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::unsigned_, is_unsigned);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::iterator, is_iterator);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::forward_iterator,
+                                is_forward_iterator);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::bidirectional_iterator,
+                                is_bidirectional_iterator);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::random_access_iterator,
+                                is_random_access_iterator);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::has_begin_end, has_begin_end);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::random_access_range,
+                                is_random_access_range);
 
 }  // end namespace type_traits
 }  // namespace camp
