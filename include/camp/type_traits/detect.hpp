@@ -6,7 +6,6 @@
 #define CAMP_DETECT_HPP
 
 #include "../number/number.hpp"
-#include "../detail/loop-macros.h"
 #include "is_convertible.hpp"
 #include "is_same.hpp"
 
