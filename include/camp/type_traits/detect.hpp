@@ -182,7 +182,7 @@ constexpr bool detect_convertible()
   RET requires __VA_ARGS__
 #else
 #define CAMP_REQUIRES_RET(RET, ...) \
-  ::camp::enable_if_t<__VA_ARGS__, RET> 
+  ::camp::enable_if_t<(bool)(__VA_ARGS__), RET> 
 #endif
 
 
