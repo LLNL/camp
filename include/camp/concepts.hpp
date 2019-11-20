@@ -156,6 +156,9 @@ namespace concepts
                      (detect<BeginMember, T>() || detect<BeginFree>())
                          && (detect<EndMember, T>() || detect<EndFree>()));
 
+  CAMP_DEF_CONCEPT_T(range,
+                     CAMP_REQ(has_begin_end, T)
+                         && CAMP_REQ(iterator, iterator_from<T>));
   CAMP_DEF_CONCEPT_T(random_access_range,
                      CAMP_REQ(has_begin_end, T)
                          && CAMP_REQ(random_access_iterator, iterator_from<T>));
@@ -265,6 +268,8 @@ namespace type_traits
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::random_access_iterator,
                                 is_random_access_iterator);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::has_begin_end, has_begin_end);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::range,
+                                is_range);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::random_access_range,
                                 is_random_access_range);
 
