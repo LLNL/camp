@@ -125,6 +125,25 @@ namespace internal
     constexpr tuple_helper(tuple_helper const&) = default;
     constexpr tuple_helper(tuple_helper&&) = default;
 
+    template <typename... Args>
+    CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
+        : tuple_storage<Indices, Types>{std::forward<Args>(args)}...
+    {
+    }
+
+    /* Workaround for bug in hipcc compiler */
+    //  This likely causes issues when building with hip
+    //  and using tuples in host code. Will be patched in the future
+#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
+    CAMP_HOST_DEVICE constexpr tuple_helper(Types... args)
+        : tuple_storage<Indices, Types>(args)...
+    {
+    }
+#endif
+
+    CAMP_HOST_DEVICE
+    tuple_helper& operator=(const tuple_helper& rhs) = default;
+
 #else
     // NOTE: this is to work around nvcc 9 series issues with incorrect
     // creation of defaulted constructors
@@ -145,26 +164,21 @@ namespace internal
             std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
     {
     }
-#endif
-
-    /* Workaround for bug in hipcc compiler */
-    //  This likely causes issues when building with hip
-    //  and using tuples in host code. Will be patched in the future
-#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-    CAMP_HOST_DEVICE constexpr tuple_helper(Types... args)
-        : tuple_storage<Indices, Types>(args)...
-    {
-    }
-#endif
-
     template <typename... Args>
     CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
-        : tuple_storage<Indices, Types>{std::forward<Args>(args)}...
+        : tuple_storage<Indices, Types>(std::forward<Args>(args))...
     {
     }
 
-    CAMP_HOST_DEVICE 
-    tuple_helper& operator=(const tuple_helper& rhs) = default;
+    CAMP_HOST_DEVICE
+    tuple_helper& operator=(const tuple_helper& rhs)
+    {
+      return (camp::sink((this->tuple_storage<Indices, Types>::val =
+                              rhs.tuple_storage<Indices, Types>::val)...),
+              *this);
+    }
+#endif
+
 
     template <typename RTuple>
     CAMP_HOST_DEVICE tuple_helper& operator=(const RTuple& rhs)
@@ -239,9 +253,7 @@ public:
   //  This likely causes issues when building with hip
   //  and using tuples in host code. Will be patched in the future
 #if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...)
-  {
-  }
+  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...) {}
 #endif
 
   CAMP_HOST_DEVICE constexpr tuple(tuple const& o) : base(o.base) {}
