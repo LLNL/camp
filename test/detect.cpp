@@ -36,6 +36,12 @@ static_assert(std::is_arithmetic<int>::value, "int is not arithmetic");
 static_assert(CAMP_REQ(Arith, int), "int is arithmetic");
 static_assert(is_arithmetic<int>::value, "int is arithmetic");
 static_assert(!is_arithmetic<A>::value, "A is not arithmetic");
+
+template<>
+struct type_traits::is_index<B> : true_type {};
+static_assert(type_traits::is_index<int>::value, "int is a valid indexing type");
+static_assert(!type_traits::is_index<A>::value, "A is not a valid indexing type");
+static_assert(type_traits::is_index<B>::value, "A is not a valid indexing type");
 // CAMP_CHECK_VALUE_NOT(is_detected<Arith, A>);
 // CAMP_CHECK_VALUE(is_detected<Arith, int>);
 // CAMP_CHECK_VALUE(is_detected<Arith, float>);

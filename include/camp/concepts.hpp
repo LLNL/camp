@@ -74,6 +74,11 @@ namespace concepts
   CAMP_DEF_CONCEPT_T(signed_, std::is_signed<T>::value);
   CAMP_DEF_CONCEPT_T(unsigned_, std::is_unsigned<T>::value);
 
+  template <typename T>
+  struct is_index : false_type {
+  };
+  CAMP_DEF_CONCEPT_T(index, std::is_integral<T>::value || is_index<T>::value);
+
   CAMP_DEF_REQUIREMENT_T(Dereference, *(val<T>()));
   CAMP_DEF_REQUIREMENT_T(IncrementPre, ++val<T>());
   CAMP_DEF_CONCEPT_T(iterator,
@@ -258,6 +263,7 @@ namespace type_traits
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::arithmetic, is_arithmetic);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::floating_point, is_floating_point);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::integral, is_integral);
+  CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::index, is_index);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::signed_, is_signed);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::unsigned_, is_unsigned);
   CAMP_TYPE_TRAITS_FROM_CONCEPT(concepts::iterator, is_iterator);
