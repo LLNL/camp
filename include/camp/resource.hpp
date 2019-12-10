@@ -1,5 +1,15 @@
-#ifndef __CAMP_CONTEXT_HPP
-#define __CAMP_CONTEXT_HPP
+/*
+Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
+Produced at the Lawrence Livermore National Laboratory
+Maintained by Tom Scogland <scogland1@llnl.gov>
+CODE-756261, All rights reserved.
+This file is part of camp.
+For details about use and distribution, please read LICENSE and NOTICE from
+http://github.com/llnl/camp
+*/
+
+#ifndef __CAMP_RESOURCE_HPP
+#define __CAMP_RESOURCE_HPP
 
 #include <cstring>
 #include <memory>
@@ -104,4 +114,4 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
-#endif /* __CAMP_CONTEXT_HPP */
+#endif /* __CAMP_RESOURCE_HPP */
