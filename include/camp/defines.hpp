@@ -50,7 +50,7 @@ namespace camp
 #if defined(__CUDACC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
-#define CAMP_HAVE_CUDA
+#define CAMP_HAVE_CUDA 1
 
 #if defined(_WIN32)  // windows is non-compliant, yay
 #define CAMP_SUPPRESS_HD_WARN __pragma(nv_exec_check_disable)
@@ -63,12 +63,18 @@ namespace camp
 #define CAMP_HOST_DEVICE __host__ __device__
 #undef CAMP_HIP_HOST_DEVICE
 #define CAMP_HIP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP 1
+
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
 #define CAMP_DEVICE
 #define CAMP_HOST_DEVICE
 #define CAMP_SUPPRESS_HD_WARN
+#endif
+
+#if _OPENMP >= 201307
+#define CAMP_HAVE_OMP_OFFLOAD
 #endif
 
 #if defined(__has_builtin)
