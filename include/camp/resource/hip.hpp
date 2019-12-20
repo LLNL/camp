@@ -15,7 +15,7 @@ http://github.com/llnl/camp
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_HAVE_HIP
-#include <hip/hip_runtime.hpp>
+#include <hip/hip_runtime.h>
 
 namespace camp
 {
