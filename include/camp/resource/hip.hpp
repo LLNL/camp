@@ -106,7 +106,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void free(void *p) { hipFree(p); }
+      void deallocate(void *p) { hipFree(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream);

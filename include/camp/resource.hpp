@@ -28,28 +28,28 @@ namespace resources
   inline namespace v1
   {
 
-    class Context
+    class Resource
     {
     public:
       template <typename T>
-      Context(T &&value)
+      Resource(T &&value)
       {
         m_value.reset(new ContextModel<T>(value));
       }
       template <typename T>
-      bool test_get()
+      T* try_get()
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
-        return (result != nullptr);
+        return result ? result->get() : nullptr;
       }
       template <typename T>
       T get()
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         if (result == nullptr) {
-          std::runtime_error("Incompatible Context type get cast.");
+          throw std::runtime_error("Incompatible Resource type get cast.");
         }
-        return result->get();
+        return *result->get();
       }
       Platform get_platform() { return m_value->get_platform(); }
       template <typename T>
@@ -58,7 +58,7 @@ namespace resources
         return (T *)m_value->calloc(size * sizeof(T));
       }
       void *calloc(size_t size) { return m_value->calloc(size); }
-      void free(void *p) { m_value->free(p); }
+      void deallocate(void *p) { m_value->deallocate(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         m_value->memcpy(dst, src, size);
@@ -77,7 +77,7 @@ namespace resources
         virtual ~ContextInterface() {}
         virtual Platform get_platform() = 0;
         virtual void *calloc(size_t size) = 0;
-        virtual void free(void *p) = 0;
+        virtual void deallocate(void *p) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
         virtual Event get_event() = 0;
@@ -91,7 +91,7 @@ namespace resources
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() override { return m_modelVal.get_platform(); }
         void *calloc(size_t size) override { return m_modelVal.calloc(size); }
-        void free(void *p) override { m_modelVal.free(p); }
+        void deallocate(void *p) override { m_modelVal.deallocate(p); }
         void memcpy(void *dst, const void *src, size_t size) override
         {
           m_modelVal.memcpy(dst, src, size);
@@ -102,7 +102,7 @@ namespace resources
         }
         Event get_event() { return m_modelVal.get_event_erased(); }
         void wait_on(Event *e) { m_modelVal.wait_on(e); }
-        T get() { return m_modelVal; }
+        T* get() { return &m_modelVal; }
 
       private:
         T m_modelVal;
