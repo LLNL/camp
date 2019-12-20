@@ -106,7 +106,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void free(void *p) { cudaFree(p); }
+      void deallocate(void *p) { cudaFree(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);

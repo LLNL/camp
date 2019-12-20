@@ -13,12 +13,26 @@
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
+#include "camp/resource.hpp"
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
-#include "camp/contexts.hpp"
 
 using namespace camp::resources;
 
+TEST(CampResource, Construct) { Resource h1{Host()}; }
+TEST(CampResource, ConvertFails)
+{
+  Resource h1{Host()};
+  ASSERT_THROW(h1.get<int>(), std::runtime_error);
+  ASSERT_FALSE(h1.try_get<int>());
+}
+TEST(CampResource, ConvertWorks)
+{
+  Resource h1{Host()};
+  ASSERT_TRUE(h1.try_get<Host>());
+  ASSERT_EQ(h1.get<Host>().get_platform(), Platform::host);
+}
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, Reassignment)
 {
   Context h1{Host()};
@@ -90,3 +104,4 @@ TEST(CampEvent, Get)
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
   ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
 }
+#endif
