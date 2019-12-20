@@ -111,6 +111,25 @@ namespace resources
       std::shared_ptr<ContextInterface> m_value;
     };
 
+    template<Platform p>
+    struct resource_from_platform;
+    template<>
+    struct resource_from_platform<Platform::host>{
+      using type = ::camp::resources::Host;
+    };
+#if defined(CAMP_HAVE_CUDA)
+    template<>
+    struct resource_from_platform<Platform::cuda>{
+      using type = ::camp::resources::Cuda;
+    };
+#endif
+#if defined(CAMP_HAVE_HIP)
+    template<>
+    struct resource_from_platform<Platform::hip>{
+      using type = ::camp::resources::Hip;
+    };
+#endif
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
