@@ -111,12 +111,19 @@ endfunction()
 if(ENABLE_CUDA)
   camp_add_test(resource GTEST)
 endif()
+
+add_custom_target(test.runner
+        COMMAND ${CMAKE_COMMAND} --build . --target test --config ${CMAKE_BUILD_TYPE}
+        WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
+        )
 camp_add_test(tuple GTEST)
 
 camp_add_test(tuple_out_of_range RUN)
 
 camp_add_test(accumulate)
 camp_add_test(at_key)
+camp_add_test(convertible)
+camp_add_test(detect)
 camp_add_test(filter)
 camp_add_test(find_if)
 camp_add_test(flatten)

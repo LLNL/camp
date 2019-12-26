@@ -26,7 +26,6 @@ namespace test
                   "is_same assertion failed <see below for more information>");
     static bool constexpr value = is_same<T1, T2>::value;
   };
-#define CAMP_UNQUOTE(...) __VA_ARGS__
 #define CAMP_CHECK_SAME(X, Y)                                          \
   static_assert(                                                       \
       ::camp::test::AssertSame<CAMP_UNQUOTE X, CAMP_UNQUOTE Y>::value, \
@@ -45,6 +44,26 @@ namespace test
   static_assert(                                                        \
       ::camp::test::AssertValue<CAMP_UNQUOTE X, CAMP_UNQUOTE Y>::value, \
       #X "::value == " #Y)
+template <typename Assertion>
+struct AssertTrue {
+  static_assert(Assertion::value,
+                "value assertion failed <see below for more information>");
+  static bool const value = Assertion::value;
+};
+#define CAMP_CHECK_VALUE(...)                                            \
+  static_assert(                                                        \
+      ::camp::test::AssertTrue<__VA_ARGS__>::value, \
+      "CAMP static assert failed, ::value is not true")
+template <typename Assertion>
+struct AssertFalse {
+  static_assert(!Assertion::value,
+                "value assertion failed <see below for more information>");
+  static bool const value = !Assertion::value;
+};
+#define CAMP_CHECK_VALUE_NOT(...)                                            \
+  static_assert(                                                        \
+      ::camp::test::AssertFalse<__VA_ARGS__>::value, \
+      "CAMP static assert failed, ::value is true")
 }  // namespace test
 #endif  // CAMP_DOX
 ///\endcond

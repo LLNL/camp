@@ -77,6 +77,7 @@ install(DIRECTORY
   DESTINATION
   include)
 
+SET(ENABLE_TESTS On CACHE BOOL "Test variable defaulting to '0'")
 if(ENABLE_TESTS)
 enable_testing()
 add_subdirectory(test)

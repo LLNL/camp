@@ -58,6 +58,7 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
@@ -70,10 +71,37 @@ namespace camp
 #if __has_builtin(__make_integer_seq)
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
+#elif _MSC_FULL_VER >= 190023918
+#define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
 
-#if defined(__HIPCC__)
-#define CAMP_HAVE_HIP
+#if __GNUC__ >= 8
+#define CAMP_USE_INTEGER_PACK 1
+#endif
+
+#if defined(__has_builtin)
+#if __has_builtin(__type_pack_element)
+#define CAMP_USE_TYPE_PACK_ELEMENT 1
+#endif
+#endif
+
+#if defined(__cpp_fold_expressions) && __cpp_fold_expressions >= 201603
+#define CAMP_HAS_FOLD_EXPRESSIONS 1
+#endif
+
+#if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
+#define CAMP_HAS_VARIABLE_TEMPLATES 1
+#endif
+
+#if defined(__cpp_concepts) && __cpp_fold_expressions >= 201507
+#define CAMP_HAS_CONCEPTS 1
+#endif
+
+#if defined(__cpp_inline_variables)
+#define CAMP_HAS_INLINE_VARIABLE 1
+#define CAMP_INLINE_VARIABLE inline
+#else
+#define CAMP_INLINE_VARIABLE
 #endif
 
 // Types
@@ -88,6 +116,9 @@ using nullptr_t = decltype(nullptr);
     using type = typename X<Lambda::template expr, Rest...>::type; \
   }
 
+#define CAMP_STRINGIFY_IMPL(x) #x
+#define CAMP_STRINGIFY(x) CAMP_STRINGIFY_IMPL(x)
+#define CAMP_UNQUOTE(...) __VA_ARGS__
 }  // namespace camp
 
 #endif

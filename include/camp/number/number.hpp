@@ -39,6 +39,12 @@ using false_type = num<false>;
 
 using t = num<true>;
 
+/// negation metafunction of a value type
+template <typename T>
+struct negate_t : num<!T::value> {
+};
+
+
 }  // end namespace camp
 
 #endif /* CAMP_NUMBER_NUMBER_HPP */

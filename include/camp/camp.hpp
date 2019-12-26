@@ -11,7 +11,6 @@ http://github.com/llnl/camp
 #ifndef __CAMP_HPP
 #define __CAMP_HPP
 
-#include <array>
 #include <type_traits>
 
 #include "camp/defines.hpp"
