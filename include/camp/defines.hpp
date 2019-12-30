@@ -74,7 +74,7 @@ namespace camp
 #endif
 
 #if _OPENMP >= 201307
-#define CAMP_HAVE_OMP_OFFLOAD
+#define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
 
 #if defined(__has_builtin)
