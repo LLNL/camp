@@ -78,10 +78,6 @@ namespace camp
 #endif
 #endif
 
-#if defined(__HIPCC__)
-#define CAMP_HAVE_HIP
-#endif
-
 // Types
 using idx_t = std::ptrdiff_t;
 using nullptr_t = decltype(nullptr);

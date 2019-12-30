@@ -11,6 +11,7 @@ http://github.com/llnl/camp
 #ifndef __CAMP_CUDA_HPP
 #define __CAMP_CUDA_HPP
 
+#include "camp/defines.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
