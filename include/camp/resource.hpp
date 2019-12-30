@@ -20,6 +20,7 @@ http://github.com/llnl/camp
 #include "camp/resource/host.hpp"
 #include "camp/resource/cuda.hpp"
 #include "camp/resource/hip.hpp"
+#include "camp/resource/omp_target.hpp"
 
 namespace camp
 {
@@ -129,8 +130,14 @@ namespace resources
       using type = ::camp::resources::Hip;
     };
 #endif
+#if defined(CAMP_HAVE_OMP_OFFLOAD)
+template<>
+    struct resource_from_platform<Platform::omp_target>{
+      using type = ::camp::resources::Omp;
+    };
+#endif
 
-  }  // namespace v1
+}  // namespace v1
 }  // namespace resources
 }  // namespace camp
 #endif /* __CAMP_RESOURCE_HPP */

@@ -33,7 +33,10 @@ TEST(CampResource, GetPlatform)
   ASSERT_EQ(Resource(Cuda()).get_platform(), Platform::cuda);
   #endif
   #ifdef CAMP_HAVE_HIP
-  ASSERT_EQ(Resource(Hip()).get_platform(), Platform::cuda);
+  ASSERT_EQ(Resource(Hip()).get_platform(), Platform::hip);
+  #endif
+  #ifdef CAMP_HAVE_OMP_OFFLOAD
+  ASSERT_EQ(Resource(Omp()).get_platform(), Platform::omp_target);
   #endif
 }
 TEST(CampResource, ConvertWorks)
@@ -120,15 +123,6 @@ TEST(CampResource, Reassignment)
   Resource c2{Hip()};
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
-}
-
-TEST(CampResource, GetPlatform)
-{
-  Resource dev_host{Host()};
-  Resource dev_cuda{Hip()};
-
-  ASSERT_EQ(dev_host.get_platform(), Platform::host);
-  ASSERT_EQ(dev_cuda.get_platform(), Platform::hip);
 }
 
 TEST(CampResource, Get)
