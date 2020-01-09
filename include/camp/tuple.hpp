@@ -125,19 +125,19 @@ namespace internal
   struct tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
       : public internal::tuple_storage<Indices, Types>... {
 
-#if (!defined(__NVCC__)) \
-        || (__CUDACC_VER_MAJOR__ > 10 \
-          || (__CUDACC_VER_MAJOR == 10 && __CUDACC_VER_MINOR__ >= 1))
+    tuple_helper& operator=(const tuple_helper& rhs) = default;
+#if (!defined(__NVCC__))            \
+    || (__CUDACC_VER_MAJOR____ > 10 \
+        || (__CUDACC_VER_MAJOR__ == 10 && __CUDACC_VER_MINOR__ >= 1))
     constexpr tuple_helper() = default;
     constexpr tuple_helper(tuple_helper const&) = default;
     constexpr tuple_helper(tuple_helper&&) = default;
-    tuple_helper& operator=(const tuple_helper& rhs) = default;
 #else
     // NOTE: this is to work around nvcc 9 series issues with incorrect
     // creation of defaulted constructors
-    template <
-        bool B = concepts::metalib::all_of<std::is_default_constructible<Types>::value...>::value,
-        typename std::enable_if<B, void>::type* = nullptr>
+    template <bool B = concepts::metalib::all_of<
+                  std::is_default_constructible<Types>::value...>::value,
+              typename std::enable_if<B, void>::type* = nullptr>
     CAMP_HOST_DEVICE constexpr tuple_helper()
     {
     }
@@ -150,13 +150,6 @@ namespace internal
         : tuple_storage<Indices, Types>(
             std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
     {
-    }
-
-    CAMP_HOST_DEVICE tuple_helper& operator=(const tuple_helper& rhs)
-    {
-      return (camp::sink((this->tuple_storage<Indices, Types>::get_inner() =
-                              get<Indices>(rhs))...),
-              *this);
     }
 #endif
     /* Workaround for bug in hipcc compiler */
@@ -250,9 +243,7 @@ public:
   //  This likely causes issues when building with hip
   //  and using tuples in host code. Will be patched in the future
 #if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...)
-  {
-  }
+  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...) {}
 #endif
 
   CAMP_HOST_DEVICE constexpr tuple(tuple const& o) : base(o.base) {}
