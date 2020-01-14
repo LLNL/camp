@@ -44,6 +44,9 @@ namespace camp
 #define CAMP_CONSTEXPR14
 #endif
 
+// define host device macros
+#define CAMP_HIP_HOST_DEVICE
+
 #if defined(__CUDACC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
@@ -58,13 +61,13 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#undef CAMP_HIP_HOST_DEVICE
 #define CAMP_HIP_HOST_DEVICE __host__ __device__
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
 #define CAMP_DEVICE
 #define CAMP_HOST_DEVICE
-#define CAMP_HIP_HOST_DEVICE
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
