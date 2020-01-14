@@ -125,12 +125,16 @@ namespace internal
   struct tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
       : public internal::tuple_storage<Indices, Types>... {
 
+    CAMP_HIP_HOST_DEVICE
     tuple_helper& operator=(const tuple_helper& rhs) = default;
 #if (!defined(__NVCC__))            \
-    || (__CUDACC_VER_MAJOR____ > 10 \
+    || (__CUDACC_VER_MAJOR__ > 10 \
         || (__CUDACC_VER_MAJOR__ == 10 && __CUDACC_VER_MINOR__ >= 1))
+    CAMP_HIP_HOST_DEVICE
     constexpr tuple_helper() = default;
+    CAMP_HIP_HOST_DEVICE
     constexpr tuple_helper(tuple_helper const&) = default;
+    CAMP_HIP_HOST_DEVICE
     constexpr tuple_helper(tuple_helper&&) = default;
 #else
     // NOTE: this is to work around nvcc 9 series issues with incorrect

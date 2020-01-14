@@ -58,11 +58,13 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_HIP_HOST_DEVICE __host__ __device__
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
 #define CAMP_DEVICE
 #define CAMP_HOST_DEVICE
+#define CAMP_HIP_HOST_DEVICE
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
