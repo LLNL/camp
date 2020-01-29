@@ -97,7 +97,7 @@ namespace resources
         {
         }
       }
-      void wait_on(Event *e)
+      void wait_for(Event *e)
       {
         OmpEvent *oe = e->try_get<OmpEvent>();
         if (oe) {

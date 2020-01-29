@@ -48,7 +48,7 @@ namespace resources
         return e;
       }
       void wait() {}
-      void wait_on(Event *e) { e->wait(); }
+      void wait_for(Event *e) { e->wait(); }
 
       // Memory
       template <typename T>

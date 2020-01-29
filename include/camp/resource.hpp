@@ -69,7 +69,7 @@ namespace resources
         m_value->memset(p, val, size);
       }
       Event get_event() { return m_value->get_event(); }
-      void wait_on(Event *e) { m_value->wait_on(e); }
+      void wait_for(Event *e) { m_value->wait_for(e); }
 
     private:
       class ContextInterface
@@ -82,7 +82,7 @@ namespace resources
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
         virtual Event get_event() = 0;
-        virtual void wait_on(Event *e) = 0;
+        virtual void wait_for(Event *e) = 0;
       };
 
       template <typename T>
@@ -102,7 +102,7 @@ namespace resources
           m_modelVal.memset(p, val, size);
         }
         Event get_event() { return m_modelVal.get_event_erased(); }
-        void wait_on(Event *e) { m_modelVal.wait_on(e); }
+        void wait_for(Event *e) { m_modelVal.wait_for(e); }
         T* get() { return &m_modelVal; }
 
       private:

@@ -13,31 +13,36 @@
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
+#include "camp/resource.hpp"
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
-#include "camp/resource.hpp"
 
 using namespace camp::resources;
+
+// compatible but different resource for conversion test
+struct Host2 : Host {
+};
 
 TEST(CampResource, Construct) { Resource h1{Host()}; }
 TEST(CampResource, ConvertFails)
 {
   Resource h1{Host()};
-  ASSERT_THROW(h1.get<int>(), std::runtime_error);
-  ASSERT_FALSE(h1.try_get<int>());
+  h1.get<Host>();
+  ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
+  ASSERT_FALSE(h1.try_get<Host2>());
 }
 TEST(CampResource, GetPlatform)
 {
   ASSERT_EQ(Resource(Host()).get_platform(), Platform::host);
-  #ifdef CAMP_HAVE_CUDA
+#ifdef CAMP_HAVE_CUDA
   ASSERT_EQ(Resource(Cuda()).get_platform(), Platform::cuda);
-  #endif
-  #ifdef CAMP_HAVE_HIP
+#endif
+#ifdef CAMP_HAVE_HIP
   ASSERT_EQ(Resource(Hip()).get_platform(), Platform::hip);
-  #endif
-  #ifdef CAMP_HAVE_OMP_OFFLOAD
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
   ASSERT_EQ(Resource(Omp()).get_platform(), Platform::omp_target);
-  #endif
+#endif
 }
 TEST(CampResource, ConvertWorks)
 {

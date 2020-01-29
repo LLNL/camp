@@ -82,11 +82,12 @@ namespace resources
       CudaEvent get_event() { return CudaEvent(get_stream()); }
       Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
       void wait() { cudaStreamSynchronize(stream); }
-      void wait_on(Event *e)
+      void wait_for(Event *e)
       {
-        if (e->test_get<CudaEvent>()) {
+        auto *cuda_event = e->try_get<CudaEvent>();
+        if (cuda_event) {
           cudaStreamWaitEvent(get_stream(),
-                              e->get<CudaEvent>().getCudaEvent_t(),
+                              cuda_event->getCudaEvent_t(),
                               0);
         } else {
           e->wait();

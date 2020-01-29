@@ -81,11 +81,12 @@ namespace resources
       HipEvent get_event() { return HipEvent(get_stream()); }
       Event get_event_erased() { return Event{HipEvent(get_stream())}; }
       void wait() { hipStreamSynchronize(stream); }
-      void wait_on(Event *e)
+      void wait_for(Event *e)
       {
-        if (e->test_get<HipEvent>()) {
+        auto *hip_event = e->try_get<HipEvent>();
+        if (hip_event) {
           hipStreamWaitEvent(get_stream(),
-                              e->get<HipEvent>().getHipEvent_t(),
+                              hip_event.getHipEvent_t(),
                               0);
         } else {
           e->wait();
