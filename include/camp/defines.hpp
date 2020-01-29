@@ -61,6 +61,7 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP 1
 #undef CAMP_HIP_HOST_DEVICE
 #define CAMP_HIP_HOST_DEVICE __host__ __device__
 #define CAMP_HAVE_HIP 1

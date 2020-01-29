@@ -16,8 +16,8 @@ http://github.com/llnl/camp
 
 #ifdef CAMP_HAVE_OMP_OFFLOAD
 #include <omp.h>
-#include <memory>
 #include <map>
+#include <memory>
 
 namespace camp
 {
@@ -102,9 +102,10 @@ namespace resources
         OmpEvent *oe = e->try_get<OmpEvent>();
         if (oe) {
           char *local_addr = addr;
-          char *other_addr = (char*)oe->getEventAddr();
-#pragma omp target depend(inout                \
-                          : local_addr[0]) depend(in: other_addr[0]) nowait
+          char *other_addr = (char *)oe->getEventAddr();
+#pragma omp target depend(inout                      \
+                          : local_addr[0]) depend(in \
+                                                  : other_addr[0]) nowait
           {
           }
         } else {
@@ -116,7 +117,7 @@ namespace resources
       template <typename T>
       T *allocate(size_t size)
       {
-        return static_cast<T*>(omp_target_alloc(sizeof(T) * size, dev));
+        return static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
       }
       void *calloc(size_t size)
       {
@@ -138,15 +139,15 @@ namespace resources
         int dd = get_ptr_dev(dst);
         int sd = get_ptr_dev(src);
         // extra cast due to GCC openmp header bug
-        omp_target_memcpy(dst, (void*)src, size, 0, 0, dd, sd);
+        omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
       }
       void memset(void *p, int val, size_t size)
       {
         char *local_addr = addr;
-        char *pc = (char*)p;
-#pragma omp target teams distribute parallel for device(dev) depend(inout      \
-                                                                    : local_addr[0]) \
-    nowait
+        char *pc = (char *)p;
+#pragma omp target teams distribute parallel for device(dev) \
+    depend(inout                                             \
+           : local_addr[0]) nowait
         for (size_t i = 0; i < size; ++i) {
           pc[i] = val;
         }
