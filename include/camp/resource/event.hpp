@@ -32,19 +32,19 @@ namespace resources
       void wait() const { m_value->wait(); }
 
       template <typename T>
-      bool test_get()
+      T *try_get()
       {
         auto result = dynamic_cast<EventModel<T> *>(m_value.get());
-        return (result != nullptr);
+        return result->get();
       }
       template <typename T>
       T get()
       {
         auto result = dynamic_cast<EventModel<T> *>(m_value.get());
         if (result == nullptr) {
-          std::runtime_error("Incompatible Event type get cast.");
+          throw std::runtime_error("Incompatible Event type get cast.");
         }
-        return result->get();
+        return *result->get();
       }
 
     private:
@@ -63,7 +63,7 @@ namespace resources
         EventModel(T const &modelVal) : m_modelVal(modelVal) {}
         bool check() const override { return m_modelVal.check(); }
         void wait() const override { m_modelVal.wait(); }
-        T get() { return m_modelVal; }
+        T *get() { return &m_modelVal; }
 
       private:
         T m_modelVal;

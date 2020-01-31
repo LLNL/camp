@@ -50,7 +50,7 @@ namespace camp
 #if defined(__CUDACC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
-#define CAMP_HAVE_CUDA
+#define CAMP_HAVE_CUDA 1
 
 #if defined(_WIN32)  // windows is non-compliant, yay
 #define CAMP_SUPPRESS_HD_WARN __pragma(nv_exec_check_disable)
@@ -61,8 +61,11 @@ namespace camp
 #elif defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP 1
 #undef CAMP_HIP_HOST_DEVICE
 #define CAMP_HIP_HOST_DEVICE __host__ __device__
+#define CAMP_HAVE_HIP 1
+
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
@@ -71,14 +74,14 @@ namespace camp
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
+#if _OPENMP >= 201307
+#define CAMP_HAVE_OMP_OFFLOAD 1
+#endif
+
 #if defined(__has_builtin)
 #if __has_builtin(__make_integer_seq)
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
-#endif
-
-#if defined(__HIPCC__)
-#define CAMP_HAVE_HIP
 #endif
 
 // Types

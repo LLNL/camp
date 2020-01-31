@@ -11,6 +11,7 @@ http://github.com/llnl/camp
 #ifndef __CAMP_CUDA_HPP
 #define __CAMP_CUDA_HPP
 
+#include "camp/defines.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
@@ -81,11 +82,12 @@ namespace resources
       CudaEvent get_event() { return CudaEvent(get_stream()); }
       Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
       void wait() { cudaStreamSynchronize(stream); }
-      void wait_on(Event *e)
+      void wait_for(Event *e)
       {
-        if (e->test_get<CudaEvent>()) {
+        auto *cuda_event = e->try_get<CudaEvent>();
+        if (cuda_event) {
           cudaStreamWaitEvent(get_stream(),
-                              e->get<CudaEvent>().getCudaEvent_t(),
+                              cuda_event->getCudaEvent_t(),
                               0);
         } else {
           e->wait();
@@ -106,7 +108,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void free(void *p) { cudaFree(p); }
+      void deallocate(void *p) { cudaFree(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);

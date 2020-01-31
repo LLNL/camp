@@ -13,38 +13,63 @@
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
+#include "camp/resource.hpp"
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
-#include "camp/resource.hpp"
 
 using namespace camp::resources;
 
+// compatible but different resource for conversion test
+struct Host2 : Host {
+};
+
+TEST(CampResource, Construct) { Resource h1{Host()}; }
+TEST(CampResource, ConvertFails)
+{
+  Resource h1{Host()};
+  h1.get<Host>();
+  ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
+  ASSERT_FALSE(h1.try_get<Host2>());
+}
+TEST(CampResource, GetPlatform)
+{
+  ASSERT_EQ(Resource(Host()).get_platform(), Platform::host);
+#ifdef CAMP_HAVE_CUDA
+  ASSERT_EQ(Resource(Cuda()).get_platform(), Platform::cuda);
+#endif
+#ifdef CAMP_HAVE_HIP
+  ASSERT_EQ(Resource(Hip()).get_platform(), Platform::hip);
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  ASSERT_EQ(Resource(Omp()).get_platform(), Platform::omp_target);
+#endif
+}
+TEST(CampResource, ConvertWorks)
+{
+  Resource h1{Host()};
+  ASSERT_TRUE(h1.try_get<Host>());
+  ASSERT_EQ(h1.get<Host>().get_platform(), Platform::host);
+}
+
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, Reassignment)
 {
-  Context h1{Host()};
-  Context c1{Cuda()};
+  Resource h1{Host()};
+  Resource c1{Cuda()};
   h1 = Cuda();
   ASSERT_EQ(typeid(c1), typeid(h1));
 
-  Context h2{Host()};
-  Context c2{Cuda()};
+  Resource h2{Host()};
+  Resource c2{Cuda()};
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
-TEST(CampResource, GetPlatform)
-{
-  Context dev_host{Host()};
-  Context dev_cuda{Cuda()};
-
-  ASSERT_EQ(dev_host.get_platform(), Platform::host);
-  ASSERT_EQ(dev_cuda.get_platform(), Platform::cuda);
-}
 
 TEST(CampResource, Get)
 {
-  Context dev_host{Host()};
-  Context dev_cuda{Cuda()};
+  Resource dev_host{Host()};
+  Resource dev_cuda{Cuda()};
 
   auto erased_host = dev_host.get<Host>();
   Host pure_host;
@@ -57,8 +82,8 @@ TEST(CampResource, Get)
 
 TEST(CampResource, GetEvent)
 {
-  Context h1{Host()};
-  Context c1{Cuda()};
+  Resource h1{Host()};
+  Resource c1{Cuda()};
 
   auto ev1 = h1.get_event();
   Event evh{HostEvent()};
@@ -73,8 +98,8 @@ TEST(CampResource, GetEvent)
 
 TEST(CampEvent, Get)
 {
-  Context h1{Host()};
-  Context c1{Cuda()};
+  Resource h1{Host()};
+  Resource c1{Cuda()};
 
   Event erased_host_event = h1.get_event();
   Event erased_cuda_event = c1.get_event();
@@ -90,3 +115,68 @@ TEST(CampEvent, Get)
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
   ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
 }
+#endif
+#if defined(CAMP_HAVE_HIP)
+TEST(CampResource, Reassignment)
+{
+  Resource h1{Host()};
+  Resource c1{Hip()};
+  h1 = Hip();
+  ASSERT_EQ(typeid(c1), typeid(h1));
+
+  Resource h2{Host()};
+  Resource c2{Hip()};
+  c2 = Host();
+  ASSERT_EQ(typeid(c2), typeid(h2));
+}
+
+TEST(CampResource, Get)
+{
+  Resource dev_host{Host()};
+  Resource dev_cuda{Hip()};
+
+  auto erased_host = dev_host.get<Host>();
+  Host pure_host;
+  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
+
+  auto erased_cuda = dev_cuda.get<Hip>();
+  Hip pure_cuda;
+  ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
+}
+
+TEST(CampResource, GetEvent)
+{
+  Resource h1{Host()};
+  Resource c1{Hip()};
+
+  auto ev1 = h1.get_event();
+  Event evh{HostEvent()};
+  ASSERT_EQ(typeid(evh), typeid(ev1));
+
+  auto ev2 = c1.get_event();
+  hipStream_t s;
+  hipStreamCreate(&s);
+  Event evc{HipEvent(s)};
+  ASSERT_EQ(typeid(evc), typeid(ev2));
+}
+
+TEST(CampEvent, Get)
+{
+  Resource h1{Host()};
+  Resource c1{Hip()};
+
+  Event erased_host_event = h1.get_event();
+  Event erased_cuda_event = c1.get_event();
+
+  auto pure_host_event = erased_host_event.get<HostEvent>();
+  auto pure_cuda_event = erased_cuda_event.get<HipEvent>();
+
+  HostEvent host_event;
+  hipStream_t s;
+  hipStreamCreate(&s);
+  HipEvent cuda_event(s);
+
+  ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
+  ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
+}
+#endif

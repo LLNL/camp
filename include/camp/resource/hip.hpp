@@ -15,7 +15,7 @@ http://github.com/llnl/camp
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_HAVE_HIP
-#include <hip/hip_runtime.hpp>
+#include <hip/hip_runtime.h>
 
 namespace camp
 {
@@ -81,11 +81,12 @@ namespace resources
       HipEvent get_event() { return HipEvent(get_stream()); }
       Event get_event_erased() { return Event{HipEvent(get_stream())}; }
       void wait() { hipStreamSynchronize(stream); }
-      void wait_on(Event *e)
+      void wait_for(Event *e)
       {
-        if (e->test_get<HipEvent>()) {
+        auto *hip_event = e->try_get<HipEvent>();
+        if (hip_event) {
           hipStreamWaitEvent(get_stream(),
-                              e->get<HipEvent>().getHipEvent_t(),
+                              hip_event.getHipEvent_t(),
                               0);
         } else {
           e->wait();
@@ -106,7 +107,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void free(void *p) { hipFree(p); }
+      void deallocate(void *p) { hipFree(p); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream);

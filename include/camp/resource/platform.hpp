@@ -21,10 +21,9 @@ namespace resources
     enum class Platform {
       undefined = 0,
       host = 1,
-      omp = 2,
-      tbb = 4,
-      cuda = 8,
-      hip = 16
+      cuda = 2,
+      omp_target = 4,
+      hip = 8
     };
 
   }  // namespace v1

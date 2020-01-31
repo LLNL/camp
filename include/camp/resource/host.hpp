@@ -32,7 +32,7 @@ namespace resources
     class Host
     {
     public:
-      Host() {}
+      Host(int /* group */ = -1) {}
 
       // Methods
       Platform get_platform() { return Platform::host; }
@@ -48,7 +48,7 @@ namespace resources
         return e;
       }
       void wait() {}
-      void wait_on(Event *e) { e->wait(); }
+      void wait_for(Event *e) { e->wait(); }
 
       // Memory
       template <typename T>
@@ -62,7 +62,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void free(void *p) { free(p); }
+      void deallocate(void *p) { free(p); }
       void memcpy(void *dst, const void *src, size_t size) { memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
     };

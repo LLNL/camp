@@ -108,9 +108,7 @@ function(camp_add_test TESTNAME)
   endforeach()
 endfunction()
 
-if(ENABLE_CUDA)
-  camp_add_test(resource GTEST)
-endif()
+camp_add_test(resource GTEST)
 camp_add_test(tuple GTEST)
 
 camp_add_test(tuple_out_of_range RUN)
