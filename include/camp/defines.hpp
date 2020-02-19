@@ -74,7 +74,7 @@ namespace camp
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
-#if _OPENMP >= 201307
+#if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
 
