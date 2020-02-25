@@ -63,7 +63,7 @@ namespace resources
         return p;
       }
       void deallocate(void *p) { free(p); }
-      void memcpy(void *dst, const void *src, size_t size) { memcpy(dst, src, size); }
+      void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
     };
 
