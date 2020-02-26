@@ -86,7 +86,7 @@ namespace resources
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
           hipStreamWaitEvent(get_stream(),
-                              hip_event.getHipEvent_t(),
+                              hip_event->getHipEvent_t(),
                               0);
         } else {
           e->wait();
