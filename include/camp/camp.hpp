@@ -97,6 +97,21 @@ struct flatten<list<Elements...>>
     : detail::flatten_impl<list<>, sizeof...(Elements), Elements...> {
 };
 
+template <typename... Seqs>
+struct join;
+template <typename Seq1, typename Seq2, typename... Rest>
+struct join<Seq1, Seq2, Rest...> {
+      using type = typename join<typename extend<Seq1, Seq2>::type, Rest...>::type;
+};
+template <typename Seq1>
+struct join<Seq1> {
+      using type = Seq1;
+};
+template <>
+struct join<> {
+  using type = list<>;
+};
+
 template <template <typename...> class Op, typename T>
 struct transform;
 template <template <typename...> class Op, typename... Elements>
@@ -130,6 +145,25 @@ template <template <typename...> class Op,
 struct accumulate<Op, Initial, list<Elements...>> {
   using type = typename detail::accumulate_impl<Op, Initial, Elements...>::type;
 };
+
+
+namespace detail
+{
+  template<class, class>
+  struct product_impl{};
+  template<class... Xs, class... Ys>
+    struct product_impl<list<Xs...>, list<Ys...>> {
+      using type = list<list<Xs..., Ys>...>;
+    };
+  template<class, class>
+  struct product{};
+  template<class... Seqs, class... vals>
+    struct product<list<Seqs...>, list<vals...>> {
+      using type = typename join<typename product_impl<Seqs, list<vals...>>::type...>::type;
+    };
+} /* detail */ 
+template<class ... Seqs>
+using cartesian_product = typename accumulate<detail::product, list<list<>>, list<Seqs...>>::type;
 
 CAMP_MAKE_L(accumulate);
 
