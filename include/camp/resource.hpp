@@ -101,8 +101,8 @@ namespace resources
         {
           m_modelVal.memset(p, val, size);
         }
-        Event get_event() { return m_modelVal.get_event_erased(); }
-        void wait_for(Event *e) { m_modelVal.wait_for(e); }
+        Event get_event() override { return m_modelVal.get_event_erased(); }
+        void wait_for(Event *e) override { m_modelVal.wait_for(e); }
         T* get() { return &m_modelVal; }
 
       private:
