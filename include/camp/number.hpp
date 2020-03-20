@@ -122,15 +122,15 @@ struct not_ {
 template <idx_t N, typename IdxSeg>
 struct seq_at;
 
-template <idx_t N, idx_t Idx0, idx_t... IdxRest>
-struct seq_at<N, camp::idx_seq<Idx0, IdxRest...>> {
-  static constexpr idx_t value =
-      seq_at<N - 1, camp::idx_seq<IdxRest...>>::value;
+template <idx_t N, typename T, T Idx0, T... IdxRest>
+struct seq_at<N, camp::int_seq<T, Idx0, IdxRest...>> {
+  static constexpr T value =
+      seq_at<N - 1, camp::int_seq<T, IdxRest...>>::value;
 };
 
-template <idx_t Idx0, idx_t... IdxRest>
-struct seq_at<0, camp::idx_seq<Idx0, IdxRest...>> {
-  static constexpr idx_t value = Idx0;
+template <typename T, T Idx0, T... IdxRest>
+struct seq_at<0, camp::int_seq<T, Idx0, IdxRest...>> {
+  static constexpr T value = Idx0;
 };
 
 
