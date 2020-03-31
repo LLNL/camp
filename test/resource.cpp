@@ -14,6 +14,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #include "camp/resource.hpp"
+
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
@@ -24,6 +25,12 @@ struct Host2 : Host {
 };
 
 TEST(CampResource, Construct) { Resource h1{Host()}; }
+TEST(CampResource, Copy)
+{
+  Resource h1{Host()};
+  auto h2 = h1;
+  Resource h3 = h1;
+}
 TEST(CampResource, ConvertFails)
 {
   Resource h1{Host()};
