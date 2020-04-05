@@ -16,6 +16,7 @@ http://github.com/llnl/camp
 
 #ifdef CAMP_HAVE_OMP_OFFLOAD
 #include <omp.h>
+
 #include <map>
 #include <memory>
 
@@ -44,6 +45,7 @@ namespace resources
       void wait() const
       {
         char *local_addr = addr;
+        CAMP_ALLOW_UNUSED_LOCAL(local_addr);
         // if only we could use taskwait depend portably...
 #pragma omp task if (0) depend(inout : local_addr[0])
         {
@@ -93,6 +95,7 @@ namespace resources
       void wait()
       {
         char *local_addr = addr;
+        CAMP_ALLOW_UNUSED_LOCAL(local_addr);
 #pragma omp target device(dev) depend(inout : local_addr[0])
         {
         }
@@ -103,6 +106,8 @@ namespace resources
         if (oe) {
           char *local_addr = addr;
           char *other_addr = (char *)oe->getEventAddr();
+          CAMP_ALLOW_UNUSED_LOCAL(local_addr);
+          CAMP_ALLOW_UNUSED_LOCAL(other_addr);
 #pragma omp target depend(inout                      \
                           : local_addr[0]) depend(in \
                                                   : other_addr[0]) nowait
@@ -144,6 +149,7 @@ namespace resources
       void memset(void *p, int val, size_t size)
       {
         char *local_addr = addr;
+        CAMP_ALLOW_UNUSED_LOCAL(local_addr);
         char *pc = (char *)p;
 #pragma omp target teams distribute parallel for device(dev) \
     depend(inout                                             \
