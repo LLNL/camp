@@ -21,6 +21,8 @@ http://github.com/llnl/camp
 namespace camp
 {
 
+#define CAMP_ALLOW_UNUSED_LOCAL(X) (void)X
+
 #if defined(__clang__)
 #define CAMP_COMPILER_CLANG
 #elif defined(__INTEL_COMPILER)

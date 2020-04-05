@@ -17,11 +17,20 @@ http://github.com/llnl/camp
 #include <type_traits>
 
 #include "camp/helpers.hpp"
-#include "camp/resource/cuda.hpp"
 #include "camp/resource/event.hpp"
-#include "camp/resource/hip.hpp"
 #include "camp/resource/host.hpp"
+
+#if defined(CAMP_HAVE_CUDA)
+#include "camp/resource/cuda.hpp"
+#endif
+#if defined(CAMP_HAVE_HIP)
+#include "camp/resource/hip.hpp"
+#endif
+#if defined(CAMP_HAVE_OMP_OFFLOAD)
 #include "camp/resource/omp_target.hpp"
+#endif
+
+// last to ensure we don't hide breakage in the others
 #include "camp/resource/platform.hpp"
 
 namespace camp
