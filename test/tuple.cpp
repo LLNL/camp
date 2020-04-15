@@ -19,11 +19,11 @@
 TEST(CampTuple, AssignCompat)
 {
   // Compatible, though different, tuples are assignable
-  const camp::tuple<long long, char> t(5, 'a');
+  const camp::tuple<int, char> t(5, 'a');
   ASSERT_EQ(camp::get<0>(t), 5);
   ASSERT_EQ(camp::get<1>(t), 'a');
 
-  camp::tagged_tuple<camp::list<int, char>, int, char> t2;
+  camp::tagged_tuple<camp::list<int, char>, long long, char> t2;
   t2 = t;
   ASSERT_EQ(camp::get<0>(t2), 5);
   ASSERT_EQ(camp::get<1>(t2), 'a');

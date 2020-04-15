@@ -23,7 +23,8 @@ namespace resources
       host = 1,
       cuda = 2,
       omp_target = 4,
-      hip = 8
+      hip = 8,
+      sycl = 16
     };
 
   }  // namespace v1

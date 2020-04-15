@@ -14,13 +14,24 @@ http://github.com/llnl/camp
 #include <cstring>
 #include <memory>
 #include <mutex>
+#include <type_traits>
 
+#include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
-#include "camp/resource/platform.hpp"
 #include "camp/resource/host.hpp"
+
+#if defined(CAMP_HAVE_CUDA)
 #include "camp/resource/cuda.hpp"
+#endif
+#if defined(CAMP_HAVE_HIP)
 #include "camp/resource/hip.hpp"
+#endif
+#if defined(CAMP_HAVE_OMP_OFFLOAD)
 #include "camp/resource/omp_target.hpp"
+#endif
+
+// last to ensure we don't hide breakage in the others
+#include "camp/resource/platform.hpp"
 
 namespace camp
 {
@@ -32,13 +43,20 @@ namespace resources
     class Resource
     {
     public:
-      template <typename T>
+      Resource(Resource &&) = default;
+      Resource(Resource const &) = default;
+      Resource &operator=(Resource &&) = default;
+      Resource &operator=(Resource const &) = default;
+      template <typename T,
+                typename = typename std::enable_if<
+                    !std::is_same<typename std::decay<T>::type,
+                                  Resource>::value>::type>
       Resource(T &&value)
       {
-        m_value.reset(new ContextModel<T>(value));
+        m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
       }
       template <typename T>
-      T* try_get()
+      T *try_get()
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         return result ? result->get() : nullptr;
@@ -101,9 +119,9 @@ namespace resources
         {
           m_modelVal.memset(p, val, size);
         }
-        Event get_event() { return m_modelVal.get_event_erased(); }
-        void wait_for(Event *e) { m_modelVal.wait_for(e); }
-        T* get() { return &m_modelVal; }
+        Event get_event() override { return m_modelVal.get_event_erased(); }
+        void wait_for(Event *e) override { m_modelVal.wait_for(e); }
+        T *get() { return &m_modelVal; }
 
       private:
         T m_modelVal;
@@ -112,32 +130,32 @@ namespace resources
       std::shared_ptr<ContextInterface> m_value;
     };
 
-    template<Platform p>
+    template <Platform p>
     struct resource_from_platform;
-    template<>
-    struct resource_from_platform<Platform::host>{
+    template <>
+    struct resource_from_platform<Platform::host> {
       using type = ::camp::resources::Host;
     };
 #if defined(CAMP_HAVE_CUDA)
-    template<>
-    struct resource_from_platform<Platform::cuda>{
+    template <>
+    struct resource_from_platform<Platform::cuda> {
       using type = ::camp::resources::Cuda;
     };
 #endif
 #if defined(CAMP_HAVE_HIP)
-    template<>
-    struct resource_from_platform<Platform::hip>{
+    template <>
+    struct resource_from_platform<Platform::hip> {
       using type = ::camp::resources::Hip;
     };
 #endif
 #if defined(CAMP_HAVE_OMP_OFFLOAD)
-template<>
-    struct resource_from_platform<Platform::omp_target>{
+    template <>
+    struct resource_from_platform<Platform::omp_target> {
       using type = ::camp::resources::Omp;
     };
 #endif
 
-}  // namespace v1
+  }  // namespace v1
 }  // namespace resources
 }  // namespace camp
 #endif /* __CAMP_RESOURCE_HPP */
