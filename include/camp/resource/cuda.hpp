@@ -112,9 +112,7 @@ namespace resources
       }
       void deallocate(void *p)
       { 
-        if (p) {
-          cudaFree(p);
-        }
+        cudaFree(p);
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
