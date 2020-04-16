@@ -99,7 +99,9 @@ namespace resources
       T *allocate(size_t size)
       {
         T *ret = nullptr;
-        cudaMallocManaged(&ret, sizeof(T) * size);
+        if (size > 0) {
+          cudaMallocManaged(&ret, sizeof(T) * size);
+        }
         return ret;
       }
       void *calloc(size_t size)
@@ -108,14 +110,21 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { cudaFree(p); }
+      void deallocate(void *p)
+      { 
+        cudaFree(p);
+      }
       void memcpy(void *dst, const void *src, size_t size)
       {
-        cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
+        if (size > 0) {
+          cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
+        }
       }
       void memset(void *p, int val, size_t size)
       {
-        cudaMemsetAsync(p, val, size, stream);
+        if (size > 0) {
+          cudaMemsetAsync(p, val, size, stream);
+        }
       }
 
       cudaStream_t get_stream() { return stream; }
