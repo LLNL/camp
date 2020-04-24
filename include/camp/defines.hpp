@@ -25,7 +25,6 @@ namespace camp
 #define CAMP_ALLOW_UNUSED_LOCAL(X) sink(X)
 #else
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
-
 #endif
 
 #if defined(__clang__)
