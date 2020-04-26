@@ -21,7 +21,11 @@ http://github.com/llnl/camp
 namespace camp
 {
 
-#define CAMP_ALLOW_UNUSED_LOCAL(X) (void)X
+#if defined(__NVCC__)
+#define CAMP_ALLOW_UNUSED_LOCAL(X) sink(X)
+#else
+#define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
+#endif
 
 #if defined(__clang__)
 #define CAMP_COMPILER_CLANG
