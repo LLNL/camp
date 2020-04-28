@@ -155,7 +155,7 @@ namespace resources
         char *pc = (char *)p;
 #pragma omp target teams distribute parallel for device(dev) \
     depend(inout                                             \
-           : local_addr[0]) is_device_ptr(p) nowait
+           : local_addr[0]) is_device_ptr(pc) nowait
         for (size_t i = 0; i < size; ++i) {
           pc[i] = val;
         }
