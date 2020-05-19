@@ -122,7 +122,9 @@ namespace resources
       template <typename T>
       T *allocate(size_t size)
       {
-        return static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
+        T *ret = static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
+        register_ptr_dev(ret, dev);
+        return ret;
       }
       void *calloc(size_t size)
       {
@@ -134,7 +136,7 @@ namespace resources
       {
 #pragma omp critical(camp_register_ptr)
         {
-          dev_register.erase(p);
+          get_dev_register().erase(p);
         }
         omp_target_free(p, dev);
       }
@@ -153,7 +155,7 @@ namespace resources
         char *pc = (char *)p;
 #pragma omp target teams distribute parallel for device(dev) \
     depend(inout                                             \
-           : local_addr[0]) nowait
+           : local_addr[0]) is_device_ptr(pc) nowait
         for (size_t i = 0; i < size; ++i) {
           pc[i] = val;
         }
@@ -163,7 +165,7 @@ namespace resources
       {
 #pragma omp critical(camp_register_ptr)
         {
-          dev_register[p] = device;
+          get_dev_register()[p] = device;
         }
       }
       int get_ptr_dev(void const *p)
@@ -171,8 +173,8 @@ namespace resources
         int ret = omp_get_initial_device();
 #pragma omp critical(camp_register_ptr)
         {
-          auto it = dev_register.find(p);
-          if (it != dev_register.end()) {
+          auto it = get_dev_register().find(p);
+          if (it != get_dev_register().end()) {
             ret = it->second;
           }
         }
@@ -182,7 +184,12 @@ namespace resources
     private:
       char *addr;
       int dev;
-      static std::map<const void *, int> dev_register;
+      template <typename always_void_odr_helper = void>
+      std::map<const void *, int> &get_dev_register()
+      {
+        static std::map<const void *, int> dev_register;
+        return dev_register;
+      }
     };
 
   }  // namespace v1
