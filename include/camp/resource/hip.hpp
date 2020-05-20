@@ -58,7 +58,11 @@ namespace resources
           }
         });
 
-        if (num < 0) {
+        if (num == DEFAULT_STREAM) {
+          return 0;
+        }
+
+        if (num <= NEXT_STREAM) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
@@ -69,7 +73,7 @@ namespace resources
       }
 
     public:
-      Hip(int group = -1) : stream(get_a_stream(group)) {}
+      Hip(int group = NEXT_STREAM) : stream(get_a_stream(group)) {}
 
       // Methods
       Platform get_platform() { return Platform::hip; }
