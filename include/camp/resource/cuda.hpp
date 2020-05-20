@@ -75,7 +75,11 @@ namespace resources
           }
         });
 
-        if (num < 0) {
+        if (num == DEFAULT_STREAM) {
+          return 0;
+        }
+
+        if (num == NEXT_STREAM) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
