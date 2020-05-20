@@ -79,7 +79,7 @@ namespace resources
           return 0;
         }
 
-        if (num == NEXT_STREAM) {
+        if (num <= NEXT_STREAM) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();

@@ -20,8 +20,8 @@ namespace resources
   inline namespace v1
   {
 
-    constexpr int DEFAULT_STREAM = -2;
-    constexpr int NEXT_STREAM = -1;
+    constexpr int DEFAULT_STREAM = -1;
+    constexpr int NEXT_STREAM = -2;
 
   }  // namespace v1
 }  // namespace resources
