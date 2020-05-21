@@ -73,6 +73,8 @@ namespace resources
         return streams[num % 16];
       }
 
+    private:
+      Cuda(cudaStream_t s) : stream(s) {}
     public:
       Cuda(int group = NEXT_STREAM) : stream(get_a_stream(group)) {}
 
@@ -80,7 +82,7 @@ namespace resources
       Platform get_platform() { return Platform::cuda; }
       static Cuda &get_default()
       {
-        static Cuda h;
+        static Cuda h(static_cast<cudaStream_t>(0));
         return h;
       }
       CudaEvent get_event() { return CudaEvent(get_stream()); }
