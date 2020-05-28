@@ -521,6 +521,25 @@ CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
       forward<Fn>(f),
       camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
 }
+
+namespace detail
+{
+  template <class T, class Tuple, idx_t... I>
+  constexpr T make_from_tuple_impl(Tuple&& t, idx_seq<I...>)
+  {
+    return T(get<I>(forward<Tuple>(t))...);
+  }
+}  // namespace detail
+
+/// Instantiate T from tuple contents, like camp::invoke(tuple,constructor) but
+/// functional
+template <class T, class Tuple>
+constexpr T make_from_tuple(Tuple&& t)
+{
+  return detail::make_from_tuple_impl<T>(
+      forward<Tuple>(t),
+      make_idx_seq_t<tuple_size<type::ref::rem<Tuple>>::value>{});
+}
 }  // namespace camp
 
 namespace internal
