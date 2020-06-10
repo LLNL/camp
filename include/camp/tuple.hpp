@@ -177,7 +177,7 @@ namespace internal
     CAMP_HOST_DEVICE tuple_helper& operator=(const RTuple& rhs)
     {
       return (camp::sink((this->tuple_storage<Indices, Types>::get_inner() =
-                              get<Indices>(rhs))...),
+                              ::camp::get<Indices>(rhs))...),
               *this);
     }
   };
@@ -484,7 +484,7 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(tuple<Lelem...> const& l,
 {
   return ::camp::tuple<camp::at_v<camp::list<Lelem...>, Lidx>...,
                        camp::at_v<camp::list<Relem...>, Ridx>...>(
-      get<Lidx>(l)..., get<Ridx>(r)...);
+      ::camp::get<Lidx>(l)..., ::camp::get<Ridx>(r)...);
 }
 
 template <typename L, typename R>
@@ -505,9 +505,9 @@ template <typename Fn, camp::idx_t... Sequence, typename TupleLike>
 CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& t,
                                                   Fn&& f,
                                                   camp::idx_seq<Sequence...>)
-    -> decltype(f(get<Sequence>(t)...))
+    -> decltype(f(::camp::get<Sequence>(t)...))
 {
-  return f(get<Sequence>(t)...);
+  return f(::camp::get<Sequence>(t)...);
 }
 
 CAMP_SUPPRESS_HD_WARN
