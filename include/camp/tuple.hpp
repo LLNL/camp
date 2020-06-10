@@ -482,7 +482,9 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(tuple<Lelem...> const& l,
     -> tuple<camp::at_v<camp::list<Lelem...>, Lidx>...,
              camp::at_v<camp::list<Relem...>, Ridx>...>
 {
-  return ::camp::make_tuple(get<Lidx>(l)..., get<Ridx>(r)...);
+  return ::camp::tuple<camp::at_v<camp::list<Lelem...>, Lidx>...,
+                       camp::at_v<camp::list<Relem...>, Ridx>...>(
+      get<Lidx>(l)..., get<Ridx>(r)...);
 }
 
 template <typename L, typename R>
