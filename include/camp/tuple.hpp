@@ -86,7 +86,7 @@ CAMP_HOST_DEVICE constexpr auto get(Tuple& t) noexcept
 
 namespace internal
 {
-  template <camp::idx_t index, typename Type>
+  template <camp::idx_t index, typename Type, bool Empty=std::is_empty<Type>::value>
   struct tuple_storage {
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
@@ -116,6 +116,32 @@ namespace internal
 
   public:
     Type val;
+  };
+  template <camp::idx_t index, typename Type>
+  struct tuple_storage<index, Type, true> : private Type {
+    CAMP_HOST_DEVICE constexpr tuple_storage() : Type(){};
+
+    static_assert(std::is_empty<Type>::value, "meh");
+    /* Workaround for bug in hipcc compiler */
+    //  This likely causes issues when building with hip
+    //  and using tuples in host code. Will be patched in the future
+#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
+    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : Type{v} {}
+#endif
+
+    CAMP_SUPPRESS_HD_WARN
+    template <typename T>
+    CAMP_HOST_DEVICE constexpr tuple_storage(T&& v)
+        : Type(std::forward<T>(v))
+    {
+    }
+
+    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
+    {
+      return ((Type const*)this)[0];
+    }
+
+    CAMP_HOST_DEVICE CAMP_CONSTEXPR14 Type& get_inner() noexcept { return ((Type*)this)[0]; }
   };
 
   template <typename Indices, typename Typelist>
@@ -147,7 +173,7 @@ namespace internal
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper const& rhs)
         : tuple_storage<Indices, Types>(
-            rhs.tuple_storage<Indices, Types>::val)...
+            rhs.tuple_storage<Indices, Types>::get_inner())...
     {
     }
     CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper&& rhs)
