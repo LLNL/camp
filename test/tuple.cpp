@@ -16,6 +16,12 @@
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
+static_assert(std::is_same<camp::tuple<int &, int const &, int>,
+                           decltype(camp::tuple_cat_pair(
+                               camp::val<camp::tuple<int &>>(),
+                               camp::val<camp::tuple<int const &, int>>()))>::value,
+              "tuple_cat pair nuking refs");
+
 TEST(CampTuple, AssignCompat)
 {
   // Compatible, though different, tuples are assignable
@@ -69,7 +75,7 @@ TEST(CampTuple, GetByType)
 TEST(CampTuple, CatPair)
 {
   auto t1 = camp::make_tuple(5, 'a');
-  auto t2 = camp::make_tuple(5.1f, "meh");
+  auto t2 = camp::make_tuple(5.1f, std::string("meh"));
   auto t3 = tuple_cat_pair(t1,
                            camp::make_idx_seq_t<2>{},
                            t2,
@@ -90,16 +96,14 @@ TEST(CampTuple, CatPair)
 
 struct NoDefCon {
   NoDefCon() = delete;
-  NoDefCon(int i) : num{i} {(void)num;}
+  NoDefCon(int i) : num{i} { (void)num; }
   NoDefCon(NoDefCon const &) = default;
-  private:
+
+private:
   int num;
 };
 
-TEST(CampTuple, NoDefault)
-{
-  camp::tuple<NoDefCon> t(NoDefCon(1));
-}
+TEST(CampTuple, NoDefault) { camp::tuple<NoDefCon> t(NoDefCon(1)); }
 
 struct s1;
 struct s2;
