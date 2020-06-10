@@ -252,7 +252,7 @@ public:
 
   CAMP_HOST_DEVICE constexpr tuple(tuple const& o) : base(o.base) {}
 
-  CAMP_HOST_DEVICE constexpr tuple(tuple&& o) : base(move(o.base)) {}
+  CAMP_HOST_DEVICE constexpr tuple(tuple&& o) : base(std::move(o.base)) {}
 
   CAMP_HOST_DEVICE tuple& operator=(tuple const& rhs)
   {
@@ -482,7 +482,7 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(tuple<Lelem...> const& l,
     -> tuple<camp::at_v<camp::list<Lelem...>, Lidx>...,
              camp::at_v<camp::list<Relem...>, Ridx>...>
 {
-  return make_tuple(get<Lidx>(l)..., get<Ridx>(r)...);
+  return ::camp::make_tuple(get<Lidx>(l)..., get<Ridx>(r)...);
 }
 
 template <typename L, typename R>
@@ -510,15 +510,14 @@ CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& t,
 
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, typename TupleLike>
-CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
-    -> decltype(invoke_with_order(
-        forward<TupleLike>(t),
-        forward<Fn>(f),
-        camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
+CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f) -> decltype(
+    invoke_with_order(std::forward<TupleLike>(t),
+                      std::forward<Fn>(f),
+                      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
 {
   return invoke_with_order(
-      forward<TupleLike>(t),
-      forward<Fn>(f),
+      std::forward<TupleLike>(t),
+      std::forward<Fn>(f),
       camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
 }
 
@@ -527,7 +526,7 @@ namespace detail
   template <class T, class Tuple, idx_t... I>
   constexpr T make_from_tuple_impl(Tuple&& t, idx_seq<I...>)
   {
-    return T(get<I>(forward<Tuple>(t))...);
+    return T(::camp::get<I>(std::forward<Tuple>(t))...);
   }
 }  // namespace detail
 
@@ -537,7 +536,7 @@ template <class T, class Tuple>
 constexpr T make_from_tuple(Tuple&& t)
 {
   return detail::make_from_tuple_impl<T>(
-      forward<Tuple>(t),
+      std::forward<Tuple>(t),
       make_idx_seq_t<tuple_size<type::ref::rem<Tuple>>::value>{});
 }
 }  // namespace camp
