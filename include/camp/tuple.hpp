@@ -515,12 +515,12 @@ template <typename Fn, typename TupleLike>
 CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f) -> decltype(
     invoke_with_order(forward<TupleLike>(t),
                       forward<Fn>(f),
-                      camp::make_idx_seq_t<tuple_size<TupleLike>::value>{}))
+                      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
 {
   return invoke_with_order(
       forward<TupleLike>(t),
       forward<Fn>(f),
-      camp::make_idx_seq_t<tuple_size<TupleLike>::value>{});
+      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
 }
 }  // namespace camp
 
