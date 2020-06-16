@@ -157,6 +157,23 @@ namespace resources
     };
 #endif
 
+  struct EventProxy {
+    EventProxy(EventProxy &&) = default;
+    EventProxy(EventProxy const &) = default;
+    EventProxy &operator=(EventProxy &&) = default;
+    EventProxy &operator=(EventProxy const &) = default;
+
+    EventProxy(Resource* r) :
+      resource_{r}
+    {}
+
+    operator Event() const {
+      return resource_->get_event();
+    }
+
+    Resource* resource_;
+  };
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
