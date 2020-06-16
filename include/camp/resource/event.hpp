@@ -23,7 +23,7 @@ namespace resources
     public:
       Event() {}
       template <typename T>
-      Event(T &&value)
+      explicit Event(T &&value)
       {
         m_value.reset(new EventModel<T>(value));
       }
