@@ -25,6 +25,23 @@ namespace resources
   inline namespace v1
   {
 
+  namespace {
+    struct device_guard {
+      device_guard(int device)
+      {
+        cudaGetDevice(&prev_device);
+        cudaSetDevice(device);
+      }
+
+      ~device_guard() {
+        cudaSetDevice(prev_device);
+      }
+
+      int prev_device;
+    }
+
+  }
+
     class CudaEvent
     {
     public:
@@ -70,7 +87,7 @@ namespace resources
       }
 
     public:
-      Cuda(int group = -1) : stream(get_a_stream(group)) {}
+      Cuda(int group = -1, int device=0) : stream(get_a_stream(group)) {}
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
@@ -79,13 +96,27 @@ namespace resources
         static Cuda h;
         return h;
       }
-      CudaEvent get_event() { return CudaEvent(get_stream()); }
-      Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
-      void wait() { cudaStreamSynchronize(stream); }
+
+      CudaEvent get_event() { 
+        auto d{device_guard(device)};
+        return CudaEvent(get_stream());
+      }
+
+      Event get_event_erased() { 
+        auto d{device_guard(device)};
+        return Event{CudaEvent(get_stream())};
+      }
+
+      void wait() { 
+        auto d{device_guard(device)};
+        cudaStreamSynchronize(stream);
+      }
+
       void wait_for(Event *e)
       {
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
+          auto d{device_guard(device)};
           cudaStreamWaitEvent(get_stream(),
                               cuda_event->getCudaEvent_t(),
                               0);
@@ -100,6 +131,7 @@ namespace resources
       {
         T *ret = nullptr;
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMallocManaged(&ret, sizeof(T) * size);
         }
         return ret;
@@ -112,25 +144,30 @@ namespace resources
       }
       void deallocate(void *p)
       { 
+        auto d{device_guard(device)};
         cudaFree(p);
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMemsetAsync(p, val, size, stream);
         }
       }
 
       cudaStream_t get_stream() { return stream; }
+      int get_device() { return device; }
 
     private:
       cudaStream_t stream;
+      int device;
     };
 
   }  // namespace v1
