@@ -122,9 +122,16 @@ namespace resources
       template <typename T>
       T *allocate(size_t size)
       {
-        T *ret = static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
-        register_ptr_dev(ret, dev);
-        return ret;
+        int hdev = omp_get_initial_device();
+        T *hostmem = new T[size];
+        register_ptr_host(hostmem, hdev);
+
+        T *devmem = static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
+        register_ptr_dev(devmem, dev);
+
+        register_host_devptr(hostmem, devmem);
+
+        return hostmem;
       }
       void *calloc(size_t size)
       {
@@ -143,11 +150,41 @@ namespace resources
       void memcpy(void *dst, const void *src, size_t size)
       {
         // this is truly, insanely awful, need to think of something better
-        int dd = get_ptr_dev(dst);
-        int sd = get_ptr_dev(src);
+        //int dd = get_ptr_dev(dst);
+        //int sd = get_ptr_dev(src);
         // extra cast due to GCC openmp header bug
-        omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
+        //omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
+
+        // witness the sadness . . .
+        // check for src = host, dst = device
+        auto ith = get_host_register().find(src);
+        auto itd = get_dev_register().find(dst);
+        if (ith != get_host_register().end() && itd != get_dev_register().end())
+        {
+          int dd = get_ptr_dev(dst);
+          int sd = get_ptr_host(src);
+          // extra cast due to GCC openmp header bug
+          omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
+        }
+        // check for src = device, dst = host
+        else
+        {
+          auto itth = get_host_register().find(dst);
+          auto ittd = get_dev_register().find(src);
+          if (itth != get_host_register().end() && ittd != get_dev_register().end())
+          {
+            int dd = get_ptr_dev(src);
+            int sd = get_ptr_host(dst);
+            // extra cast due to GCC openmp header bug
+            omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
+          }
+          else
+          {
+            printf( "TROUBLE TROUBLE TROUBLE TROUBLE TROUBLE\n" );
+          }
+        }
       }
+
       void memset(void *p, int val, size_t size)
       {
         char *local_addr = addr;
@@ -158,6 +195,46 @@ namespace resources
            : local_addr[0]) is_device_ptr(pc) nowait
         for (size_t i = 0; i < size; ++i) {
           pc[i] = val;
+        }
+      }
+
+      void register_ptr_host(void *p, int device)
+      {
+        get_host_register()[p] = device;
+      }
+      int get_ptr_host(void const *p)
+      {
+        int ret = omp_get_initial_device();
+        auto it = get_host_register().find(p);
+        if (it != get_host_register().end())
+        {
+          ret = it->second;
+        }
+        return ret;
+      }
+
+      void register_host_devptr(void *h, void *d)
+      {
+        get_host_devptr()[h] = d;
+      }
+      const void * obtain_devptr_withhost(void *h)
+      {
+        const void * ret = nullptr;
+        auto it = get_host_devptr().find(h);
+        if (it != get_host_devptr().end())
+        {
+          ret = it->second;
+        }
+
+        if (ret != nullptr)
+        {
+          return ret;
+        }
+        else
+        {
+          //fflush();
+          abort();
+          return nullptr;
         }
       }
 
@@ -187,8 +264,25 @@ namespace resources
       template <typename always_void_odr_helper = void>
       std::map<const void *, int> &get_dev_register()
       {
+        // key: device ptr, value: device num
         static std::map<const void *, int> dev_register;
         return dev_register;
+      }
+
+      template <typename always_void_odr_helper = void>
+      std::map<const void *, int> &get_host_register()
+      {
+        // key: host ptr, value: device num
+        static std::map<const void *, int> host_register;
+        return host_register;
+      }
+
+      template <typename always_void_odr_helper = void>
+      std::map<const void *, const void*> &get_host_devptr()
+      {
+        // key: host ptr, value: device ptr
+        static std::map<const void *, const void *> host_devptr;
+        return host_devptr;
       }
     };
 
