@@ -17,11 +17,11 @@ http://github.com/llnl/camp
  * \brief   Exceptionally basic tuple for host-device support
  */
 
-#include "camp/camp.hpp"
-#include "camp/concepts.hpp"
-
 #include <iostream>
 #include <type_traits>
+
+#include "camp/camp.hpp"
+#include "camp/concepts.hpp"
 
 namespace camp
 {
@@ -127,7 +127,7 @@ namespace internal
 
     CAMP_HIP_HOST_DEVICE
     tuple_helper& operator=(const tuple_helper& rhs) = default;
-#if (!defined(__NVCC__))            \
+#if (!defined(__NVCC__))          \
     || (__CUDACC_VER_MAJOR__ > 10 \
         || (__CUDACC_VER_MAJOR__ == 10 && __CUDACC_VER_MINOR__ >= 1))
     CAMP_HIP_HOST_DEVICE
@@ -426,23 +426,21 @@ CAMP_HOST_DEVICE constexpr auto get(Tuple& t) noexcept -> tuple_ebt_t<T, Tuple>&
 }
 
 template <typename... Args>
-struct tuple_size<tuple<Args...>> {
-  static constexpr size_t value = sizeof...(Args);
-};
-
-template <typename... Args>
-struct tuple_size<tuple<Args...>&> {
-  static constexpr size_t value = sizeof...(Args);
+struct tuple_size<tuple<Args...>> : ::camp::num<sizeof...(Args)> {
 };
 
 template <typename L, typename... Args>
-struct tuple_size<tagged_tuple<L, Args...>> {
-  static constexpr size_t value = sizeof...(Args);
+struct tuple_size<tagged_tuple<L, Args...>> : ::camp::num<sizeof...(Args)> {
 };
 
-template <typename L, typename... Args>
-struct tuple_size<tagged_tuple<L, Args...>&> {
-  static constexpr size_t value = sizeof...(Args);
+template <typename T>
+struct tuple_size<const T> : num<tuple_size<T>::value> {
+};
+template <typename T>
+struct tuple_size<volatile T> : num<tuple_size<T>::value> {
+};
+template <typename T>
+struct tuple_size<const volatile T> : num<tuple_size<T>::value> {
 };
 
 template <typename... Args>
@@ -512,10 +510,11 @@ CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& t,
 
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, typename TupleLike>
-CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f) -> decltype(
-    invoke_with_order(forward<TupleLike>(t),
-                      forward<Fn>(f),
-                      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
+CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
+    -> decltype(invoke_with_order(
+        forward<TupleLike>(t),
+        forward<Fn>(f),
+        camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
 {
   return invoke_with_order(
       forward<TupleLike>(t),
