@@ -15,6 +15,8 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
+#include <iostream>
+
 #ifdef CAMP_HAVE_CUDA
 #include <cuda_runtime.h>
 
@@ -24,6 +26,23 @@ namespace resources
 {
   inline namespace v1
   {
+
+  namespace {
+    struct device_guard {
+      device_guard(int device)
+      {
+        cudaGetDevice(&prev_device);
+        cudaSetDevice(device);
+      }
+
+      ~device_guard() {
+        cudaSetDevice(prev_device);
+      }
+
+      int prev_device;
+    };
+
+  }
 
     class CudaEvent
     {
@@ -74,9 +93,9 @@ namespace resources
       }
 
     private:
-      Cuda(cudaStream_t s) : stream(s) {}
+      Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
-      Cuda(int group = NEXT_STREAM) : stream(get_a_stream(group)) {}
+      Cuda(int group = NEXT_STREAM, int dev=0) : stream(get_a_stream(group)), device(dev) {std::cout<<"Create CudaRes : "<<stream<<std::endl;}
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
@@ -88,13 +107,27 @@ namespace resources
         static Cuda h(s);
         return h;
       }
-      CudaEvent get_event() { return CudaEvent(get_stream()); }
-      Event get_event_erased() { return Event{CudaEvent(get_stream())}; }
-      void wait() { cudaStreamSynchronize(stream); }
+
+      CudaEvent get_event() { 
+        auto d{device_guard(device)};
+        return CudaEvent(get_stream());
+      }
+
+      Event get_event_erased() { 
+        auto d{device_guard(device)};
+        return Event{CudaEvent(get_stream())};
+      }
+
+      void wait() { 
+        auto d{device_guard(device)};
+        cudaStreamSynchronize(stream);
+      }
+
       void wait_for(Event *e)
       {
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
+          auto d{device_guard(device)};
           cudaStreamWaitEvent(get_stream(),
                               cuda_event->getCudaEvent_t(),
                               0);
@@ -109,6 +142,7 @@ namespace resources
       {
         T *ret = nullptr;
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMallocManaged(&ret, sizeof(T) * size);
         }
         return ret;
@@ -121,25 +155,31 @@ namespace resources
       }
       void deallocate(void *p)
       { 
+        auto d{device_guard(device)};
         cudaFree(p);
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
+        std::cout<<"memcpy : "<<stream<<std::endl;
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
+          auto d{device_guard(device)};
           cudaMemsetAsync(p, val, size, stream);
         }
       }
 
-      cudaStream_t get_stream() { return stream; }
+      cudaStream_t get_stream() { std::cout<<"get_stream : "<<stream<<std::endl; return stream; }
+      int get_device() { return device; }
 
     private:
       cudaStream_t stream;
+      int device;
     };
 
   }  // namespace v1
