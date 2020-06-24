@@ -158,7 +158,7 @@ namespace internal
   };
 
   template <typename... Types, camp::idx_t... Indices>
-  struct tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
+  struct CAMP_EMPTY_BASES tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
       : public internal::tuple_storage<Indices, Types>... {
 
     tuple_helper& operator=(const tuple_helper& rhs) = default;
