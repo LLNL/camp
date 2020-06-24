@@ -367,6 +367,14 @@ public:
   using type = tagged_tuple;
   using Base::Base;
 
+  constexpr tagged_tuple() = default;
+
+  constexpr tagged_tuple(tagged_tuple const& o) = default;
+  constexpr tagged_tuple(tagged_tuple&& o) = default;
+
+  tagged_tuple& operator=(tagged_tuple const& rhs) = default;
+  tagged_tuple& operator=(tagged_tuple&& rhs) = default;
+
   CAMP_HOST_DEVICE constexpr explicit tagged_tuple(const Base& rhs) : Base{rhs}
   {
   }
