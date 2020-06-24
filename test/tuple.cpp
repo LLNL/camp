@@ -13,6 +13,8 @@
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
+#include <type_traits>
+
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
@@ -21,6 +23,33 @@ static_assert(std::is_same<camp::tuple<int &, int const &, int>,
                                camp::val<camp::tuple<int &>>(),
                                camp::val<camp::tuple<int const &, int>>()))>::value,
               "tuple_cat pair nuking refs");
+
+// Size tests, ensure that EBO is being applied
+struct A {
+};
+struct B {
+};
+
+static_assert(sizeof(camp::tuple<A, B>) == 1, "EBO working as intended");
+static_assert(sizeof(camp::tuple<A, B, ptrdiff_t>) == sizeof(ptrdiff_t),
+              "EBO working as intended");
+
+// is_empty on all empty members currently is not true, same as libc++, though
+// libstdc++ supports it.  This could be fixed by refactoring base member into a
+// base class, but makes certain things messy and may have to be public, not
+// clear it's worth it, either way the size of one tuple<A,B> should be 1 as it
+// is in both libc++ and libstdc++
+// static_assert(std::is_empty<camp::tuple<A, B>>::value, "it's empty right?");
+
+// Ensure trivial copyability for trivially copyable contents
+static_assert(
+    std::is_trivially_copy_constructible<camp::tuple<int, float>>::value,
+    "can by trivially copy constructed");
+static_assert(
+    std::is_trivially_copy_constructible<std::tuple<int, float>>::value,
+    "can by trivially copy constructed");
+
+// Execution tests
 
 TEST(CampTuple, AssignCompat)
 {
@@ -33,6 +62,8 @@ TEST(CampTuple, AssignCompat)
   t2 = t;
   ASSERT_EQ(camp::get<0>(t2), 5);
   ASSERT_EQ(camp::get<1>(t2), 'a');
+  camp::tagged_tuple<camp::list<int, char>, short, char> t3(5, 13);
+  t2 = t3;
 }
 
 TEST(CampTuple, Assign)
