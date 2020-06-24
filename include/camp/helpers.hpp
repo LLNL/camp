@@ -25,13 +25,13 @@ template <typename T>
 T* declptr();
 
 /// metafunction to get instance of value type
-CAMP_HOST_DEVICE
 template <typename T>
+CAMP_HOST_DEVICE
 auto val() noexcept -> decltype(std::declval<T>());
 
 /// metafunction to get instance of const type
-CAMP_HOST_DEVICE
 template <typename T>
+CAMP_HOST_DEVICE
 auto cval() noexcept -> decltype(std::declval<T const>());
 
 /// metafunction to expand a parameter pack and ignore result
