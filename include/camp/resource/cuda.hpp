@@ -82,7 +82,10 @@ namespace resources
       Platform get_platform() { return Platform::cuda; }
       static Cuda &get_default()
       {
-        static Cuda h(static_cast<cudaStream_t>(0));
+        static cudaStream_t s;
+        cudaStreamCreate(&s);
+
+        static Cuda h(s);
         return h;
       }
       CudaEvent get_event() { return CudaEvent(get_stream()); }
