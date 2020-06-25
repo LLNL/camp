@@ -91,7 +91,7 @@ namespace resources
     private:
       Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
-      Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {std::cout<<"Create CudaRes : "<<stream<<std::endl;}
+      Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
@@ -156,7 +156,6 @@ namespace resources
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
-        std::cout<<"memcpy : "<<stream<<std::endl;
         if (size > 0) {
           auto d{device_guard(device)};
           cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
@@ -170,7 +169,7 @@ namespace resources
         }
       }
 
-      cudaStream_t get_stream() { std::cout<<"get_stream : "<<stream<<std::endl; return stream; }
+      cudaStream_t get_stream() { return stream; }
       int get_device() { return device; }
 
     private:
