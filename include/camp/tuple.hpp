@@ -89,7 +89,7 @@ namespace internal
   template <camp::idx_t index,
             typename Type,
             bool Empty = std::is_empty<Type>::value>
-  struct tuple_storage {
+  struct CAMP_EMPTY_BASES tuple_storage {
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
     /* Workaround for bug in hipcc compiler */
@@ -120,7 +120,7 @@ namespace internal
     Type val;
   };
   template <camp::idx_t index, typename Type>
-  struct tuple_storage<index, Type, true> : private Type {
+  struct CAMP_EMPTY_BASES tuple_storage<index, Type, true> : private Type {
     CAMP_HOST_DEVICE constexpr tuple_storage() : Type(){};
 
     static_assert(std::is_empty<Type>::value,

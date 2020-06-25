@@ -30,9 +30,13 @@ struct A {
 struct B {
 };
 
-static_assert(sizeof(camp::tuple<A, B>) == 1, "EBO working as intended");
+static_assert(sizeof(camp::tuple<A, B>) == 1, "EBO working as intended with empty types");
+
 static_assert(sizeof(camp::tuple<A, B, ptrdiff_t>) == sizeof(ptrdiff_t),
-              "EBO working as intended");
+              "EBO working as intended with one sized type at the end");
+
+static_assert(sizeof(camp::tuple<A, B, ptrdiff_t>) == sizeof(ptrdiff_t),
+              "EBO working as intended with one sized type in the middle");
 
 // is_empty on all empty members currently is not true, same as libc++, though
 // libstdc++ supports it.  This could be fixed by refactoring base member into a
@@ -44,9 +48,6 @@ static_assert(sizeof(camp::tuple<A, B, ptrdiff_t>) == sizeof(ptrdiff_t),
 // Ensure trivial copyability for trivially copyable contents
 static_assert(
     std::is_trivially_copy_constructible<camp::tuple<int, float>>::value,
-    "can by trivially copy constructed");
-static_assert(
-    std::is_trivially_copy_constructible<std::tuple<int, float>>::value,
     "can by trivially copy constructed");
 
 // Execution tests
