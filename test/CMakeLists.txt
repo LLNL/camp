@@ -1,5 +1,6 @@
 # Build google test
 if (NOT TARGET gtest)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest"
     EXCLUDE_FROM_ALL)
 
