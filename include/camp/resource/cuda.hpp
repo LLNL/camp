@@ -15,8 +15,6 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#include <iostream>
-
 #ifdef CAMP_HAVE_CUDA
 #include <cuda_runtime.h>
 
