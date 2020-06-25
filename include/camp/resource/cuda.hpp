@@ -78,11 +78,7 @@ namespace resources
           }
         });
 
-        if (num == DEFAULT_STREAM) {
-          return 0;
-        }
-
-        if (num <= NEXT_STREAM) {
+        if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
@@ -95,7 +91,7 @@ namespace resources
     private:
       Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
-      Cuda(int group = NEXT_STREAM, int dev=0) : stream(get_a_stream(group)), device(dev) {std::cout<<"Create CudaRes : "<<stream<<std::endl;}
+      Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {std::cout<<"Create CudaRes : "<<stream<<std::endl;}
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
@@ -104,8 +100,8 @@ namespace resources
         static cudaStream_t s;
         cudaStreamCreate(&s);
 
-        static Cuda h(s);
-        return h;
+        static Cuda c(s);
+        return c;
       }
 
       CudaEvent get_event() { 

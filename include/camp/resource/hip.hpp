@@ -58,11 +58,7 @@ namespace resources
           }
         });
 
-        if (num == DEFAULT_STREAM) {
-          return 0;
-        }
-
-        if (num <= NEXT_STREAM) {
+        if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
@@ -70,8 +66,9 @@ namespace resources
         }
 
         return streams[num % 16];
-      }
-
+      } 
+    private:
+      Hip(hipStream_t s) : stream(s) {}
     public:
       Hip(int group = NEXT_STREAM) : stream(get_a_stream(group)) {}
 
@@ -79,7 +76,10 @@ namespace resources
       Platform get_platform() { return Platform::hip; }
       static Hip &get_default()
       {
-        static Hip h;
+        static hipStream_t s;
+        hipStreamCreate(&s);
+
+        static Hip h(s);
         return h;
       }
       HipEvent get_event() { return HipEvent(get_stream()); }
