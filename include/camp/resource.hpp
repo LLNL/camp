@@ -21,11 +21,9 @@ http://github.com/llnl/camp
 #include "camp/resource/host.hpp"
 
 #if defined(CAMP_HAVE_CUDA)
-#include "camp/resource/stream.hpp"
 #include "camp/resource/cuda.hpp"
 #endif
 #if defined(CAMP_HAVE_HIP)
-#include "camp/resource/stream.hpp"
 #include "camp/resource/hip.hpp"
 #endif
 #if defined(CAMP_HAVE_OMP_OFFLOAD)
