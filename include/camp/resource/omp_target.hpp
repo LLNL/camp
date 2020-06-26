@@ -91,7 +91,7 @@ namespace resources
         return o;
       }
       OmpEvent get_event() { return OmpEvent(addr, dev); }
-      Event get_event_erased() { return get_event(); }
+      Event get_event_erased() { return Event{get_event()}; }
       void wait()
       {
         char *local_addr = addr;
