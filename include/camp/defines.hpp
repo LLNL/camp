@@ -104,6 +104,13 @@ namespace camp
 #endif
 #endif
 
+// libstdc++ from GCC below version 5 lacks the type trait
+#if defined(__GLIBCXX__) && __GLIBCXX__ < 20150422
+#define CAMP_HAS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE 0
+#else
+#define CAMP_HAS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE 1
+#endif
+
 // Types
 using idx_t = std::ptrdiff_t;
 using nullptr_t = decltype(nullptr);
