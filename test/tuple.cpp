@@ -46,9 +46,11 @@ static_assert(sizeof(camp::tuple<A, B, ptrdiff_t>) == sizeof(ptrdiff_t),
 // static_assert(std::is_empty<camp::tuple<A, B>>::value, "it's empty right?");
 
 // Ensure trivial copyability for trivially copyable contents
+#if CAMP_HAS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
 static_assert(
     std::is_trivially_copy_constructible<camp::tuple<int, float>>::value,
     "can by trivially copy constructed");
+#endif
 
 // Execution tests
 
