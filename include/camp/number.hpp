@@ -36,10 +36,15 @@ namespace detail
 {
   template <typename T, typename N>
   struct gen_seq;
-#if defined(CAMP_USE_MAKE_INTEGER_SEQ) && !__NVCC__
+#if CAMP_USE_MAKE_INTEGER_SEQ
   template <typename T, T N>
   struct gen_seq<T, integral_constant<T, N>> {
     using type = __make_integer_seq<int_seq, T, N>;
+  };
+#elif CAMP_USE_INTEGER_PACK
+  template <typename T, T N>
+  struct gen_seq<T, integral_constant<T, N>> {
+    using type = int_seq<T, __integer_pack(N)...>;
   };
 #else
   template <typename T, typename S1, typename S2>

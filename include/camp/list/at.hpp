@@ -22,6 +22,15 @@ namespace camp
 
 namespace detail
 {
+  template <typename T, idx_t Idx>
+  struct _at;
+
+  #if CAMP_USE_TYPE_PACK_ELEMENT
+  template <idx_t Idx, template <class...> class T, typename... Pack>
+  struct _at<T<Pack...>, Idx> {
+    using type = __type_pack_element<Idx, Pack...>;
+  };
+  #else
   // Lookup from metal::at machinery
   template <idx_t, typename>
   struct entry {
@@ -45,8 +54,6 @@ namespace detail
       : decltype(_lookup_impl<Idx>(declptr<entries<indices, vals>>())) {
   };
 
-  template <typename T, idx_t Idx>
-  struct _at;
   template <template <class...> class T, typename X, typename... Rest>
   struct _at<T<X, Rest...>, 0> {
     using type = X;
@@ -65,6 +72,7 @@ namespace detail
                                   make_idx_seq_t<sizeof...(Rest)>,
                                   Idx>::type;
   };
+  #endif
 }  // namespace detail
 
 // TODO: document
