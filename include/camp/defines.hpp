@@ -98,10 +98,39 @@ namespace camp
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
 
-#if defined(__has_builtin)
-#if __has_builtin(__make_integer_seq)
+// This works for clang, nvcc 10 and higher using clang as a host compiler
+#define CAMP_USE_MAKE_INTEGER_SEQ 0
+#define CAMP_USE_TYPE_PACK_ELEMENT 0
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 191125507
+  // __has_builtin exists but does not always expose this
+#undef CAMP_USE_MAKE_INTEGER_SEQ
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
+#undef CAMP_USE_TYPE_PACK_ELEMENT
+#define CAMP_USE_TYPE_PACK_ELEMENT 1
+#elif defined(__has_builtin)
+#if __has_builtin(__make_integer_seq) && ((!defined(__NVCC__) || __CUDACC_VER_MAJOR >= 10))
+#undef CAMP_USE_MAKE_INTEGER_SEQ
+#define CAMP_USE_MAKE_INTEGER_SEQ 1
+#undef CAMP_USE_TYPE_PACK_ELEMENT
+#define CAMP_USE_TYPE_PACK_ELEMENT 1
 #endif
+#endif
+
+// This works for:
+//   GCC >= 8
+//   intel 19+ in GCC 8 or higher mode
+//   nvcc 10+ in GCC 8 or higher mode
+//   PGI 19+ in GCC 8 or higher mode
+#if __GNUC__ >= 8 && (\
+    /* intel compiler in gcc 8+ mode */ \
+    ((!defined(__INTEL_COMPILER)) || __INTEL_COMPILER >= 1900) \
+    /* nvcc in gcc 8+ mode */ \
+  ||((!defined(__NVCC__)) || __CUDACC_VER_MAJOR >= 10) \
+  ||((!defined(__PGIC__)) || __PGIC__ >= 19) \
+    )
+#define CAMP_USE_INTEGER_PACK 1
+#else
+#define CAMP_USE_INTEGER_PACK 0
 #endif
 
 // libstdc++ from GCC below version 5 lacks the type trait
