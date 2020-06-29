@@ -98,7 +98,11 @@ namespace camp
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
 
-// This works for clang, nvcc 10 and higher using clang as a host compiler
+// This works for:
+//   clang
+//   nvcc 10 and higher using clang as a host compiler
+//   MSVC 1911... and higher, see check below
+//   XL C++ at least back to 16.1.0, possibly farther
 #define CAMP_USE_MAKE_INTEGER_SEQ 0
 #define CAMP_USE_TYPE_PACK_ELEMENT 0
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 191125507
