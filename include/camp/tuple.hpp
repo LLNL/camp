@@ -20,8 +20,8 @@ http://github.com/llnl/camp
 #include <iostream>
 #include <type_traits>
 
-#include "camp/camp.hpp"
 #include "camp/concepts.hpp"
+#include "camp/map.hpp"
 
 namespace camp
 {
@@ -158,36 +158,15 @@ namespace internal
   };
 
   template <typename... Types, camp::idx_t... Indices>
-  struct CAMP_EMPTY_BASES tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
+  struct CAMP_EMPTY_BASES
+      tuple_helper<camp::idx_seq<Indices...>, camp::list<Types...>>
       : public internal::tuple_storage<Indices, Types>... {
 
     tuple_helper& operator=(const tuple_helper& rhs) = default;
-#if 1 || (!defined(__NVCC__))     \
-    || (__CUDACC_VER_MAJOR__ > 10 \
-        || (__CUDACC_VER_MAJOR__ == 10 && __CUDACC_VER_MINOR__ >= 1))
     constexpr tuple_helper() = default;
     constexpr tuple_helper(tuple_helper const&) = default;
     constexpr tuple_helper(tuple_helper&&) = default;
-#else
-    // NOTE: this is to work around nvcc 9 series issues with incorrect
-    // creation of defaulted constructors
-    template <bool B = concepts::metalib::all_of<
-                  std::is_default_constructible<Types>::value...>::value,
-              typename std::enable_if<B, void>::type* = nullptr>
-    CAMP_HOST_DEVICE constexpr tuple_helper()
-    {
-    }
-    CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper const& rhs)
-        : tuple_storage<Indices, Types>(
-            rhs.tuple_storage<Indices, Types>::get_inner())...
-    {
-    }
-    CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper&& rhs)
-        : tuple_storage<Indices, Types>(
-            std::forward<Types>(rhs.tuple_storage<Indices, Types>::val))...
-    {
-    }
-#endif
+
     /* Workaround for bug in hipcc compiler */
     //  This likely causes issues when building with hip
     //  and using tuples in host code. Will be patched in the future
@@ -277,45 +256,8 @@ private:
       -> tuple_ebt_t<T, Tuple>&;
 
 public:
-#if 0 && defined(CAMP_BROKEN_NVCC_DEFAULT_HANDLING)
-  // NOTE: __host__ __device__ on constructors causes warnings, and nothing else
-  // Constructors
-  template <bool B = concepts::metalib::all_of<
-                std::is_default_constructible<Elements>::value...>::value,
-            typename std::enable_if<B, void>::type* = nullptr>
-  CAMP_HOST_DEVICE constexpr tuple() : base()
-  {
-  }
-
-  /* Workaround for bug in hipcc compiler */
-  //  This likely causes issues when building with hip
-  //  and using tuples in host code. Will be patched in the future
 #if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
   CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...) {}
-#endif
-
-  CAMP_HOST_DEVICE constexpr tuple(tuple const& o) : base(o.base) {}
-
-  CAMP_HOST_DEVICE constexpr tuple(tuple&& o) : base(std::move(o.base)) {}
-
-  CAMP_HOST_DEVICE tuple& operator=(tuple const& rhs)
-  {
-    base = rhs.base;
-    return *this;
-  }
-  CAMP_HOST_DEVICE tuple& operator=(tuple&& rhs)
-  {
-    base = std::move(rhs.base);
-    return *this;
-  }
-#else
-  constexpr tuple() = default;
-
-  constexpr tuple(tuple const& o) = default;
-  constexpr tuple(tuple&& o) = default;
-
-  tuple& operator=(tuple const& rhs) = default;
-  tuple& operator=(tuple&& rhs) = default;
 #endif
 
   CAMP_HOST_DEVICE constexpr explicit tuple(const Elements&... rest)
@@ -549,10 +491,11 @@ CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& t,
 
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, typename TupleLike>
-CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f) -> decltype(
-    invoke_with_order(std::forward<TupleLike>(t),
-                      std::forward<Fn>(f),
-                      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
+CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
+    -> decltype(invoke_with_order(
+        std::forward<TupleLike>(t),
+        std::forward<Fn>(f),
+        camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{}))
 {
   return invoke_with_order(
       std::forward<TupleLike>(t),
