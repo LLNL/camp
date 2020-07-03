@@ -92,13 +92,6 @@ namespace internal
   struct CAMP_EMPTY_BASES tuple_storage {
     CAMP_HOST_DEVICE constexpr tuple_storage() : val(){};
 
-    /* Workaround for bug in hipcc compiler */
-    //  This likely causes issues when building with hip
-    //  and using tuples in host code. Will be patched in the future
-#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : val{v} {}
-#endif
-
     CAMP_SUPPRESS_HD_WARN
     template <typename T>
     CAMP_HOST_DEVICE constexpr tuple_storage(T&& v)
@@ -126,12 +119,6 @@ namespace internal
     static_assert(std::is_empty<Type>::value,
                   "this specialization should only ever be used for empty "
                   "types");
-    /* Workaround for bug in hipcc compiler */
-    //  This likely causes issues when building with hip
-    //  and using tuples in host code. Will be patched in the future
-#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-    CAMP_HOST_DEVICE constexpr tuple_storage(Type v) : Type{v} {}
-#endif
 
     CAMP_SUPPRESS_HD_WARN
     template <typename T>
@@ -166,16 +153,6 @@ namespace internal
     constexpr tuple_helper() = default;
     constexpr tuple_helper(tuple_helper const&) = default;
     constexpr tuple_helper(tuple_helper&&) = default;
-
-    /* Workaround for bug in hipcc compiler */
-    //  This likely causes issues when building with hip
-    //  and using tuples in host code. Will be patched in the future
-#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-    CAMP_HOST_DEVICE constexpr tuple_helper(Types... args)
-        : tuple_storage<Indices, Types>(args)...
-    {
-    }
-#endif
 
     template <typename... Args>
     CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
@@ -256,9 +233,6 @@ private:
       -> tuple_ebt_t<T, Tuple>&;
 
 public:
-#if defined(__HIPCC__) && !defined(__HIP_DEVICE_COMPILE__)
-  CAMP_HOST_DEVICE constexpr explicit tuple(Elements... vals) : base(vals...) {}
-#endif
 
   CAMP_HOST_DEVICE constexpr explicit tuple(const Elements&... rest)
       : base{rest...}
