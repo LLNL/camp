@@ -27,6 +27,11 @@ namespace resources
   inline namespace v1
   {
 
+    struct hdmem
+    {
+      void * host_arr[10];
+    };
+
     class OmpEvent
     {
     public:
@@ -122,66 +127,34 @@ namespace resources
       template <typename T>
       T *allocate(size_t size)
       {
-        int hdev = omp_get_initial_device();
-        T *hostmem = new T[size];
-        register_ptr_host(hostmem, hdev);
+        T * hostmem = (T*)malloc(sizeof(T)*sizehost);
 
-        T *devmem = static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
-        register_ptr_dev(devmem, dev);
-
-        register_host_devptr(hostmem, devmem);
+#pragma omp target enter data map( to: hostmem[0:size] )
 
         return hostmem;
       }
+
       void *calloc(size_t size)
       {
         void *p = allocate<char>(size);
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void *p)
       {
-#pragma omp critical(camp_register_ptr)
-        {
-          get_dev_register().erase(p);
-        }
-        omp_target_free(p, dev);
+        free(p);
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
-        // this is truly, insanely awful, need to think of something better
-        //int dd = get_ptr_dev(dst);
-        //int sd = get_ptr_dev(src);
-        // extra cast due to GCC openmp header bug
-        //omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
-
-        // witness the sadness . . .
-        // check for src = host, dst = device
-        auto ith = get_host_register().find(src);
-        auto itd = get_dev_register().find(dst);
-        if (ith != get_host_register().end() && itd != get_dev_register().end())
+        int initdev = omp_get_initial_device();
+        int sdevice = omp_target_is_present( (void *)src, dev ) ? dev : initdev;
+        int ddevice = omp_target_is_present( (void *)dst, dev ) ? dev : initdev;
+        #pragma omp target data if(sdevice != initdev) device(sdevice) use_device_ptr(src)
+        #pragma omp target data if(ddevice != initdev) device(ddevice) use_device_ptr(dst)
         {
-          int dd = get_ptr_dev(dst);
-          int sd = get_ptr_host(src);
-          // extra cast due to GCC openmp header bug
-          omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
-        }
-        // check for src = device, dst = host
-        else
-        {
-          auto itth = get_host_register().find(dst);
-          auto ittd = get_dev_register().find(src);
-          if (itth != get_host_register().end() && ittd != get_dev_register().end())
-          {
-            int dd = get_ptr_dev(src);
-            int sd = get_ptr_host(dst);
-            // extra cast due to GCC openmp header bug
-            omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
-          }
-          else
-          {
-            printf( "TROUBLE TROUBLE TROUBLE TROUBLE TROUBLE\n" );
-          }
+          omp_target_memcpy(dst, (void *)src, size, 0, 0, ddevice, sdevice);
         }
       }
 
@@ -190,6 +163,7 @@ namespace resources
         char *local_addr = addr;
         CAMP_ALLOW_UNUSED_LOCAL(local_addr);
         char *pc = (char *)p;
+#pragma omp target data use_device_ptr(pc)
 #pragma omp target teams distribute parallel for device(dev) \
     depend(inout                                             \
            : local_addr[0]) is_device_ptr(pc) nowait
@@ -198,92 +172,9 @@ namespace resources
         }
       }
 
-      void register_ptr_host(void *p, int device)
-      {
-        get_host_register()[p] = device;
-      }
-      int get_ptr_host(void const *p)
-      {
-        int ret = omp_get_initial_device();
-        auto it = get_host_register().find(p);
-        if (it != get_host_register().end())
-        {
-          ret = it->second;
-        }
-        return ret;
-      }
-
-      void register_host_devptr(void *h, void *d)
-      {
-        get_host_devptr()[h] = d;
-      }
-      const void * obtain_devptr_withhost(void *h)
-      {
-        const void * ret = nullptr;
-        auto it = get_host_devptr().find(h);
-        if (it != get_host_devptr().end())
-        {
-          ret = it->second;
-        }
-
-        if (ret != nullptr)
-        {
-          return ret;
-        }
-        else
-        {
-          //fflush();
-          abort();
-          return nullptr;
-        }
-      }
-
-      void register_ptr_dev(void *p, int device)
-      {
-#pragma omp critical(camp_register_ptr)
-        {
-          get_dev_register()[p] = device;
-        }
-      }
-      int get_ptr_dev(void const *p)
-      {
-        int ret = omp_get_initial_device();
-#pragma omp critical(camp_register_ptr)
-        {
-          auto it = get_dev_register().find(p);
-          if (it != get_dev_register().end()) {
-            ret = it->second;
-          }
-        }
-        return ret;
-      }
-
     private:
       char *addr;
       int dev;
-      template <typename always_void_odr_helper = void>
-      std::map<const void *, int> &get_dev_register()
-      {
-        // key: device ptr, value: device num
-        static std::map<const void *, int> dev_register;
-        return dev_register;
-      }
-
-      template <typename always_void_odr_helper = void>
-      std::map<const void *, int> &get_host_register()
-      {
-        // key: host ptr, value: device num
-        static std::map<const void *, int> host_register;
-        return host_register;
-      }
-
-      template <typename always_void_odr_helper = void>
-      std::map<const void *, const void*> &get_host_devptr()
-      {
-        // key: host ptr, value: device ptr
-        static std::map<const void *, const void *> host_devptr;
-        return host_devptr;
-      }
     };
 
   }  // namespace v1
