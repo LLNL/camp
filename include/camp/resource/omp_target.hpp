@@ -143,6 +143,9 @@ namespace resources
 
       void deallocate(void *p)
       {
+        char * pp = (char *)p;
+        CAMP_ALLOW_UNUSED_LOCAL(pp);
+#pragma omp target exit data map( release: pp[:0] )
         free(p);
       }
 
