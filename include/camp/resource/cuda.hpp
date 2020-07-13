@@ -25,22 +25,21 @@ namespace resources
   inline namespace v1
   {
 
-  namespace {
-    struct device_guard {
-      device_guard(int device)
-      {
-        cudaGetDevice(&prev_device);
-        cudaSetDevice(device);
-      }
+    namespace
+    {
+      struct device_guard {
+        device_guard(int device)
+        {
+          cudaGetDevice(&prev_device);
+          cudaSetDevice(device);
+        }
 
-      ~device_guard() {
-        cudaSetDevice(prev_device);
-      }
+        ~device_guard() { cudaSetDevice(prev_device); }
 
       int prev_device;
     };
 
-  }
+    }  // namespace
 
     class CudaEvent
     {
@@ -102,17 +101,20 @@ namespace resources
         return c;
       }
 
-      CudaEvent get_event() { 
+      CudaEvent get_event()
+      {
         auto d{device_guard(device)};
         return CudaEvent(get_stream());
       }
 
-      Event get_event_erased() { 
+      Event get_event_erased()
+      {
         auto d{device_guard(device)};
         return Event{CudaEvent(get_stream())};
       }
 
-      void wait() { 
+      void wait()
+      {
         auto d{device_guard(device)};
         cudaStreamSynchronize(stream);
       }
@@ -122,9 +124,7 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          cudaStreamWaitEvent(get_stream(),
-                              cuda_event->getCudaEvent_t(),
-                              0);
+          cudaStreamWaitEvent(get_stream(), cuda_event->getCudaEvent_t(), 0);
         } else {
           e->wait();
         }
@@ -148,7 +148,7 @@ namespace resources
         return p;
       }
       void deallocate(void *p)
-      { 
+      {
         auto d{device_guard(device)};
         cudaFree(p);
       }
