@@ -151,8 +151,19 @@ namespace internal
 
     tuple_helper& operator=(const tuple_helper& rhs) = default;
     constexpr tuple_helper() = default;
+#if 0
     constexpr tuple_helper(tuple_helper const&) = default;
     constexpr tuple_helper(tuple_helper&&) = default;
+#else
+    CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper const& rhs)
+        : tuple_storage<Indices, Types>(static_cast<tuple_storage<Indices, Types>const&>(rhs))...
+    {
+    }
+    CAMP_HOST_DEVICE constexpr tuple_helper(tuple_helper&& rhs)
+        : tuple_storage<Indices, Types>(static_cast<tuple_storage<Indices, Types>&&>(rhs))...
+    {
+    }
+#endif
 
     template <typename... Args>
     CAMP_HOST_DEVICE constexpr tuple_helper(Args&&... args)
