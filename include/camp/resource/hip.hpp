@@ -77,8 +77,14 @@ namespace resources
       static Hip &get_default()
       {
         static hipStream_t s;
-        hipStreamCreate(&s);
-
+        static std::once_flag m_onceFlag;
+        std::call_once(m_onceFlag, [] {
+#if defined(CAMP_USE_PLATFORM_DEFAULT_STREAM)
+          s = 0;
+#else
+          hipStreamCreate(&s);
+#endif
+        });
         static Hip h(s);
         return h;
       }
