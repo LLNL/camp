@@ -43,6 +43,16 @@ namespace camp
 #pragma warn("Unknown compiler!")
 #endif
 
+// detect empty_bases for MSVC
+#ifndef __has_declspec_attribute
+#define __has_declspec_attribute(__x) 0
+#endif
+#if defined(CAMP_COMPILER_MSVC) || __has_declspec_attribute(empty_bases)
+#define CAMP_EMPTY_BASES __declspec(empty_bases)
+#else
+#define CAMP_EMPTY_BASES
+#endif
+
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define CAMP_HAS_CONSTEXPR14
 #define CAMP_CONSTEXPR14 constexpr
@@ -92,6 +102,13 @@ namespace camp
 #if __has_builtin(__make_integer_seq)
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
 #endif
+#endif
+
+// libstdc++ from GCC below version 5 lacks the type trait
+#if defined(__GLIBCXX__) && (__GLIBCXX__ < 20150422 || __GNUC__ < 5)
+#define CAMP_HAS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE 0
+#else
+#define CAMP_HAS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE 1
 #endif
 
 // Types

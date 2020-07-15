@@ -161,7 +161,7 @@ namespace detail
     struct product<list<Seqs...>, list<vals...>> {
       using type = typename join<typename product_impl<Seqs, list<vals...>>::type...>::type;
     };
-} /* detail */ 
+} /* detail */
 template<class ... Seqs>
 using cartesian_product = typename accumulate<detail::product, list<list<>>, list<Seqs...>>::type;
 
