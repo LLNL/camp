@@ -97,7 +97,7 @@ namespace resources
         static cudaStream_t s;
         static std::once_flag m_onceFlag;
         std::call_once(m_onceFlag, [] {
-#if defined(CAMP_USE_PLATFORM_DEFAULT_STREAM)
+#if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
           cudaStreamCreate(&s);
