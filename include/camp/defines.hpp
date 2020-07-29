@@ -109,8 +109,7 @@ namespace camp
   // __has_builtin exists but does not always expose this
 #undef CAMP_USE_MAKE_INTEGER_SEQ
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
-#undef CAMP_USE_TYPE_PACK_ELEMENT
-#define CAMP_USE_TYPE_PACK_ELEMENT 1
+  // __type_pack_element remains unsupported
 #elif defined(__has_builtin)
 #if __has_builtin(__make_integer_seq) && ((!defined(__NVCC__) || __CUDACC_VER_MAJOR >= 10))
 #undef CAMP_USE_MAKE_INTEGER_SEQ
