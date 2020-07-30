@@ -188,16 +188,17 @@ TEST(CampEvent, Get)
 }
 #endif
 
-static EventProxy do_stuff(Resource* r)
+template<typename Res>
+static EventProxy<Res> do_stuff(Res* r)
 {
-  return EventProxy(r);
+  return EventProxy<Res>(r);
 }
 
 TEST(CampEventProxy, Get)
 {
-  Resource h1{Host{}};
+  Host h1{Host{}};
   {
-    EventProxy ep{&h1};
+    EventProxy<Host> ep{&h1};
     Event e = ep;
   }
 
