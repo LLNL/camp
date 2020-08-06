@@ -76,16 +76,15 @@ namespace resources
       Platform get_platform() { return Platform::hip; }
       static Hip &get_default()
       {
-        static hipStream_t s;
-        static std::once_flag m_onceFlag;
-        std::call_once(m_onceFlag, [] {
+        static Hip h( [] {
+          hipStream_t s;
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
           hipStreamCreate(&s);
 #endif
+          return s;
         });
-        static Hip h(s);
         return h;
       }
       HipEvent get_event() { return HipEvent(get_stream()); }
