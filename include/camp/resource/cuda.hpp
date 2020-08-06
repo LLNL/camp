@@ -94,16 +94,13 @@ namespace resources
       Platform get_platform() { return Platform::cuda; }
       static Cuda &get_default()
       {
-        static cudaStream_t s;
-        static std::once_flag m_onceFlag;
-        std::call_once(m_onceFlag, [] {
-#if CAMP_USE_PLATFORM_DEFAULT_STREAM
-          s = 0;
-#else
-          cudaStreamCreate(&s);
+        static Cuda c( [] {
+          cudaStream_t s = 0;
+#if !CAMP_USE_PLATFORM_DEFAULT_STREAM
+          cudaStreamCreate(&s); // this should be error checked
 #endif
-        });
-        static Cuda c(s);
+          return s;
+        }());
         return c;
       }
 
