@@ -95,9 +95,11 @@ namespace resources
       static Cuda &get_default()
       {
         static Cuda c( [] {
-          cudaStream_t s = 0;
-#if !CAMP_USE_PLATFORM_DEFAULT_STREAM
-          cudaStreamCreate(&s); // this should be error checked
+          cudaStream_t s;
+#if CAMP_USE_PLATFORM_DEFAULT_STREAM
+          s = 0;
+#else
+          cudaStreamCreate(&s);
 #endif
           return s;
         }());
