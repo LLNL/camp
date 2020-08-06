@@ -84,7 +84,7 @@ namespace resources
           hipStreamCreate(&s);
 #endif
           return s;
-        });
+        }());
         return h;
       }
       HipEvent get_event() { return HipEvent(get_stream()); }
