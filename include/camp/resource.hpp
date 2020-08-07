@@ -166,6 +166,10 @@ namespace resources
       resource_{r}
     {}
 
+    Event get() const {
+      return resource_->get_event_erased();
+    }
+
     operator Event() const {
       return resource_->get_event_erased();
     }
