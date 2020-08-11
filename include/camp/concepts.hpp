@@ -167,6 +167,9 @@ namespace concepts
   template <typename... Args>
   using enable_if = typename std::enable_if<all_of<Args...>::value, void>::type;
 
+  template <typename T, typename... Args>
+  using enable_if_t = typename std::enable_if<all_of<Args...>::value, T>::type;
+
   /// SFINAE concept checking
   template <template <class...> class Op, class... Args>
   struct requires_ : detail::detected<Op, detail::TL<Args...>> {

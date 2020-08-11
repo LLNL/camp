@@ -66,8 +66,9 @@ namespace resources
         }
 
         return streams[num % 16];
-      }
-
+      } 
+    private:
+      Hip(hipStream_t s) : stream(s) {}
     public:
       Hip(int group = -1) : stream(get_a_stream(group)) {}
 
@@ -75,7 +76,15 @@ namespace resources
       Platform get_platform() { return Platform::hip; }
       static Hip &get_default()
       {
-        static Hip h;
+        static Hip h( [] {
+          hipStream_t s;
+#if CAMP_USE_PLATFORM_DEFAULT_STREAM
+          s = 0;
+#else
+          hipStreamCreate(&s);
+#endif
+          return s;
+        }());
         return h;
       }
       HipEvent get_event() { return HipEvent(get_stream()); }

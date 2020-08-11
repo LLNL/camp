@@ -36,8 +36,8 @@ namespace resources
 
         ~device_guard() { cudaSetDevice(prev_device); }
 
-        int prev_device;
-      };
+      int prev_device;
+    };
 
     }  // namespace
 
@@ -85,15 +85,25 @@ namespace resources
         return streams[num % 16];
       }
 
+    private:
+      Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
-      Cuda(int group = -1, int device = 0) : stream(get_a_stream(group)) {}
+      Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
       static Cuda &get_default()
       {
-        static Cuda h;
-        return h;
+        static Cuda c( [] {
+          cudaStream_t s;
+#if CAMP_USE_PLATFORM_DEFAULT_STREAM
+          s = 0;
+#else
+          cudaStreamCreate(&s);
+#endif
+          return s;
+        }());
+        return c;
       }
 
       CudaEvent get_event()

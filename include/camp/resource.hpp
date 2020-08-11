@@ -155,6 +155,28 @@ namespace resources
     };
 #endif
 
+  template<typename Res>
+  struct EventProxy {
+    EventProxy(EventProxy &&) = default;
+    EventProxy(EventProxy const &) = delete;
+    EventProxy &operator=(EventProxy &&) = default;
+    EventProxy &operator=(EventProxy const &) = delete;
+
+    EventProxy(Res* r) :
+      resource_{r}
+    {}
+
+    Event get() const {
+      return resource_->get_event_erased();
+    }
+
+    operator Event() const {
+      return resource_->get_event_erased();
+    }
+
+    Res* resource_;
+  };
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp

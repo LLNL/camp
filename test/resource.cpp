@@ -187,3 +187,31 @@ TEST(CampEvent, Get)
   ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
 }
 #endif
+
+template<typename Res>
+static EventProxy<Res> do_stuff(Res* r)
+{
+  return EventProxy<Res>(r);
+}
+
+TEST(CampEventProxy, Get)
+{
+  Host h1{Host{}};
+  {
+    EventProxy<Host> ep{&h1};
+    Event e = ep;
+  }
+
+  {
+    Event e = do_stuff(&h1);
+  }
+
+  {
+    do_stuff(&h1);
+  }
+
+  {
+    EventProxy<Host> ep{&h1};
+    Event e = ep.get();
+  }
+}
