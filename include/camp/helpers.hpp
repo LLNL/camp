@@ -91,10 +91,6 @@ namespace type
     struct rem_s<T*> {
       using type = T;
     };
-    template <class T>
-    struct rem_s<T**> {
-      using type = T;
-    };
 
     /// remove pointer from T
     template <class T>
@@ -104,13 +100,6 @@ namespace type
     template <class T>
     using add = T*;
   }  // end namespace ptr
-
-  namespace lvptr
-  {
-    /// add lvalue reference to T
-    template <class T>
-    using add = T**;
-  }  // end namespace lvptr
 
   namespace c
   {
