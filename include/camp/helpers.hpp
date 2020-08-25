@@ -81,6 +81,37 @@ namespace type
     using add = T&&;
   }  // end namespace rvref
 
+  namespace ptr
+  {
+    template <class T>
+    struct rem_s {
+      using type = T;
+    };
+    template <class T>
+    struct rem_s<T*> {
+      using type = T;
+    };
+    template <class T>
+    struct rem_s<T**> {
+      using type = T;
+    };
+
+    /// remove pointer from T
+    template <class T>
+    using rem = typename rem_s<T>::type;
+
+    /// add remove pointer to T
+    template <class T>
+    using add = T*;
+  }  // end namespace ptr
+
+  namespace lvptr
+  {
+    /// add lvalue reference to T
+    template <class T>
+    using add = T**;
+  }  // end namespace lvptr
+
   namespace c
   {
     template <class T>
