@@ -106,8 +106,10 @@ namespace resources
       template <typename T>
       T *allocate(size_t size)
       {
+        //Dec 7th 2020, hipMallocManaged is broken with HIP 3.6.0
+        //use hipMalloc instead
         T *ret = nullptr;
-        hipMallocManaged(&ret, sizeof(T) * size);
+        hipMalloc((void **)&ret, sizeof(T) * size);
         return ret;
       }
       void *calloc(size_t size)
