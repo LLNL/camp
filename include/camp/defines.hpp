@@ -105,9 +105,11 @@ namespace camp
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
+#if !defined(__x86_64__)
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
+#endif  // !defined(__x86_64__)
 
 // This works for:
 //   clang
