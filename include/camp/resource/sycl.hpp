@@ -30,10 +30,7 @@ namespace resources
     class SyclEvent
     {
     public:
-      SyclEvent(sycl::queue* qu)
-      {
-        m_event = sycl::event();
-      }
+      SyclEvent(sycl::queue *qu) { m_event = sycl::event(); }
       bool check() const { return true; }
       void wait() const { getSyclEvent_t().wait(); }
       sycl::event getSyclEvent_t() const { return m_event; }
@@ -44,7 +41,7 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue* get_a_queue(int num)
+      static sycl::queue *get_a_queue(int num)
       {
         static sycl::queue qus[16];
         static int previous = 0;
@@ -59,7 +56,7 @@ namespace resources
           return &qus[previous];
         }
 
-	return &qus[num % 16];
+        return &qus[num % 16];
       }
 
     public:
@@ -91,7 +88,7 @@ namespace resources
       {
         T *ret = nullptr;
         if (size > 0) {
-          ret = sycl::malloc_shared<T>(size, *qu); 
+          ret = sycl::malloc_shared<T>(size, *qu);
         }
         return ret;
       }
@@ -101,10 +98,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p)
-      { 
-        sycl::free(p, *qu);
-      }
+      void deallocate(void *p) { sycl::free(p, *qu); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
@@ -118,10 +112,10 @@ namespace resources
         }
       }
 
-      sycl::queue* get_queue() { return qu; }
+      sycl::queue *get_queue() { return qu; }
 
     private:
-      sycl::queue* qu;
+      sycl::queue *qu;
     };
 
   }  // namespace v1
