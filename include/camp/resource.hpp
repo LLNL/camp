@@ -26,6 +26,10 @@ http://github.com/llnl/camp
 #if defined(CAMP_HAVE_HIP)
 #include "camp/resource/hip.hpp"
 #endif
+#if defined(CAMP_HAVE_SYCL)
+#include "camp/resource/sycl.hpp"
+#endif
+
 #if defined(CAMP_HAVE_OMP_OFFLOAD)
 #include "camp/resource/omp_target.hpp"
 #endif
@@ -146,6 +150,12 @@ namespace resources
     template <>
     struct resource_from_platform<Platform::hip> {
       using type = ::camp::resources::Hip;
+    };
+#endif
+#if defined(CAMP_HAVE_SYCL)
+    template <>
+    struct resource_from_platform<Platform::sycl> {
+      using type = ::camp::resources::Sycl;
     };
 #endif
 #if defined(CAMP_HAVE_OMP_OFFLOAD)
