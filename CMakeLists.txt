@@ -9,7 +9,7 @@ option(ENABLE_CLANG_CUDA "use clang cuda support rather than nvcc" Off)
 option(ENABLE_HIP "whether to build with hip" Off)
 option(ENABLE_SYCL "whether to build with sycl" Off)
 option(ENABLE_TARGET_OPENMP "whether to build with OpenMP offload" Off)
-option(ENABLE_TESTS "whether to configure and build tests" On)
+option(CAMP_ENABLE_TESTS "whether to configure and build tests" On)
 
 if(ENABLE_CLANG_CUDA)
   if(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
@@ -81,7 +81,7 @@ install(DIRECTORY
   DESTINATION
   include)
 
-if(ENABLE_TESTS)
+if(CAMP_ENABLE_TESTS)
 enable_testing()
 add_subdirectory(test)
 endif()
