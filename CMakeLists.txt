@@ -11,6 +11,13 @@ option(ENABLE_SYCL "whether to build with sycl" Off)
 option(ENABLE_TARGET_OPENMP "whether to build with OpenMP offload" Off)
 option(CAMP_ENABLE_TESTS "whether to configure and build tests" On)
 
+# if ENABLE_TESTS is defined by a parent project, and
+# CAMP_ENABLE_TESTS has not been set to OFF set the
+# value of CAMP_ENABLE_TESTS to the value of ENABLE_TESTS.
+if (CAMP_ENABLE_TESTS AND DEFINED ENABLE_TESTS)
+  set(CAMP_ENABLE_TESTS ${ENABLE_TESTS})
+endif()
+
 if(ENABLE_CLANG_CUDA)
   if(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     message(ERROR "clang cuda can only be used with clang")
