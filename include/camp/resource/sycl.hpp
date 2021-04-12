@@ -64,7 +64,7 @@ namespace resources
 
     public:
       Sycl(int group = -1) : stream(get_a_stream(group)) {}
-//      Sycl() {};
+
       // Methods
       Platform get_platform() { return Platform::sycl; }
       static Sycl &get_default()
@@ -108,8 +108,7 @@ namespace resources
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
-          stream.memcpy(dst, src, size);
-          stream.wait();
+          stream.memcpy(dst, src, size).wait();
         }
       }
       void memset(void *p, int val, size_t size)
