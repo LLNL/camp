@@ -92,7 +92,6 @@ namespace camp
 #define CAMP_HAVE_SYCL 1
 #define CAMP_DEVICE
 #define CAMP_HOST_DEVICE
-#pragma warn("Sycl compiler!")
 #define CAMP_SUPPRESS_HD_WARN
 
 #else
