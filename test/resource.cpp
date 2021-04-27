@@ -256,3 +256,12 @@ TEST(CampEventProxy, Get)
     Event e = ep.get();
   }
 }
+
+TEST(CampResource, Wait) {
+  auto h = camp::resources::Host();
+  h.wait();
+  Event he = h.get_event_erased();
+  h.wait_for(&he);
+  Resource r(h);
+  r.wait();
+}

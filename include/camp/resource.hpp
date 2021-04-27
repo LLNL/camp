@@ -93,6 +93,7 @@ namespace resources
       Event get_event() { return m_value->get_event(); }
       Event get_event_erased() { return m_value->get_event_erased(); }
       void wait_for(Event *e) { m_value->wait_for(e); }
+      void wait() { m_value->wait(); }
 
     private:
       class ContextInterface
@@ -107,6 +108,7 @@ namespace resources
         virtual Event get_event() = 0;
         virtual Event get_event_erased() = 0;
         virtual void wait_for(Event *e) = 0;
+        virtual void wait() = 0;
       };
 
       template <typename T>
@@ -128,6 +130,7 @@ namespace resources
         Event get_event() override { return m_modelVal.get_event_erased(); }
         Event get_event_erased() override { return m_modelVal.get_event_erased(); }
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
+        void wait() override { m_modelVal.wait(); }
         T *get() { return &m_modelVal; }
 
       private:
