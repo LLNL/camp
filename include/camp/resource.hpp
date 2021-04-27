@@ -172,7 +172,9 @@ namespace resources
 #endif
 
   template<typename Res>
-  struct EventProxy {
+  struct EventProxy : ::camp::resources::detail::EventProxyBase {
+    using native_event = decltype(std::declval<Res>().get_event());
+    
     EventProxy(EventProxy &&) = default;
     EventProxy(EventProxy const &) = delete;
     EventProxy &operator=(EventProxy &&) = default;
@@ -182,8 +184,12 @@ namespace resources
       resource_{r}
     {}
 
-    Event get() {
-      return resource_.get_event_erased();
+    native_event get() const {
+      return resource_->get_event();
+    }
+
+    operator native_event() const {
+      return resource_->get_event();
     }
 
     operator Event() {
