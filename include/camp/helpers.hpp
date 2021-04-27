@@ -44,6 +44,20 @@ inline void sink(Ts const& ...)
 {
 }
 
+namespace detail {
+  using __expand_array_type = int[];
+}
+#define CAMP_EXPAND(E...) ::camp::detail::__expand_array_type{0, ((void)E,0)...}
+
+template<typename Fn, typename ...Args>
+CAMP_HOST_DEVICE
+#if (__cplusplus >= 201402L)
+constexpr
+#endif
+void for_each_arg(Fn &&f, Args&&...args) {
+  CAMP_EXPAND(f((Args &&)args));
+}
+
 // bring common utility routines into scope to allow ADL
 using std::begin;
 using std::swap;
