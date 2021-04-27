@@ -47,7 +47,7 @@ inline void sink(Ts const& ...)
 namespace detail {
   using __expand_array_type = int[];
 }
-#define CAMP_EXPAND(E...) ::camp::detail::__expand_array_type{0, ((void)E,0)...}
+#define CAMP_EXPAND(...) ::camp::detail::__expand_array_type{0, ((void)(__VA_ARGS__),0)...}
 
 template<typename Fn, typename ...Args>
 CAMP_HOST_DEVICE
