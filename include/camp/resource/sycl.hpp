@@ -30,7 +30,7 @@ namespace resources
     class SyclEvent
     {
     public:
-      SyclEvent(sycl::queue qu)
+      SyclEvent(sycl::queue* qu)
       {
         m_event = sycl::event();
       }
@@ -44,9 +44,9 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue get_a_stream(int num)
+      static sycl::queue* get_a_queue(int num)
       {
-        static sycl::queue streams[16];
+        static sycl::queue qus[16];
         static int previous = 0;
 
         static std::once_flag m_onceFlag;
@@ -56,14 +56,14 @@ namespace resources
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
-          return streams[previous];
+          return &qus[previous];
         }
 
-        return streams[num % 16];
+	return &qus[num % 16];
       }
 
     public:
-      Sycl(int group = -1) : stream(get_a_stream(group)) {}
+      Sycl(int group = -1) : qu(get_a_queue(group)) {}
 
       // Methods
       Platform get_platform() { return Platform::sycl; }
@@ -72,9 +72,9 @@ namespace resources
         static Sycl h;
         return h;
       }
-      SyclEvent get_event() { return SyclEvent(get_stream()); }
-      Event get_event_erased() { return Event{SyclEvent(get_stream())}; }
-      void wait() { stream.wait(); }
+      SyclEvent get_event() { return SyclEvent(get_queue()); }
+      Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
+      void wait() { qu->wait(); }
       void wait_for(Event *e)
       {
         auto *sycl_event = e->try_get<SyclEvent>();
@@ -91,7 +91,7 @@ namespace resources
       {
         T *ret = nullptr;
         if (size > 0) {
-          ret = sycl::malloc_shared<T>(size, stream); 
+          ret = sycl::malloc_shared<T>(size, *qu); 
         }
         return ret;
       }
@@ -103,26 +103,25 @@ namespace resources
       }
       void deallocate(void *p)
       { 
-        sycl::free(p, stream);
+        sycl::free(p, *qu);
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
-          stream.memcpy(dst, src, size).wait();
+          qu->memcpy(dst, src, size).wait();
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
-          stream.memset(p, val, size);
-          stream.wait();
+          qu->memset(p, val, size).wait();
         }
       }
 
-      sycl::queue get_stream() { return stream; }
+      sycl::queue* get_queue() { return qu; }
 
     private:
-      sycl::queue stream;
+      sycl::queue* qu;
     };
 
   }  // namespace v1
