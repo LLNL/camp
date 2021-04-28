@@ -13,7 +13,7 @@ build_script:
 
     cd build
 
-    cmake ../
+    cmake -D CMAKE_BUILD_TYPE=Release ../
 
     cmake --build . --config Release
 test_script:
