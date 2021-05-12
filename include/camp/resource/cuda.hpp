@@ -85,7 +85,6 @@ namespace resources
         return streams[num % 16];
       }
 
-    private:
       Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
       Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
