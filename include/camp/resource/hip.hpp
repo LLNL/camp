@@ -47,6 +47,10 @@ namespace resources
         campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
         campHipErrchk(hipEventRecord(m_event, stream));
       }
+
+      HipEvent(Hip& res) : HipEvent(res.get_stream()) {
+      }
+
       bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
       void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
       hipEvent_t getHipEvent_t() const { return m_event; }
@@ -81,11 +85,21 @@ namespace resources
         }
 
         return streams[num % 16];
-      }
-    private:
-      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
+      } 
+
+      Hip(hipStream_t s) : stream(s) {}
     public:
-      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev)  {}
+      Hip(int group = -1) : stream(get_a_stream(group)) {}
+
+      /// Create a resource from a custom stream
+      /// The device specified must match the stream, if none is specified the
+      /// currently selected device is used.
+      static Hip HipFromStream(hipStream_t s, int dev=-1) {
+        if (dev < 0) {
+          campHipErrchk(hipGetDevice(&dev));
+        }
+        return Hip(s, dev);
+      }
 
       // Methods
       Platform get_platform() { return Platform::hip; }
