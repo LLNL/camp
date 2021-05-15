@@ -30,11 +30,11 @@ namespace resources
       struct device_guard {
         device_guard(int device)
         {
-          cudaGetDevice(&prev_device);
-          cudaSetDevice(device);
+          campCudaErrchk(cudaGetDevice(&prev_device));
+          campCudaErrchk(cudaSetDevice(device));
         }
 
-        ~device_guard() { cudaSetDevice(prev_device); }
+        ~device_guard() { campCudaErrchk(cudaSetDevice(prev_device)); }
 
       int prev_device;
     };
@@ -46,11 +46,11 @@ namespace resources
     public:
       CudaEvent(cudaStream_t stream)
       {
-        cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming);
-        cudaEventRecord(m_event, stream);
+        campCudaErrchk(cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
+        campCudaErrchk(cudaEventRecord(m_event, stream));
       }
-      bool check() const { return (cudaEventQuery(m_event) == cudaSuccess); }
-      void wait() const { cudaEventSynchronize(m_event); }
+      bool check() const { return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess); }
+      void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -70,7 +70,7 @@ namespace resources
         std::call_once(m_onceFlag, [] {
           if (streams[0] == nullptr) {
             for (auto &s : streams) {
-              cudaStreamCreate(&s);
+              campCudaErrchk(cudaStreamCreate(&s));
             }
           }
         });
@@ -99,7 +99,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          cudaStreamCreate(&s);
+          campCudaErrchk(cudaStreamCreate(&s));
 #endif
           return s;
         }());
@@ -121,7 +121,7 @@ namespace resources
       void wait()
       {
         auto d{device_guard(device)};
-        cudaStreamSynchronize(stream);
+        campCudaErrchk(cudaStreamSynchronize(stream));
       }
 
       void wait_for(Event *e)
@@ -129,7 +129,9 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          cudaStreamWaitEvent(get_stream(), cuda_event->getCudaEvent_t(), 0);
+          campCudaErrchk(cudaStreamWaitEvent(get_stream(),
+                                             cuda_event->getCudaEvent_t(),
+                                             0));
         } else {
           e->wait();
         }
@@ -142,7 +144,7 @@ namespace resources
         T *ret = nullptr;
         if (size > 0) {
           auto d{device_guard(device)};
-          cudaMallocManaged(&ret, sizeof(T) * size);
+          campCudaErrchk(cudaMallocManaged(&ret, sizeof(T) * size));
         }
         return ret;
       }
@@ -155,20 +157,20 @@ namespace resources
       void deallocate(void *p)
       {
         auto d{device_guard(device)};
-        cudaFree(p);
+        campCudaErrchk(cudaFree(p));
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream);
+          campCudaErrchk(cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream));
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          cudaMemsetAsync(p, val, size, stream);
+          campCudaErrchk(cudaMemsetAsync(p, val, size, stream));
         }
       }
 

@@ -29,11 +29,11 @@ namespace resources
     public:
       HipEvent(hipStream_t stream)
       {
-        hipEventCreateWithFlags(&m_event, hipEventDisableTiming);
-        hipEventRecord(m_event, stream);
+        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
+        campHipErrchk(hipEventRecord(m_event, stream));
       }
-      bool check() const { return (hipEventQuery(m_event) == hipSuccess); }
-      void wait() const { hipEventSynchronize(m_event); }
+      bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
+      void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
       hipEvent_t getHipEvent_t() const { return m_event; }
 
     private:
@@ -53,7 +53,7 @@ namespace resources
         std::call_once(m_onceFlag, [] {
           if (streams[0] == nullptr) {
             for (auto &s : streams) {
-              hipStreamCreate(&s);
+              campHipErrchk(hipStreamCreate(&s));
             }
           }
         });
@@ -66,7 +66,7 @@ namespace resources
         }
 
         return streams[num % 16];
-      } 
+      }
     private:
       Hip(hipStream_t s) : stream(s) {}
     public:
@@ -81,7 +81,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          hipStreamCreate(&s);
+          campHipErrchk(hipStreamCreate(&s));
 #endif
           return s;
         }());
@@ -89,14 +89,14 @@ namespace resources
       }
       HipEvent get_event() { return HipEvent(get_stream()); }
       Event get_event_erased() { return Event{HipEvent(get_stream())}; }
-      void wait() { hipStreamSynchronize(stream); }
+      void wait() { campHipErrchk(hipStreamSynchronize(stream)); }
       void wait_for(Event *e)
       {
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
-          hipStreamWaitEvent(get_stream(),
-                              hip_event->getHipEvent_t(),
-                              0);
+          campHipErrchk(hipStreamWaitEvent(get_stream(),
+                                           hip_event->getHipEvent_t(),
+                                           0));
         } else {
           e->wait();
         }
@@ -107,7 +107,7 @@ namespace resources
       T *allocate(size_t size)
       {
         T *ret = nullptr;
-        hipMallocManaged(&ret, sizeof(T) * size);
+        campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
         return ret;
       }
       void *calloc(size_t size)
@@ -116,14 +116,14 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { hipFree(p); }
+      void deallocate(void *p) { campHipErrchk(hipFree(p)); }
       void memcpy(void *dst, const void *src, size_t size)
       {
-        hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream);
+        campHipErrchk(hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
       }
       void memset(void *p, int val, size_t size)
       {
-        hipMemsetAsync(p, val, size, stream);
+        campHipErrchk(hipMemsetAsync(p, val, size, stream));
       }
 
       hipStream_t get_stream() { return stream; }
