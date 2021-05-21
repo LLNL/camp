@@ -88,6 +88,7 @@ namespace resources
       } 
 
       Hip(hipStream_t s) : stream(s) {}
+
     public:
       Hip(int group = -1) : stream(get_a_stream(group)) {}
 
