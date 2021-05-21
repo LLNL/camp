@@ -72,6 +72,26 @@ TEST(CampResource, Reassignment)
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
+TEST(CampResource, StreamSelect)
+{
+  cudaStream_t stream1, stream2;
+
+  cudaStreamCreate(&stream1);
+  cudaStreamCreate(&stream2);
+
+  Resource c1{Cuda(stream1)};
+  Resource c2{Cuda(stream2)};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(5);
+  int* d_array2 = c2.allocate<int>(5);
+
+  cudaFree(d_array1);
+  cudaFree(d_array2);
+
+  cudaStreamDestroy(stream1);
+  cudaStreamDestroy(stream2);
+}
 
 TEST(CampResource, Get)
 {
@@ -135,6 +155,27 @@ TEST(CampResource, Reassignment)
   Resource c2{Hip()};
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
+}
+
+TEST(CampResource, StreamSelect)
+{
+  hipStream_t stream1, stream2;
+
+  hipStreamCreate(&stream1);
+  hipStreamCreate(&stream2);
+
+  Resource c1{Hip(stream1)};
+  Resource c2{Hip(stream2)};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(5);
+  int* d_array2 = c2.allocate<int>(5);
+
+  hipFree(d_array1);
+  hipFree(d_array2);
+
+  hipStreamDestroy(stream1);
+  hipStreamDestroy(stream2);
 }
 
 TEST(CampResource, Get)
