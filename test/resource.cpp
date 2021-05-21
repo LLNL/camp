@@ -86,8 +86,8 @@ TEST(CampResource, StreamSelect)
   int* d_array1 = c1.allocate<int>(5);
   int* d_array2 = c2.allocate<int>(5);
 
-  cudaFree(d_array1);
-  cudaFree(d_array2);
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
 
   cudaStreamDestroy(stream1);
   cudaStreamDestroy(stream2);
@@ -171,8 +171,8 @@ TEST(CampResource, StreamSelect)
   int* d_array1 = c1.allocate<int>(5);
   int* d_array2 = c2.allocate<int>(5);
 
-  hipFree(d_array1);
-  hipFree(d_array2);
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
 
   hipStreamDestroy(stream1);
   hipStreamDestroy(stream2);
