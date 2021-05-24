@@ -43,7 +43,23 @@ namespace resources
     {
       static sycl::queue *get_a_queue(int num)
       {
-        static sycl::queue qus[16];
+        static sycl::queue qus[] = { sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),	
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
+                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())) }
+	;
         static int previous = 0;
 
         static std::once_flag m_onceFlag;
