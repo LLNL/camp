@@ -189,7 +189,7 @@ TEST(CampEvent, Get)
 #endif
 
 template<typename Res>
-static EventProxy<Res> do_stuff(Res* r)
+static EventProxy<Res> do_stuff(Res r)
 {
   return EventProxy<Res>(r);
 }
@@ -198,20 +198,20 @@ TEST(CampEventProxy, Get)
 {
   Host h1{Host{}};
   {
-    EventProxy<Host> ep{&h1};
+    EventProxy<Host> ep{h1};
     Event e = ep;
   }
 
   {
-    Event e = do_stuff(&h1);
+    Event e = do_stuff(h1);
   }
 
   {
-    do_stuff(&h1);
+    do_stuff(h1);
   }
 
   {
-    EventProxy<Host> ep{&h1};
+    EventProxy<Host> ep{h1};
     Event e = ep.get();
   }
 }
