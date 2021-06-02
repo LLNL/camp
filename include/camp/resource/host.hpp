@@ -36,7 +36,7 @@ namespace resources
 
       // Methods
       Platform get_platform() { return Platform::host; }
-      static Host &get_default()
+      static Host get_default()
       {
         static Host h;
         return h;

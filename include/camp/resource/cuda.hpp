@@ -92,7 +92,7 @@ namespace resources
 
       // Methods
       Platform get_platform() { return Platform::cuda; }
-      static Cuda &get_default()
+      static Cuda get_default()
       {
         static Cuda c( [] {
           cudaStream_t s;
