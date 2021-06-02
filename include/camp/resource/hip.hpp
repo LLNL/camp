@@ -74,7 +74,7 @@ namespace resources
 
       // Methods
       Platform get_platform() { return Platform::hip; }
-      static Hip &get_default()
+      static Hip get_default()
       {
         static Hip h( [] {
           hipStream_t s;

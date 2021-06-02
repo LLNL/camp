@@ -85,7 +85,7 @@ namespace resources
 
       // Methods
       Platform get_platform() { return Platform::omp_target; }
-      static Omp &get_default()
+      static Omp get_default()
       {
         static Omp o;
         return o;
