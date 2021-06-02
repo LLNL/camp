@@ -17,13 +17,22 @@ namespace resources
 {
   inline namespace v1
   {
-
+    namespace detail {
+      struct EventProxyBase{}; // helper to identify EventProxy in sfinae
+    }
     class Event
     {
     public:
       Event() {}
-      template <typename T>
-      explicit Event(T &&value)
+      template <
+          typename T,
+          typename = typename std::enable_if<!(
+              std::is_same<typename std::decay<T>::type, Event>::value
+              || std::is_convertible<typename std::decay<T>::type *,
+                              ::camp::resources::detail::EventProxyBase *>::value
+
+              )>::type>
+      Event(T &&value)
       {
         m_value.reset(new EventModel<T>(value));
       }
