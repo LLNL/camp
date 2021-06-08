@@ -24,6 +24,21 @@ namespace resources
   inline namespace v1
   {
 
+    namespace
+    {
+      struct device_guard {
+        device_guard(int device)
+        {
+          campHipErrchk(hipGetDevice(&prev_device));
+          campHipErrchk(hipSetDevice(device));
+        }
+
+        ~device_guard() { campHipErrchk(hipSetDevice(prev_device)); }
+
+      int prev_device;
+    };
+
+    }  // namespace
     class HipEvent
     {
     public:
@@ -68,9 +83,9 @@ namespace resources
         return streams[num % 16];
       }
     private:
-      Hip(hipStream_t s) : stream(s) {}
+      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
     public:
-      Hip(int group = -1) : stream(get_a_stream(group)) {}
+      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev)  {}
 
       // Methods
       Platform get_platform() { return Platform::hip; }
@@ -87,13 +102,23 @@ namespace resources
         }());
         return h;
       }
-      HipEvent get_event() { return HipEvent(get_stream()); }
-      Event get_event_erased() { return Event{HipEvent(get_stream())}; }
-      void wait() { campHipErrchk(hipStreamSynchronize(stream)); }
+      HipEvent get_event() {
+        auto d{device_guard(device)};
+        return HipEvent(get_stream());
+      }
+      Event get_event_erased() {
+        auto d{device_guard(device)};
+        return Event{HipEvent(get_stream())};
+      }
+      void wait() {
+        auto d{device_guard(device)};
+        campHipErrchk(hipStreamSynchronize(stream));
+      }
       void wait_for(Event *e)
       {
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
+          auto d{device_guard(device)};
           campHipErrchk(hipStreamWaitEvent(get_stream(),
                                            hip_event->getHipEvent_t(),
                                            0));
@@ -107,7 +132,10 @@ namespace resources
       T *allocate(size_t size)
       {
         T *ret = nullptr;
-        campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+        if (size > 0) {
+          auto d{device_guard(device)};
+          campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+        }
         return ret;
       }
       void *calloc(size_t size)
@@ -116,20 +144,31 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { campHipErrchk(hipFree(p)); }
+      void deallocate(void *p) {
+        auto d{device_guard(device)};
+        campHipErrchk(hipFree(p));
+      }
       void memcpy(void *dst, const void *src, size_t size)
       {
-        campHipErrchk(hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
+        if (size > 0) {
+          auto d{device_guard(device)};
+          campHipErrchk(hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
+        }
       }
       void memset(void *p, int val, size_t size)
       {
-        campHipErrchk(hipMemsetAsync(p, val, size, stream));
+        if (size > 0) {
+          auto d{device_guard(device)};
+          campHipErrchk(hipMemsetAsync(p, val, size, stream));
+        }
       }
 
       hipStream_t get_stream() { return stream; }
+      int get_device() { return device; }
 
     private:
       hipStream_t stream;
+      int device;
     };
 
   }  // namespace v1
