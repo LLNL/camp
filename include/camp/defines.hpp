@@ -109,7 +109,7 @@ namespace camp
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #endif
-#endif  // !defined(__x86_64__)
+#endif
 
 // This works for:
 //   clang
