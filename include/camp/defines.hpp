@@ -97,6 +97,9 @@ namespace camp
 #if defined(ENABLE_TARGET_OPENMP)
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
+#else
+#define CAMP_HAVE_OMP_OFFLOAD 0
+#warning Compiler does NOT support OpenMP Target Offload even though user has enabled it!
 #endif
 #endif
 
