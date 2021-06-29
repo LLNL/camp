@@ -41,25 +41,31 @@ namespace resources
 
     class Sycl
     {
+<<<<<<< HEAD
       static sycl::queue *get_a_queue(int num)
+=======
+      static sycl::queue* get_a_queue(sycl::context syclContext, int num)
+>>>>>>> b3654c7 (Update SYCL resource to use single context and optionally take sycl context on construction)
       {
-        static sycl::queue qus[] = { sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),	
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())),
-                                     sycl::queue(sycl::property_list(sycl::property::queue::in_order())) }
-	;
+        static sycl::gpu_selector gpuSelector;
+        static sycl::property_list propertyList = sycl::property_list(sycl::property::queue::in_order());
+        static sycl::queue qus[] = { sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList),
+                                     sycl::queue(syclContext, gpuSelector, propertyList) };
+
         static int previous = 0;
 
         static std::once_flag m_onceFlag;
@@ -76,7 +82,7 @@ namespace resources
       }
 
     public:
-      Sycl(int group = -1) : qu(get_a_queue(group)) {}
+      Sycl(sycl::context syclContext = sycl::context(), int group = -1) : qu(get_a_queue(syclContext, group)) {}
 
       // Methods
       Platform get_platform() { return Platform::sycl; }
