@@ -91,7 +91,7 @@ namespace resources
         m_value->memset(p, val, size);
       }
       Event get_event() { return m_value->get_event(); }
-      Event get_event_erased() { return m_value->get_event(); }
+      Event get_event_erased() { return m_value->get_event_erased(); }
       void wait_for(Event *e) { m_value->wait_for(e); }
 
     private:
