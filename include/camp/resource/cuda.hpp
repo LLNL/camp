@@ -24,6 +24,7 @@ namespace resources
 {
   inline namespace v1
   {
+    class Cuda;
 
     namespace
     {
@@ -49,6 +50,10 @@ namespace resources
         campCudaErrchk(cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
         campCudaErrchk(cudaEventRecord(m_event, stream));
       }
+
+      CudaEvent(Cuda& res) : CudaEvent(res.get_stream()) {
+      }
+
       bool check() const { return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess); }
       void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }

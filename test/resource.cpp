@@ -79,8 +79,8 @@ TEST(CampResource, StreamSelect)
   cudaStreamCreate(&stream1);
   cudaStreamCreate(&stream2);
 
-  Resource c1{Cuda(stream1)};
-  Resource c2{Cuda(stream2)};
+  Resource c1{CudaFromStream(stream1)};
+  Resource c2{CudaFromStream(stream2)};
 
   const int N = 5;
   int* d_array1 = c1.allocate<int>(5);
