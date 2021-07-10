@@ -17,7 +17,7 @@ http://github.com/llnl/camp
 
 #ifdef CAMP_HAVE_SYCL
 #include <CL/sycl.hpp>
-
+#include <map>
 using namespace cl;
 
 namespace camp
@@ -41,48 +41,83 @@ namespace resources
 
     class Sycl
     {
-<<<<<<< HEAD
-      static sycl::queue *get_a_queue(int num)
-=======
-      static sycl::queue* get_a_queue(sycl::context syclContext, int num)
->>>>>>> b3654c7 (Update SYCL resource to use single context and optionally take sycl context on construction)
+      static sycl::queue* get_a_queue(sycl::context &syclContext, int num, bool useContext)
       {
         static sycl::gpu_selector gpuSelector;
         static sycl::property_list propertyList = sycl::property_list(sycl::property::queue::in_order());
-        static sycl::queue qus[] = { sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList),
-                                     sycl::queue(syclContext, gpuSelector, propertyList) };
+        static sycl::context privateContext;
+        static sycl::context* contextInUse = NULL;
+	static std::map<sycl::context*, std::array<sycl::queue,16>> queueMap;
+
+
+        static std::mutex m_mtx;
+	m_mtx.lock();
+
+	// User passed a context, use it
+        if(useContext) {
+          contextInUse = &syclContext;
+
+  	  if(queueMap.find(contextInUse) == queueMap.end()) {
+            queueMap[contextInUse] =  { sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList) };
+	  }
+	} else { // User did not pass context, use last used or private one
+	  if(contextInUse == NULL) {
+            contextInUse = &privateContext;
+            queueMap[contextInUse] =  { sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList),
+                                        sycl::queue(*contextInUse, gpuSelector, propertyList) };
+	  }
+	}
+	m_mtx.unlock();
 
         static int previous = 0;
-
+        
         static std::once_flag m_onceFlag;
-        static std::mutex m_mtx;
-
         if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
           m_mtx.unlock();
-          return &qus[previous];
+          return &queueMap[contextInUse][previous];
         }
 
-        return &qus[num % 16];
+	return &queueMap[contextInUse][num % 16];
       }
 
     public:
-      Sycl(sycl::context syclContext = sycl::context(), int group = -1) : qu(get_a_queue(syclContext, group)) {}
+      Sycl(int group = -1) {
+        sycl::context temp;
+        qu = get_a_queue(temp, group, false);
+      }
+
+      Sycl(sycl::context &syclContext, int group = -1) : qu(get_a_queue(syclContext, group, true)) {}
 
       // Methods
       Platform get_platform() { return Platform::sycl; }
