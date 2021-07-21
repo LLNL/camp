@@ -105,6 +105,7 @@ namespace resources
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
         virtual Event get_event() = 0;
+        virtual Event get_event_erased() = 0;
         virtual void wait_for(Event *e) = 0;
       };
 
@@ -125,6 +126,7 @@ namespace resources
           m_modelVal.memset(p, val, size);
         }
         Event get_event() override { return m_modelVal.get_event_erased(); }
+        Event get_event_erased() override { return m_modelVal.get_event_erased(); }
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
         T *get() { return &m_modelVal; }
 
