@@ -194,7 +194,7 @@ namespace resources
       int device;
     };
 
-    HipEvent::HipEvent(Hip& res)
+    inline HipEvent::HipEvent(Hip& res)
     {
       auto d{device_guard(res.get_device())};
       init(res.get_stream());

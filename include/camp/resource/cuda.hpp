@@ -197,7 +197,7 @@ namespace resources
       int device;
     };
 
-    CudaEvent::CudaEvent(Cuda& res)
+    inline CudaEvent::CudaEvent(Cuda& res)
     {
       auto d{device_guard(res.get_device())};
       init(res.get_stream());
