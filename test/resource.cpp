@@ -83,8 +83,8 @@ TEST(CampResource, StreamSelect)
   Resource c2{Cuda::CudaFromStream(stream2)};
 
   const int N = 5;
-  int* d_array1 = c1.allocate<int>(5);
-  int* d_array2 = c2.allocate<int>(5);
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
 
   c1.deallocate(d_array1);
   c2.deallocate(d_array2);
@@ -168,8 +168,8 @@ TEST(CampResource, StreamSelect)
   Resource c2{Hip::HipFromStream(stream2)};
 
   const int N = 5;
-  int* d_array1 = c1.allocate<int>(5);
-  int* d_array2 = c2.allocate<int>(5);
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
 
   c1.deallocate(d_array1);
   c2.deallocate(d_array2);
