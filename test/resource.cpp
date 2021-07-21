@@ -244,7 +244,16 @@ TEST(CampEventProxy, Get)
   }
 
   {
+    EventProxy<Host> ep{h1};
+    HostEvent e = ep;
+  }
+
+  {
     Event e = do_stuff(h1);
+  }
+
+  {
+    HostEvent e = do_stuff(h1);
   }
 
   {
@@ -254,6 +263,11 @@ TEST(CampEventProxy, Get)
   {
     EventProxy<Host> ep{h1};
     Event e = ep.get();
+  }
+
+  {
+    EventProxy<Host> ep{h1};
+    HostEvent e = ep.get();
   }
 }
 
