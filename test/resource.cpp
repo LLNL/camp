@@ -79,8 +79,8 @@ TEST(CampResource, StreamSelect)
   cudaStreamCreate(&stream1);
   cudaStreamCreate(&stream2);
 
-  Resource c1{CudaFromStream(stream1)};
-  Resource c2{CudaFromStream(stream2)};
+  Resource c1{Cuda::CudaFromStream(stream1)};
+  Resource c2{Cuda::CudaFromStream(stream2)};
 
   const int N = 5;
   int* d_array1 = c1.allocate<int>(5);
@@ -164,8 +164,8 @@ TEST(CampResource, StreamSelect)
   hipStreamCreate(&stream1);
   hipStreamCreate(&stream2);
 
-  Resource c1{Hip(stream1)};
-  Resource c2{Hip(stream2)};
+  Resource c1{Hip::HipFromStream(stream1)};
+  Resource c2{Hip::HipFromStream(stream2)};
 
   const int N = 5;
   int* d_array1 = c1.allocate<int>(5);
