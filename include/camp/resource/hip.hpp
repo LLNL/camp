@@ -85,12 +85,13 @@ namespace resources
         }
 
         return streams[num % 16];
-      } 
+      }
 
-      Hip(hipStream_t s) : stream(s) {}
+      // Private from-stream constructor
+      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
 
     public:
-      Hip(int group = -1) : stream(get_a_stream(group)) {}
+      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
