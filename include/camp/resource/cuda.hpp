@@ -24,6 +24,7 @@ namespace resources
 {
   inline namespace v1
   {
+    class Cuda;
 
     namespace
     {
@@ -49,6 +50,10 @@ namespace resources
         campCudaErrchk(cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
         campCudaErrchk(cudaEventRecord(m_event, stream));
       }
+
+      CudaEvent(Cuda& res) : CudaEvent(res.get_stream()) {
+      }
+
       bool check() const { return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess); }
       void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
@@ -85,10 +90,21 @@ namespace resources
         return streams[num % 16];
       }
 
-    private:
+      // Private from-stream constructor
       Cuda(cudaStream_t s, int dev=0) : stream(s), device(dev) {}
+
     public:
       Cuda(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
+
+      /// Create a resource from a custom stream
+      /// The device specified must match the stream, if none is specified the
+      /// currently selected device is used.
+      static Cuda CudaFromStream(cudaStream_t s, int dev=-1) {
+        if (dev < 0) {
+          campCudaErrchk(cudaGetDevice(&dev));
+        }
+        return Cuda(s, dev);
+      }
 
       // Methods
       Platform get_platform() { return Platform::cuda; }

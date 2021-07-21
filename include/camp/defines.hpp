@@ -15,7 +15,7 @@ http://github.com/llnl/camp
 #include <cstdint>
 #include <string>
 
-#if defined(__CUDACC__)
+#if defined(__CUDACC__) || defined(CAMP_HAVE_CUDA)
 #include <cuda_runtime.h>
 #endif
 
@@ -105,8 +105,13 @@ namespace camp
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
+#if defined(ENABLE_TARGET_OPENMP)
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
+#else
+#define CAMP_HAVE_OMP_OFFLOAD 0
+#warning Compiler does NOT support OpenMP Target Offload even though user has enabled it!
+#endif
 #endif
 
 // This works for:
