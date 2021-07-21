@@ -118,18 +118,25 @@ namespace resources
         }());
         return h;
       }
-      HipEvent get_event() {
+
+      HipEvent get_event()
+      {
         auto d{device_guard(device)};
         return HipEvent(get_stream());
       }
-      Event get_event_erased() {
+
+      Event get_event_erased()
+      {
         auto d{device_guard(device)};
         return Event{HipEvent(get_stream())};
       }
-      void wait() {
+
+      void wait()
+      {
         auto d{device_guard(device)};
         campHipErrchk(hipStreamSynchronize(stream));
       }
+
       void wait_for(Event *e)
       {
         auto *hip_event = e->try_get<HipEvent>();
