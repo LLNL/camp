@@ -11,27 +11,33 @@ http://github.com/llnl/camp
 #ifndef __CAMP_EVENT_HPP
 #define __CAMP_EVENT_HPP
 
+#include<type_traits>
+#include<exception>
+#include<memory>
+
 namespace camp
 {
 namespace resources
 {
   inline namespace v1
   {
-    namespace detail {
-      struct EventProxyBase{}; // helper to identify EventProxy in sfinae
-    }
+    namespace detail
+    {
+      struct EventProxyBase {
+      };  // helper to identify EventProxy in sfinae
+    }     // namespace detail
     class Event
     {
     public:
-      Event() {}
-      template <
-          typename T,
-          typename = typename std::enable_if<!(
-              std::is_same<typename std::decay<T>::type, Event>::value
-              || std::is_convertible<typename std::decay<T>::type *,
-                              ::camp::resources::detail::EventProxyBase *>::value
-
-              )>::type>
+      Event() = default;
+      Event(Event const &e) = default;
+      Event(Event &&e) = default;
+      template <typename T,
+                typename std::enable_if<
+                    !(std::is_convertible<
+                        typename std::decay<T>::type *,
+                        ::camp::resources::detail::EventProxyBase *>::value
+                      )>::type * = nullptr>
       Event(T &&value)
       {
         m_value.reset(new EventModel<T>(value));
