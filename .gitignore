@@ -3,7 +3,16 @@
 *.a
 *.exe
 *.gch
+
+# editor directories
+.idea/
+.clangd/
+.vscode/
+
+# build directories
 build/
 build-*/
+cmake-build-*/
+docker-*-build/
 /Debug/
 ./extern/googletest/*
