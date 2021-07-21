@@ -49,8 +49,7 @@ namespace resources
         campHipErrchk(hipEventRecord(m_event, stream));
       }
 
-      HipEvent(Hip& res) : HipEvent(res.get_stream()) {
-      }
+      HipEvent(Hip& res);
 
       bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
       void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
@@ -194,6 +193,8 @@ namespace resources
       hipStream_t stream;
       int device;
     };
+
+    HipEvent::HipEvent(Hip& res) : HipEvent(res.get_stream()) {}
 
   }  // namespace v1
 }  // namespace resources

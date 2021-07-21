@@ -51,8 +51,7 @@ namespace resources
         campCudaErrchk(cudaEventRecord(m_event, stream));
       }
 
-      CudaEvent(Cuda& res) : CudaEvent(res.get_stream()) {
-      }
+      CudaEvent(Cuda& res);
 
       bool check() const { return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess); }
       void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
@@ -197,6 +196,8 @@ namespace resources
       cudaStream_t stream;
       int device;
     };
+
+    CudaEvent::CudaEvent(Cuda& res) : CudaEvent(res.get_stream()) {}
 
   }  // namespace v1
 }  // namespace resources
