@@ -45,14 +45,9 @@ namespace resources
     class CudaEvent
     {
     public:
-      CudaEvent(cudaStream_t stream)
-      {
-        campCudaErrchk(cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
-        campCudaErrchk(cudaEventRecord(m_event, stream));
-      }
+      CudaEvent(cudaStream_t stream) { init(stream); }
 
-      CudaEvent(Cuda& res) : CudaEvent(res.get_stream()) {
-      }
+      CudaEvent(Cuda& res);
 
       bool check() const { return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess); }
       void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
@@ -60,6 +55,12 @@ namespace resources
 
     private:
       cudaEvent_t m_event;
+
+      void init(cudaStream_t stream)
+      {
+        campCudaErrchk(cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
+        campCudaErrchk(cudaEventRecord(m_event, stream));
+      }
     };
 
     class Cuda
@@ -124,14 +125,12 @@ namespace resources
 
       CudaEvent get_event()
       {
-        auto d{device_guard(device)};
-        return CudaEvent(get_stream());
+        return CudaEvent(*this);
       }
 
       Event get_event_erased()
       {
-        auto d{device_guard(device)};
-        return Event{CudaEvent(get_stream())};
+        return Event{CudaEvent(*this)};
       }
 
       void wait()
@@ -197,6 +196,12 @@ namespace resources
       cudaStream_t stream;
       int device;
     };
+
+    inline CudaEvent::CudaEvent(Cuda& res)
+    {
+      auto d{device_guard(res.get_device())};
+      init(res.get_stream());
+    }
 
   }  // namespace v1
 }  // namespace resources

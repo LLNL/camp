@@ -23,6 +23,7 @@ namespace resources
 {
   inline namespace v1
   {
+    class Hip;
 
     namespace
     {
@@ -42,14 +43,9 @@ namespace resources
     class HipEvent
     {
     public:
-      HipEvent(hipStream_t stream)
-      {
-        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
-        campHipErrchk(hipEventRecord(m_event, stream));
-      }
+      HipEvent(hipStream_t stream) { init(stream); }
 
-      HipEvent(Hip& res) : HipEvent(res.get_stream()) {
-      }
+      HipEvent(Hip& res);
 
       bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
       void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
@@ -57,6 +53,12 @@ namespace resources
 
     private:
       hipEvent_t m_event;
+
+      void init(hipStream_t stream)
+      {
+        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
+        campHipErrchk(hipEventRecord(m_event, stream));
+      }
     };
 
     class Hip
@@ -85,12 +87,13 @@ namespace resources
         }
 
         return streams[num % 16];
-      } 
+      }
 
-      Hip(hipStream_t s) : stream(s) {}
+      // Private from-stream constructor
+      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
 
     public:
-      Hip(int group = -1) : stream(get_a_stream(group)) {}
+      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
@@ -117,18 +120,23 @@ namespace resources
         }());
         return h;
       }
-      HipEvent get_event() {
-        auto d{device_guard(device)};
-        return HipEvent(get_stream());
+
+      HipEvent get_event()
+      {
+        return HipEvent(*this);
       }
-      Event get_event_erased() {
-        auto d{device_guard(device)};
-        return Event{HipEvent(get_stream())};
+
+      Event get_event_erased()
+      {
+        return Event{HipEvent(*this)};
       }
-      void wait() {
+
+      void wait()
+      {
         auto d{device_guard(device)};
         campHipErrchk(hipStreamSynchronize(stream));
       }
+
       void wait_for(Event *e)
       {
         auto *hip_event = e->try_get<HipEvent>();
@@ -185,6 +193,12 @@ namespace resources
       hipStream_t stream;
       int device;
     };
+
+    inline HipEvent::HipEvent(Hip& res)
+    {
+      auto d{device_guard(res.get_device())};
+      init(res.get_stream());
+    }
 
   }  // namespace v1
 }  // namespace resources
