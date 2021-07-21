@@ -111,6 +111,7 @@ endfunction()
 
 camp_add_test(resource GTEST)
 camp_add_test(tuple GTEST)
+camp_add_test(optional GTEST)
 
 camp_add_test(tuple_out_of_range RUN)
 
