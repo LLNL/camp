@@ -19,7 +19,7 @@ http://github.com/llnl/camp
 #include <cuda_runtime.h>
 #endif
 
-#if defined(__HIPCC__)
+#if defined(__HIPCC__) || defined(CAMP_HAVE_HIP)
 #include <hip/hip_runtime.h>
 #endif
 
