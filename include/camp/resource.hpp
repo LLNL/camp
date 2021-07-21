@@ -176,20 +176,20 @@ namespace resources
     using native_event = decltype(std::declval<Res>().get_event());
     
     EventProxy(EventProxy &&) = default;
-    EventProxy(EventProxy const &) = delete;
+    EventProxy(EventProxy &) = delete;
     EventProxy &operator=(EventProxy &&) = default;
-    EventProxy &operator=(EventProxy const &) = delete;
+    EventProxy &operator=(EventProxy &) = delete;
 
     EventProxy(Res r) :
       resource_{r}
     {}
 
-    native_event get() const {
-      return resource_->get_event();
+    native_event get() {
+      return resource_.get_event();
     }
 
-    operator native_event() const {
-      return resource_->get_event();
+    operator native_event() {
+      return resource_.get_event();
     }
 
     operator Event() {
