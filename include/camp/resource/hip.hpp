@@ -23,6 +23,7 @@ namespace resources
 {
   inline namespace v1
   {
+    class Hip;
 
     namespace
     {
