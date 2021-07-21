@@ -24,7 +24,7 @@ http://github.com/llnl/camp
 #include "camp/size.hpp"
 #include "camp/tuple.hpp"
 #include "camp/value.hpp"
-#include "camp/optional.hpp"
+// #include "camp/optional.hpp"
 
 #include "camp/detail/test.hpp"
 
