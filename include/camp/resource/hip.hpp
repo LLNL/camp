@@ -43,11 +43,7 @@ namespace resources
     class HipEvent
     {
     public:
-      HipEvent(hipStream_t stream)
-      {
-        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
-        campHipErrchk(hipEventRecord(m_event, stream));
-      }
+      HipEvent(hipStream_t stream) { init(stream); }
 
       HipEvent(Hip& res);
 
@@ -57,6 +53,12 @@ namespace resources
 
     private:
       hipEvent_t m_event;
+
+      void init(hipStream_t stream)
+      {
+        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
+        campHipErrchk(hipEventRecord(m_event, stream));
+      }
     };
 
     class Hip
@@ -121,14 +123,12 @@ namespace resources
 
       HipEvent get_event()
       {
-        auto d{device_guard(device)};
-        return HipEvent(get_stream());
+        return HipEvent(*this);
       }
 
       Event get_event_erased()
       {
-        auto d{device_guard(device)};
-        return Event{HipEvent(get_stream())};
+        return Event{HipEvent(*this)};
       }
 
       void wait()
@@ -194,7 +194,11 @@ namespace resources
       int device;
     };
 
-    HipEvent::HipEvent(Hip& res) : HipEvent(res.get_stream()) {}
+    HipEvent::HipEvent(Hip& res)
+    {
+      auto d{device_guard(res.get_device())};
+      init(res.get_stream());
+    }
 
   }  // namespace v1
 }  // namespace resources
