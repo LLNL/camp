@@ -173,8 +173,8 @@ namespace resources
 
   template<typename Res>
   struct EventProxy : ::camp::resources::detail::EventProxyBase {
-    using native_event = decltype(std::declval<Res>().get_event());
-    
+    using native_event = typename std::decay<decltype(std::declval<Res>().get_event())>::type;
+
     EventProxy(EventProxy &&) = default;
     EventProxy(EventProxy &) = delete;
     EventProxy &operator=(EventProxy &&) = default;
@@ -188,6 +188,10 @@ namespace resources
       return resource_.get_event();
     }
 
+    template <typename T = Res,
+              typename = typename std::enable_if<
+                  !std::is_same<typename std::decay<decltype(std::declval<T>().get_event())>::type,
+                                Event>::value>::type>
     operator native_event() {
       return resource_.get_event();
     }

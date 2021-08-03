@@ -238,6 +238,12 @@ static EventProxy<Res> do_stuff(Res r)
 TEST(CampEventProxy, Get)
 {
   Host h1{Host{}};
+
+  {
+    EventProxy<Resource> ep{Resource{h1}};
+    Event e = ep;
+  }
+
   {
     EventProxy<Host> ep{h1};
     Event e = ep;
@@ -246,6 +252,10 @@ TEST(CampEventProxy, Get)
   {
     EventProxy<Host> ep{h1};
     HostEvent e = ep;
+  }
+
+  {
+    Event e = do_stuff(Resource{h1});
   }
 
   {
@@ -258,6 +268,11 @@ TEST(CampEventProxy, Get)
 
   {
     do_stuff(h1);
+  }
+
+  {
+    EventProxy<Resource> ep{Resource{h1}};
+    Event e = ep.get();
   }
 
   {
