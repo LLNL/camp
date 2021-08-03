@@ -192,7 +192,7 @@ namespace resources
       EventProxy(EventProxy &&) = default;
       EventProxy(EventProxy &) = delete;
       EventProxy &operator=(EventProxy &&) = default;
-      EventProxy &operator=(EventProxy &) = delete;
+      EventProxy &operator=(EventProxy const &) = delete;
 
       EventProxy(Res r) : resource_{move(r)} {}
 
