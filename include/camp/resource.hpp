@@ -128,7 +128,10 @@ namespace resources
           m_modelVal.memset(p, val, size);
         }
         Event get_event() override { return m_modelVal.get_event_erased(); }
-        Event get_event_erased() override { return m_modelVal.get_event_erased(); }
+        Event get_event_erased() override
+        {
+          return m_modelVal.get_event_erased();
+        }
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
         void wait() override { m_modelVal.wait(); }
         T *get() { return &m_modelVal; }
@@ -171,37 +174,56 @@ namespace resources
     };
 #endif
 
-  template<typename Res>
-  struct EventProxy : ::camp::resources::detail::EventProxyBase {
-    using native_event = typename std::decay<decltype(std::declval<Res>().get_event())>::type;
+    namespace detail
+    {
+      template <typename Res>
+      using get_event_type =
+          typename std::decay<decltype(std::declval<Res>().get_event())>::type;
 
-    EventProxy(EventProxy &&) = default;
-    EventProxy(EventProxy &) = delete;
-    EventProxy &operator=(EventProxy &&) = default;
-    EventProxy &operator=(EventProxy &) = delete;
+      template <typename T>
+      using is_erased_resource_or_proxy =
+          typename std::is_same<get_event_type<T>, Event>::type;
+    }  // namespace detail
 
-    EventProxy(Res r) :
-      resource_{move(r)}
-    {}
+    template <typename Res>
+    struct EventProxy : ::camp::resources::detail::EventProxyBase {
+      using native_event = ::camp::resources::detail::get_event_type<Res>;
 
-    native_event get() {
-      return resource_.get_event();
-    }
+      EventProxy(EventProxy &&) = default;
+      EventProxy(EventProxy &) = delete;
+      EventProxy &operator=(EventProxy &&) = default;
+      EventProxy &operator=(EventProxy &) = delete;
 
-    template <typename T = Res,
-              typename = typename std::enable_if<
-                  !std::is_same<typename std::decay<decltype(std::declval<T>().get_event())>::type,
-                                Event>::value>::type>
-    operator native_event() {
-      return resource_.get_event();
-    }
+      EventProxy(Res r) : resource_{move(r)} {}
 
-    operator Event() {
-      return resource_.get_event_erased();
-    }
+      template <typename T = Res>
+      typename std::enable_if<!detail::is_erased_resource_or_proxy<T>::value,
+                              native_event>::type
+      get()
+      {
+        return resource_.get_event();
+      }
 
-    Res resource_;
-  };
+      template <typename T = Res>
+      typename std::enable_if<detail::is_erased_resource_or_proxy<T>::value,
+                              Event>::type
+      get()
+      {
+        return resource_.get_event_erased();
+      }
+
+      template <typename T = Res>
+      operator typename std::enable_if<
+          !detail::is_erased_resource_or_proxy<T>::value,
+          native_event>::type()
+      {
+        return resource_.get_event();
+      }
+
+      operator Event() { return resource_.get_event_erased(); }
+
+      Res resource_;
+    };
 
   }  // namespace v1
 }  // namespace resources
