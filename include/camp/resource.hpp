@@ -181,7 +181,7 @@ namespace resources
     EventProxy &operator=(EventProxy &) = delete;
 
     EventProxy(Res r) :
-      resource_{r}
+      resource_{move(r)}
     {}
 
     native_event get() {
