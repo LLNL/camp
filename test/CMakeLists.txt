@@ -38,12 +38,18 @@ function(camp_add_test TESTNAME)
   endif()
 
 
+  if(NOT CMAKE_BUILD_TYPE)
+    set(TEST_BUILD_TYPE Release)
+  else()
+    set(TEST_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+  endif()
+
   # target that is run by the test, build and run
   if(ABT_GTEST OR ABT_RUN)
     # Actual build setup, do not build by default
     add_executable(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
     add_custom_target(${TESTNAME}.runner
-      COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
+      COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${TEST_BUILD_TYPE}
       COMMAND "$<TARGET_FILE:${TESTNAME}>"
       WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )
@@ -51,7 +57,7 @@ function(camp_add_test TESTNAME)
     # Actual build setup, do not build by default, use a lib so no main required
     add_library(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
     add_custom_target(${TESTNAME}.runner
-      COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${CMAKE_BUILD_TYPE}
+      COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${TEST_BUILD_TYPE}
       WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )
   endif()
