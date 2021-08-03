@@ -155,6 +155,17 @@ namespace resources
         T *ret = nullptr;
         if (size > 0) {
           ret = sycl::malloc_shared<T>(size, *qu);
+          switch (ma) {
+            case MemoryAccess::Device:
+              ret = sycl::malloc_device(sizeof(T) * size, *qu);
+              break;
+            case MemoryAccess::Pinned:
+              ret = sycl::malloc_host(sizeof(T) * size, *qu);
+              break;
+            case MemoryAccess::Managed:
+              ret = sycl::malloc_shared(sizeof(T) * size, *qu);
+              break;
+          }
         }
         return ret;
       }

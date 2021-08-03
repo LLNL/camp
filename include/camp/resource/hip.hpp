@@ -36,8 +36,8 @@ namespace resources
 
         ~device_guard() { campHipErrchk(hipSetDevice(prev_device)); }
 
-      int prev_device;
-    };
+        int prev_device;
+      };
 
     }  // namespace
     class HipEvent
@@ -45,9 +45,12 @@ namespace resources
     public:
       HipEvent(hipStream_t stream) { init(stream); }
 
-      HipEvent(Hip& res);
+      HipEvent(Hip &res);
 
-      bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
+      bool check() const
+      {
+        return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess);
+      }
       void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
       hipEvent_t getHipEvent_t() const { return m_event; }
 
@@ -90,15 +93,19 @@ namespace resources
       }
 
       // Private from-stream constructor
-      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
+      Hip(hipStream_t s, int dev = 0) : stream(s), device(dev) {}
 
     public:
-      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
+      Hip(int group = -1, int dev = 0)
+          : stream(get_a_stream(group)), device(dev)
+      {
+      }
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
       /// currently selected device is used.
-      static Hip HipFromStream(hipStream_t s, int dev=-1) {
+      static Hip HipFromStream(hipStream_t s, int dev = -1)
+      {
         if (dev < 0) {
           campHipErrchk(hipGetDevice(&dev));
         }
@@ -109,7 +116,7 @@ namespace resources
       Platform get_platform() { return Platform::hip; }
       static Hip get_default()
       {
-        static Hip h( [] {
+        static Hip h([] {
           hipStream_t s;
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
@@ -121,15 +128,9 @@ namespace resources
         return h;
       }
 
-      HipEvent get_event()
-      {
-        return HipEvent(*this);
-      }
+      HipEvent get_event() { return HipEvent(*this); }
 
-      Event get_event_erased()
-      {
-        return Event{HipEvent(*this)};
-      }
+      Event get_event_erased() { return Event{HipEvent(*this)}; }
 
       void wait()
       {
@@ -142,9 +143,8 @@ namespace resources
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
           auto d{device_guard(device)};
-          campHipErrchk(hipStreamWaitEvent(get_stream(),
-                                           hip_event->getHipEvent_t(),
-                                           0));
+          campHipErrchk(
+              hipStreamWaitEvent(get_stream(), hip_event->getHipEvent_t(), 0));
         } else {
           e->wait();
         }
@@ -157,7 +157,19 @@ namespace resources
         T *ret = nullptr;
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+          switch (ma) {
+            case MemoryAccess::Device:
+              campHipErrchk(hipMalloc(&ret, sizeof(T) * size));
+              break;
+            case MemoryAccess::Shared:
+              // TODO: do a test here for whether managed is *actually* shared
+              // so we can use the better performing memory
+              campHipErrchk(hipMallocHost(&ret, sizeof(T) * size));
+              break;
+            case MemoryAccess::Managed:
+              campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+              break;
+          }
         }
         return ret;
       }
@@ -167,15 +179,29 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) {
+      void deallocate(void *p)
+      {
         auto d{device_guard(device)};
-        campHipErrchk(hipFree(p));
+        switch (ma) {
+          case MemoryAccess::Device:
+            campHipErrchk(hipFree(p));
+            break;
+          case MemoryAccess::Shared:
+            // TODO: do a test here for whether managed is *actually* shared
+            // so we can use the better performing memory
+            campHipErrchk(hipFreeHost(p));
+            break;
+          case MemoryAccess::Managed:
+            campHipErrchk(hipFree(p));
+            break;
+        }
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
+          campHipErrchk(
+              hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
         }
       }
       void memset(void *p, int val, size_t size)
@@ -194,7 +220,7 @@ namespace resources
       int device;
     };
 
-    inline HipEvent::HipEvent(Hip& res)
+    inline HipEvent::HipEvent(Hip &res)
     {
       auto d{device_guard(res.get_device())};
       init(res.get_stream());
