@@ -46,7 +46,7 @@ namespace resources
           }
         }
 
-        int prev_device;
+        int prev_device = -1;
       };
 
     }  // namespace
