@@ -32,6 +32,9 @@ namespace resources
       Event() = default;
       Event(Event const &e) = default;
       Event(Event &&e) = default;
+      Event& operator=(Event const &e) = default;
+      Event& operator=(Event &&e) = default;
+
       template <typename T,
                 typename std::enable_if<
                     !(std::is_convertible<
