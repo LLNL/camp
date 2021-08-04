@@ -31,13 +31,22 @@ namespace resources
         device_guard(int device)
         {
           campHipErrchk(hipGetDevice(&prev_device));
-          campHipErrchk(hipSetDevice(device));
+          if (device != prev_device) {
+            campHipErrchk(hipSetDevice(device));
+          } else {
+            prev_device = -1;
+          }
         }
 
-        ~device_guard() { campHipErrchk(hipSetDevice(prev_device)); }
+        ~device_guard()
+        {
+          if (prev_device != -1) {
+            campHipErrchk(hipSetDevice(prev_device));
+          }
+        }
 
-      int prev_device;
-    };
+        int prev_device;
+      };
 
     }  // namespace
     class HipEvent

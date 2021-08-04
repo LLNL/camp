@@ -32,13 +32,22 @@ namespace resources
         device_guard(int device)
         {
           campCudaErrchk(cudaGetDevice(&prev_device));
-          campCudaErrchk(cudaSetDevice(device));
+          if (device != prev_device) {
+            campCudaErrchk(cudaSetDevice(device));
+          } else {
+            prev_device = -1;
+          }
         }
 
-        ~device_guard() { campCudaErrchk(cudaSetDevice(prev_device)); }
+        ~device_guard()
+        {
+          if (prev_device != -1) {
+            campCudaErrchk(cudaSetDevice(prev_device));
+          }
+        }
 
-      int prev_device;
-    };
+        int prev_device;
+      };
 
     }  // namespace
 
