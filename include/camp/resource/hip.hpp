@@ -161,7 +161,7 @@ namespace resources
             case MemoryAccess::Device:
               campHipErrchk(hipMalloc(&ret, sizeof(T) * size));
               break;
-            case MemoryAccess::Shared:
+            case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
               campHipErrchk(hipMallocHost(&ret, sizeof(T) * size));
@@ -186,7 +186,7 @@ namespace resources
           case MemoryAccess::Device:
             campHipErrchk(hipFree(p));
             break;
-          case MemoryAccess::Shared:
+          case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
             campHipErrchk(hipFreeHost(p));
