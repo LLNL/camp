@@ -98,6 +98,23 @@ namespace resources
       // Private from-stream constructor
       Cuda(cudaStream_t s, int dev = 0) : stream(s), device(dev) {}
 
+      MemoryAccess get_access_type(void *p) {
+        cudaPointerAttributes a;
+        cudaError_t status = cudaPointerGetAttributes(&a, p);
+        if (status == cudaSuccess) {
+          switch(a.type){
+            case cudaMemoryTypeUnregistered:
+              return MemoryAccess::Unknown;
+            case cudaMemoryTypeHost:
+              return MemoryAccess::Pinned;
+            case cudaMemoryTypeDevice:
+              return MemoryAccess::Device;
+            case cudaMemoryTypeManaged:
+              return MemoryAccess::Managed;
+          }
+        }
+        throw runtime_error("invalid pointer detected");
+      }
     public:
       Cuda(int group = -1, int dev = 0)
           : stream(get_a_stream(group)), device(dev)
@@ -162,6 +179,7 @@ namespace resources
         if (size > 0) {
           auto d{device_guard(device)};
           switch (ma) {
+            case MemoryAccess::Detect:
             case MemoryAccess::Device:
               campCudaErrchk(cudaMalloc(&ret, sizeof(T) * size));
               break;
@@ -187,6 +205,8 @@ namespace resources
       {
         auto d{device_guard(device)};
         switch (ma) {
+          case MemoryAccess::Detect:
+            
           case MemoryAccess::Device:
             campCudaErrchk(cudaFree(p));
             break;

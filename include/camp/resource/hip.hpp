@@ -95,6 +95,23 @@ namespace resources
       // Private from-stream constructor
       Hip(hipStream_t s, int dev = 0) : stream(s), device(dev) {}
 
+      MemoryAccess get_access_type(void *p)
+      {
+        hipPointerAttributes a;
+        hipError_t status = hipPointerGetAttributes(&a, p);
+        if (status == hipSuccess) {
+          switch (a.type) {
+            case hipMemoryTypeHost:
+              return MemoryAccess::Pinned;
+            case hipMemoryTypeDevice:
+              return MemoryAccess::Device;
+            case hipMemoryTypeManaged:
+              return MemoryAccess::Managed;
+          }
+        }
+        throw runtime_error("invalid pointer detected");
+      }
+
     public:
       Hip(int group = -1, int dev = 0)
           : stream(get_a_stream(group)), device(dev)
@@ -152,12 +169,13 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t size)
+      T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         T *ret = nullptr;
         if (size > 0) {
           auto d{device_guard(device)};
           switch (ma) {
+            case MemoryAccess::Unknown:
             case MemoryAccess::Device:
               campHipErrchk(hipMalloc(&ret, sizeof(T) * size));
               break;
@@ -173,15 +191,18 @@ namespace resources
         }
         return ret;
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess ma)
       {
-        void *p = allocate<char>(size);
+        void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p)
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
+        if (ma == MemoryAccess::Unknown) {
+          ma = get_access_type(p);
+        }
         switch (ma) {
           case MemoryAccess::Device:
             campHipErrchk(hipFree(p));

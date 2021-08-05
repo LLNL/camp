@@ -156,6 +156,7 @@ namespace resources
         if (size > 0) {
           ret = sycl::malloc_shared<T>(size, *qu);
           switch (ma) {
+            case MemoryAccess::Unknown:
             case MemoryAccess::Device:
               ret = sycl::malloc_device(sizeof(T) * size, *qu);
               break;

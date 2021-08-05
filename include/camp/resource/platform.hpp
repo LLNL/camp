@@ -28,6 +28,7 @@ namespace resources
     };
 
     enum class MemoryAccess {
+      Unknown,
       Device,
       Pinned,
       Managed
