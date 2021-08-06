@@ -17,6 +17,8 @@ http://github.com/llnl/camp
 #ifdef CAMP_HAVE_HIP
 #include <hip/hip_runtime.h>
 
+#include <exception>
+
 namespace camp
 {
 namespace resources
@@ -97,19 +99,21 @@ namespace resources
 
       MemoryAccess get_access_type(void *p)
       {
-        hipPointerAttributes a;
+        hipPointerAttribute_t a;
         hipError_t status = hipPointerGetAttributes(&a, p);
         if (status == hipSuccess) {
-          switch (a.type) {
+          switch (a.memoryType) {
             case hipMemoryTypeHost:
               return MemoryAccess::Pinned;
             case hipMemoryTypeDevice:
               return MemoryAccess::Device;
-            case hipMemoryTypeManaged:
+            case hipMemoryTypeUnified:
               return MemoryAccess::Managed;
+            default:
+              return MemoryAccess::Unknown;
           }
         }
-        throw runtime_error("invalid pointer detected");
+        throw std::runtime_error("invalid pointer detected");
       }
 
     public:
@@ -177,15 +181,15 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              campHipErrchk(hipMalloc(&ret, sizeof(T) * size));
+              campHipErrchk(hipMalloc((void**)&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              campHipErrchk(hipMallocHost(&ret, sizeof(T) * size));
+              campHipErrchk(hipHostMalloc((void**)&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Managed:
-              campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+              campHipErrchk(hipMallocManaged((void**)&ret, sizeof(T) * size));
               break;
           }
         }
@@ -210,10 +214,13 @@ namespace resources
           case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
-            campHipErrchk(hipFreeHost(p));
+            campHipErrchk(hipHostFree(p));
             break;
           case MemoryAccess::Managed:
             campHipErrchk(hipFree(p));
+            break;
+          case MemoryAccess::Unknown:
+            throw std::runtime_error("Unknown memory access type, cannot free");
             break;
         }
       }
