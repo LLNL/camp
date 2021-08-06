@@ -16,7 +16,10 @@ http://github.com/llnl/camp
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_HAVE_CUDA
+
 #include <cuda_runtime.h>
+
+#include <exception>
 
 namespace camp
 {
@@ -113,7 +116,7 @@ namespace resources
               return MemoryAccess::Managed;
           }
         }
-        throw runtime_error("invalid pointer detected");
+        throw std::runtime_error("invalid pointer detected");
       }
     public:
       Cuda(int group = -1, int dev = 0)
@@ -179,7 +182,7 @@ namespace resources
         if (size > 0) {
           auto d{device_guard(device)};
           switch (ma) {
-            case MemoryAccess::Detect:
+            case MemoryAccess::Unknown:
             case MemoryAccess::Device:
               campCudaErrchk(cudaMalloc(&ret, sizeof(T) * size));
               break;
@@ -201,12 +204,13 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
+        if(ma == MemoryAccess::Unknown) {
+          ma = get_access_type(p);
+        }
         switch (ma) {
-          case MemoryAccess::Detect:
-            
           case MemoryAccess::Device:
             campCudaErrchk(cudaFree(p));
             break;
@@ -218,8 +222,10 @@ namespace resources
           case MemoryAccess::Managed:
             campCudaErrchk(cudaFree(p));
             break;
+          case MemoryAccess::Unknown:
+            throw std::runtime_error("Unknown memory access type, cannot free");
+            break;
         }
-        campCudaErrchk(cudaFree(p));
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
