@@ -200,7 +200,7 @@ namespace resources
       }
       void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
-        void *p = allocate<char>(size);
+        void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
