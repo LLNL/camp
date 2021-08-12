@@ -52,17 +52,17 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t n)
+      T *allocate(size_t n, MemoryAccess = MemoryAccess::Device)
       {
         return (T *)malloc(sizeof(T) * n);
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess = MemoryAccess::Device)
       {
         void *p = allocate<char>(size);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { free(p); }
+      void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { free(p); }
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
     };

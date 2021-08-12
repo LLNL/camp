@@ -77,6 +77,11 @@ namespace resources
         return &addrs[num % 16];
       }
 
+      void check_ma(MemoryAccess ma) {
+        if(ma != MemoryAccess::Device) {
+          throw std::runtime_error("OpenMP Target currently does not support allocating shared or managed memory");
+        }
+      }
     public:
       Omp(int group = -1, int device = omp_get_default_device())
           : addr(get_addr(group)), dev(device)
@@ -120,20 +125,23 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t size)
+      T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
+        check_ma(ma);
         T *ret = static_cast<T *>(omp_target_alloc(sizeof(T) * size, dev));
         register_ptr_dev(ret, dev);
         return ret;
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
+        check_ma(ma);
         void *p = allocate<char>(size);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p)
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
       {
+        check_ma(ma);
 #pragma omp critical(camp_register_ptr)
         {
           get_dev_register().erase(p);

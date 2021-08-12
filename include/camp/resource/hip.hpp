@@ -17,6 +17,8 @@ http://github.com/llnl/camp
 #ifdef CAMP_HAVE_HIP
 #include <hip/hip_runtime.h>
 
+#include <exception>
+
 namespace camp
 {
 namespace resources
@@ -54,9 +56,12 @@ namespace resources
     public:
       HipEvent(hipStream_t stream) { init(stream); }
 
-      HipEvent(Hip& res);
+      HipEvent(Hip &res);
 
-      bool check() const { return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess); }
+      bool check() const
+      {
+        return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess);
+      }
       void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
       hipEvent_t getHipEvent_t() const { return m_event; }
 
@@ -99,15 +104,38 @@ namespace resources
       }
 
       // Private from-stream constructor
-      Hip(hipStream_t s, int dev=0) : stream(s), device(dev) {}
+      Hip(hipStream_t s, int dev = 0) : stream(s), device(dev) {}
+
+      MemoryAccess get_access_type(void *p)
+      {
+        hipPointerAttribute_t a;
+        hipError_t status = hipPointerGetAttributes(&a, p);
+        if (status == hipSuccess) {
+          switch (a.memoryType) {
+            case hipMemoryTypeHost:
+              return MemoryAccess::Pinned;
+            case hipMemoryTypeDevice:
+              return MemoryAccess::Device;
+            case hipMemoryTypeUnified:
+              return MemoryAccess::Managed;
+            default:
+              return MemoryAccess::Unknown;
+          }
+        }
+        throw std::runtime_error("invalid pointer detected");
+      }
 
     public:
-      Hip(int group = -1, int dev=0) : stream(get_a_stream(group)), device(dev) {}
+      Hip(int group = -1, int dev = 0)
+          : stream(get_a_stream(group)), device(dev)
+      {
+      }
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
       /// currently selected device is used.
-      static Hip HipFromStream(hipStream_t s, int dev=-1) {
+      static Hip HipFromStream(hipStream_t s, int dev = -1)
+      {
         if (dev < 0) {
           campHipErrchk(hipGetDevice(&dev));
         }
@@ -118,7 +146,7 @@ namespace resources
       Platform get_platform() { return Platform::hip; }
       static Hip get_default()
       {
-        static Hip h( [] {
+        static Hip h([] {
           hipStream_t s;
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
@@ -130,15 +158,9 @@ namespace resources
         return h;
       }
 
-      HipEvent get_event()
-      {
-        return HipEvent(*this);
-      }
+      HipEvent get_event() { return HipEvent(*this); }
 
-      Event get_event_erased()
-      {
-        return Event{HipEvent(*this)};
-      }
+      Event get_event_erased() { return Event{HipEvent(*this)}; }
 
       void wait()
       {
@@ -151,9 +173,8 @@ namespace resources
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
           auto d{device_guard(device)};
-          campHipErrchk(hipStreamWaitEvent(get_stream(),
-                                           hip_event->getHipEvent_t(),
-                                           0));
+          campHipErrchk(
+              hipStreamWaitEvent(get_stream(), hip_event->getHipEvent_t(), 0));
         } else {
           e->wait();
         }
@@ -161,30 +182,63 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t size)
+      T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         T *ret = nullptr;
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(hipMallocManaged(&ret, sizeof(T) * size));
+          switch (ma) {
+            case MemoryAccess::Unknown:
+            case MemoryAccess::Device:
+              campHipErrchk(hipMalloc((void**)&ret, sizeof(T) * size));
+              break;
+            case MemoryAccess::Pinned:
+              // TODO: do a test here for whether managed is *actually* shared
+              // so we can use the better performing memory
+              campHipErrchk(hipHostMalloc((void**)&ret, sizeof(T) * size));
+              break;
+            case MemoryAccess::Managed:
+              campHipErrchk(hipMallocManaged((void**)&ret, sizeof(T) * size));
+              break;
+          }
         }
         return ret;
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess ma)
       {
-        void *p = allocate<char>(size);
+        void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) {
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
+      {
         auto d{device_guard(device)};
-        campHipErrchk(hipFree(p));
+        if (ma == MemoryAccess::Unknown) {
+          ma = get_access_type(p);
+        }
+        switch (ma) {
+          case MemoryAccess::Device:
+            campHipErrchk(hipFree(p));
+            break;
+          case MemoryAccess::Pinned:
+            // TODO: do a test here for whether managed is *actually* shared
+            // so we can use the better performing memory
+            campHipErrchk(hipHostFree(p));
+            break;
+          case MemoryAccess::Managed:
+            campHipErrchk(hipFree(p));
+            break;
+          case MemoryAccess::Unknown:
+            throw std::runtime_error("Unknown memory access type, cannot free");
+            break;
+        }
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
+          campHipErrchk(
+              hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
         }
       }
       void memset(void *p, int val, size_t size)
@@ -203,7 +257,7 @@ namespace resources
       int device;
     };
 
-    inline HipEvent::HipEvent(Hip& res)
+    inline HipEvent::HipEvent(Hip &res)
     {
       auto d{device_guard(res.get_device())};
       init(res.get_stream());
