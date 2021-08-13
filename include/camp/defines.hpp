@@ -27,7 +27,7 @@ namespace camp
 {
 
 #if defined(__NVCC__)
-#define CAMP_ALLOW_UNUSED_LOCAL(X) sink(X)
+#define CAMP_ALLOW_UNUSED_LOCAL(X) camp::sink(X)
 #else
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
 #endif
