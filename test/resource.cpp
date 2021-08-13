@@ -252,6 +252,7 @@ TEST(CampEventProxy, Get)
   {
     EventProxy<Host> ep{h1};
     HostEvent e = ep;
+    CAMP_ALLOW_UNUSED_LOCAL(e);
   }
 
   {
@@ -264,6 +265,7 @@ TEST(CampEventProxy, Get)
 
   {
     HostEvent e = do_stuff(h1);
+    CAMP_ALLOW_UNUSED_LOCAL(e);
   }
 
   {
@@ -283,6 +285,7 @@ TEST(CampEventProxy, Get)
   {
     EventProxy<Host> ep{h1};
     HostEvent e = ep.get();
+    CAMP_ALLOW_UNUSED_LOCAL(e);
   }
 }
 
