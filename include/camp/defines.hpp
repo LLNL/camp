@@ -26,8 +26,13 @@ http://github.com/llnl/camp
 namespace camp
 {
 
+template <typename... T>
+void varsink(T &&...) noexcept
+{
+}
+
 #if defined(__NVCC__)
-#define CAMP_ALLOW_UNUSED_LOCAL(X) sink(X)
+#define CAMP_ALLOW_UNUSED_LOCAL(X) varsink(X)
 #else
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
 #endif
