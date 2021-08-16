@@ -150,7 +150,7 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t size)
+      T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         T *ret = nullptr;
         if (size > 0) {
@@ -158,25 +158,25 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              ret = sycl::malloc_device(sizeof(T) * size, *qu);
+              ret = sycl::malloc_device<T>(size, *qu);
               break;
             case MemoryAccess::Pinned:
-              ret = sycl::malloc_host(sizeof(T) * size, *qu);
+              ret = sycl::malloc_host<T>(size, *qu);
               break;
             case MemoryAccess::Managed:
-              ret = sycl::malloc_shared(sizeof(T) * size, *qu);
+              ret = sycl::malloc_shared<T>(size, *qu);
               break;
           }
         }
         return ret;
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
-        void *p = allocate<char>(size);
+        void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { sycl::free(p, *qu); }
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { sycl::free(p, *qu); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
