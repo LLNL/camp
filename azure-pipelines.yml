@@ -8,8 +8,8 @@ jobs:
 - job: Windows
   strategy:
     matrix:
-      shared:
-        SHARED_ARGS: '-DBUILD_SHARED_LIBS=On -DCMAKE_CXX_FLAGS="/DRAJASHAREDDLL_EXPORTS" '
+      # shared:
+      #   SHARED_ARGS: '-DBUILD_SHARED_LIBS=On -DCMAKE_CXX_FLAGS="/DRAJASHAREDDLL_EXPORTS" '
       static:
         SHARED_ARGS: '-DBUILD_SHARED_LIBS=Off'
   pool:
@@ -44,7 +44,7 @@ jobs:
       gcc6:
         docker_target: gcc6
       gcc6-debug:
-        docker_target: gcc6-debug
+        docker_target: gcc5-debug
       gcc7:
         docker_target: gcc7
       gcc8:
