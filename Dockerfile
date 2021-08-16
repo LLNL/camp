@@ -68,6 +68,7 @@ COPY --chown=axom:axom . /home/axom/workspace
 WORKDIR /home/axom/workspace
 RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_CUDA=On -DCMAKE_CUDA_STANDARD=14 ..
 RUN cd build && make -j 2
+RUN cd build && ctest -T test --output-on-failure
 
 FROM axom/compilers:nvcc-10.2 AS nvcc10-debug
 ENV GTEST_COLOR=1
@@ -75,6 +76,7 @@ COPY --chown=axom:axom . /home/axom/workspace
 WORKDIR /home/axom/workspace
 RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=On -DCMAKE_CUDA_STANDARD=14 ..
 RUN cd build && make -j 2
+RUN cd build && ctest -T test --output-on-failure
 
 FROM axom/compilers:rocm AS hip
 ENV GTEST_COLOR=1
@@ -83,6 +85,7 @@ WORKDIR /home/axom/workspace
 ENV HCC_AMDGPU_TARGET=gfx900
 RUN mkdir build && cd build && cmake -DROCM_ROOT_DIR=/opt/rocm/include -DHIP_RUNTIME_INCLUDE_DIRS="/opt/rocm/include;/opt/rocm/hip/include" -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off -DENABLE_WARNINGS_AS_ERRORS=Off -DHIP_HIPCC_FLAGS=-fPIC ..
 RUN cd build && make -j 16
+RUN cd build && ctest -T test --output-on-failure
 
 FROM axom/compilers:oneapi AS sycl
 ENV GTEST_COLOR=1
@@ -90,3 +93,4 @@ COPY --chown=axom:axom . /home/axom/workspace
 WORKDIR /home/axom/workspace
 RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=dpcpp -DENABLE_SYCL=On .."
 RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && cd build && make -j 16"
+RUN /bin/bash -c "cd build && ctest -T test --output-on-failure"
