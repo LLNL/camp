@@ -158,13 +158,13 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              ret = sycl::malloc_device(sizeof(T) * size, *qu);
+              ret = sycl::malloc_device<T>(size, *qu);
               break;
             case MemoryAccess::Pinned:
-              ret = sycl::malloc_host(sizeof(T) * size, *qu);
+              ret = sycl::malloc_host<T>(size, *qu);
               break;
             case MemoryAccess::Managed:
-              ret = sycl::malloc_shared(sizeof(T) * size, *qu);
+              ret = sycl::malloc_shared<T>(size, *qu);
               break;
           }
         }
