@@ -1,4 +1,3 @@
-[submodule "extern/googletest"]
-	path = extern/googletest
-	url = https://github.com/google/googletest
-	branch = master
+[submodule "extern/blt"]
+	path = extern/blt
+	url = https://github.com/llnl/blt

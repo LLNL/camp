@@ -1,33 +1,3 @@
-# Build google test
-if (NOT TARGET gtest)
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest"
-    EXCLUDE_FROM_ALL)
-
-  mark_as_advanced(
-    BUILD_GMOCK BUILD_GTEST BUILD_SHARED_LIBS
-    gmock_build_tests gtest_build_samples gtest_build_tests
-    gtest_disable_pthreads gtest_force_shared_crt gtest_hide_internal_symbols
-    )
-  set_target_properties(gtest PROPERTIES FOLDER extern)
-  set_target_properties(gtest_main PROPERTIES FOLDER extern)
-  set_target_properties(gmock PROPERTIES FOLDER extern)
-  set_target_properties(gmock_main PROPERTIES FOLDER extern)
-endif (NOT TARGET gtest)
-
-if(ENABLE_CUDA)
-  # Work around -pthread argument to nvcc propagating from thread
-  # detection in gtest
-  set(gtest_disable_pthreads On)
-endif()
-
-function(camp_add_gtest TESTNAME)
-  add_executable(${TESTNAME} ${ARGN})
-  target_link_libraries(${TESTNAME} camp gtest gmock gtest_main)
-  add_test(${TESTNAME} ${TESTNAME})
-  set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
-endfunction()
-
 function(camp_add_test TESTNAME)
   cmake_parse_arguments(ABT "GTEST;RUN" "" "BUILD;TEST" ${ARGN})
 
@@ -44,10 +14,15 @@ function(camp_add_test TESTNAME)
     set(TEST_BUILD_TYPE ${CMAKE_BUILD_TYPE})
   endif()
 
+  set(_depends camp gtest)
   # target that is run by the test, build and run
   if(ABT_GTEST OR ABT_RUN)
     # Actual build setup, do not build by default
-    add_executable(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
+    blt_add_executable(
+      NAME ${TESTNAME}
+      SOURCES ${ABT_BUILD}
+      DEPENDS_ON ${_depends})
+    set_target_properties( ${TESTNAME} PROPERTIES EXCLUDE_FROM_ALL On)
     add_custom_target(${TESTNAME}.runner
       COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${TEST_BUILD_TYPE}
       COMMAND "$<TARGET_FILE:${TESTNAME}>"
@@ -55,15 +30,15 @@ function(camp_add_test TESTNAME)
       )
   else()
     # Actual build setup, do not build by default, use a lib so no main required
-    add_library(${TESTNAME} EXCLUDE_FROM_ALL ${ABT_BUILD})
+    blt_add_executable(
+      NAME ${TESTNAME}
+      SOURCES ${ABT_BUILD}
+      DEPENDS_ON ${_depends})
     add_custom_target(${TESTNAME}.runner
       COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME} --config ${TEST_BUILD_TYPE}
       WORKING_DIRECTORY ${CURRENT_BINARY_DIR}
       )
   endif()
-
-  # Add interface library for includes
-  target_link_libraries(${TESTNAME} camp)
 
   if(ENABLE_CUDA)
     set(source_files ${ABT_BUILD})
@@ -80,10 +55,6 @@ function(camp_add_test TESTNAME)
     endif()
   endif()
 
-
-  if(ABT_GTEST)
-    target_link_libraries(${TESTNAME} gtest gtest_main)
-  endif()
 
   # The test itself, invoke the runner
   add_test(NAME ${TESTNAME}
