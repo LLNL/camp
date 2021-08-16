@@ -233,7 +233,6 @@ namespace resources
             break;
           case MemoryAccess::Unknown:
             throw std::runtime_error("Unknown memory access type, cannot free");
-            break;
         }
       }
       void memcpy(void *dst, const void *src, size_t size)
