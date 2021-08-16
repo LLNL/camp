@@ -94,3 +94,6 @@ WORKDIR /home/axom/workspace
 RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=dpcpp -DENABLE_SYCL=On .."
 RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && cd build && make -j 16"
 RUN /bin/bash -c "cd build && ctest -T test --output-on-failure"
+
+# this is here to stop azure from downloading oneapi for every test
+FROM alpine AS download_fast
