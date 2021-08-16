@@ -4,12 +4,16 @@ project (camp
   LANGUAGES CXX
   VERSION 0.1.0)
 
-option(ENABLE_CUDA "whether to build with cuda" Off)
-option(ENABLE_CLANG_CUDA "use clang cuda support rather than nvcc" Off)
-option(ENABLE_HIP "whether to build with hip" Off)
-option(ENABLE_SYCL "whether to build with sycl" Off)
-option(ENABLE_TARGET_OPENMP "whether to build with OpenMP offload" Off)
-option(CAMP_ENABLE_TESTS "whether to configure and build tests" On)
+# Default to C++11 if not set so GTest/GMock can build
+if (NOT BLT_CXX_STD)
+    set(BLT_CXX_STD "c++14" CACHE STRING "")
+endif()
+
+include(cmake/load_blt.cmake)
+
+
+cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
+
 
 # if ENABLE_TESTS is defined by a parent project, and
 # CAMP_ENABLE_TESTS has not been set to OFF set the
@@ -18,32 +22,59 @@ if (CAMP_ENABLE_TESTS AND DEFINED ENABLE_TESTS)
   set(CAMP_ENABLE_TESTS ${ENABLE_TESTS})
 endif()
 
-if(ENABLE_CLANG_CUDA)
-  if(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-    message(ERROR "clang cuda can only be used with clang")
-  endif()
+# generate list of headers at configure time, no this is not perfect
+execute_process(COMMAND ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
+  OUTPUT_FILE ${PROJECT_BINARY_DIR}/camp_headers.cmake
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  )
+include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
+
+set (camp_depends)
+
+if (ENABLE_OPENMP)
+  set (camp_depends
+    openmp)
 endif()
 
 if(ENABLE_CUDA)
-  find_package(CUDA REQUIRED)
-  if(NOT ENABLE_CLANG_CUDA)
-    include(CheckLanguage)
-    check_language(CUDA)
-    enable_language(CUDA)
-  else()
-    if(NOT CUDA_ARCH)
-      set(CUDA_ARCH "sm_35")
-    endif()
-    set (_cuda_compile_flags -x cuda --cuda-gpu-arch=${CUDA_ARCH} --cuda-path=${CUDA_TOOLKIT_ROOT_DIR})
-    add_library(camp_cuda INTERFACE)
-    target_compile_options(camp_cuda INTERFACE ${_cuda_compile_flags})
-    target_link_libraries(camp_cuda INTERFACE ${CUDA_LIBRARIES})
-    target_include_directories(camp_cuda INTERFACE ${CUDA_INCLUDE_DIRS})
-    message(STATUS "CUDA LIBS: ${CUDA_LIBRARIES}")
-  endif(NOT ENABLE_CLANG_CUDA)
+  if("${CUDA_VERSION_STRING}" VERSION_LESS "9.2")
+    message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP dependency Googletest requires CUDA version 9.2.x or newer.")
+  endif()
 endif()
 
-add_library (camp INTERFACE)
+if(ENABLE_HIP)
+  if("${HIP_VERSION_STRING}" VERSION_LESS "3.5")
+    message(FATAL_ERROR "Trying to use HIP/ROCm version ${HIP_VERSION_STRING}. CAMP requires HIP/ROCm version 3.5 or newer. ")
+  endif()
+endif()
+
+if (ENABLE_CUDA)
+  set(camp_depends
+    ${camp_depends}
+    cuda)
+  if(ENABLE_NV_TOOLS_EXT)
+    set(camp_depends
+      ${camp_depends}
+      nvtoolsext)
+  endif ()
+endif ()
+
+if (ENABLE_EXTERNAL_CUB)
+  set(camp_depends
+    ${camp_depends}
+    cub)
+endif ()
+
+if (ENABLE_HIP)
+  set(camp_depends
+    ${camp_depends}
+    hip)
+endif ()
+blt_add_library (
+  NAME camp
+  HEADERS ${camp_headers}
+  DEPENDS_ON ${camp_depends}
+  )
 target_include_directories (camp INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
