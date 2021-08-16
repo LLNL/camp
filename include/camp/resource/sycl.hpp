@@ -150,7 +150,7 @@ namespace resources
 
       // Memory
       template <typename T>
-      T *allocate(size_t size)
+      T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         T *ret = nullptr;
         if (size > 0) {
@@ -170,13 +170,13 @@ namespace resources
         }
         return ret;
       }
-      void *calloc(size_t size)
+      void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
-        void *p = allocate<char>(size);
+        void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p) { sycl::free(p, *qu); }
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { sycl::free(p, *qu); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
