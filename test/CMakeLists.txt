@@ -16,61 +16,28 @@ function(camp_add_test TESTNAME)
 
   set(_depends camp gtest)
 
-  # Actual build setup, do not build by default
+  # allow masking of offload tests in CI
+  if(ABT_OFFLOAD)
+    set(TESTNAME ${TESTNAME}.offload)
+  endif(ABT_OFFLOAD)
+
+
+  # Actual build setup
   blt_add_executable(
     NAME ${TESTNAME}
     SOURCES ${ABT_BUILD}
-    DEPENDS_ON ${_depends})
-  set_target_properties( ${TESTNAME} PROPERTIES EXCLUDE_FROM_ALL On)
-  set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
+    DEPENDS_ON ${_depends} ${camp_depends}
+    FOLDER test)
 
-  # allow masking of offload tests in CI
-  if(ABT_OFFLOAD)
-    set(TESTNAME_QUAL ${TESTNAME}.offload)
-  else(ABT_OFFLOAD)
-    set(TESTNAME_QUAL ${TESTNAME})
-  endif(ABT_OFFLOAD)
-
-  # target that is run by the test, build or run or both
-  add_custom_target(${TESTNAME_QUAL}.runner
-    COMMAND "$<TARGET_FILE:${TESTNAME}>"
-    DEPENDS ${TESTNAME}
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    )
-
-  # The test itself, invoke the runner
-  add_test(NAME ${TESTNAME_QUAL}
-    COMMAND ${CMAKE_COMMAND} --build . --target ${TESTNAME_QUAL}.runner
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  # The test itself
+  add_test(NAME ${TESTNAME}
+    COMMAND ${TESTNAME}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test
     ${TEST})
-
-  list(GET ABT_BUILD 0 source_file)
-  if(NOT source_file)
-    return()
-  endif()
-  set(test_prop_regex  ".*(WILL_FAIL|PASS_REGEX|FAIL_REGEX):?[ ]*(.*)[ ]*")
-  file(STRINGS ${source_file} test_props REGEX "${test_prop_regex}")
-  foreach(line ${test_props})
-
-    if(NOT line MATCHES "${test_prop_regex}")
-      continue()
-    endif()
-    if(CMAKE_MATCH_1 STREQUAL "WILL_FAIL")
-      set_tests_properties(${TESTNAME_QUAL} PROPERTIES WILL_FAIL)
-    elseif(CMAKE_MATCH_1 STREQUAL "PASS_REGEX")
-      set_tests_properties(${TESTNAME_QUAL} PROPERTIES
-        PASS_REGULAR_EXPRESSION "${CMAKE_MATCH_2}")
-    elseif(CMAKE_MATCH_1 STREQUAL "FAIL_REGEX")
-      set_tests_properties(${TESTNAME_QUAL} PROPERTIES
-        FAIL_REGULAR_EXPRESSION "${CMAKE_MATCH_2}")
-    endif()
-  endforeach()
 endfunction()
 
 camp_add_test(resource GTEST OFFLOAD)
 camp_add_test(tuple GTEST)
-
-camp_add_test(tuple_out_of_range RUN)
 
 camp_add_test(accumulate)
 camp_add_test(at_key)

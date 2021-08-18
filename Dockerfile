@@ -5,95 +5,76 @@
 # SPDX-License-Identifier: (BSD-3-Clause)
 ###############################################################################
 
-FROM axom/compilers:gcc-5 AS gcc5
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN ls
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_WARNINGS=On -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+ARG BASE_IMG=gcc
+ARG COMPILER=g++
+ARG VER=latest
+ARG PRE_CMD=true
+ARG BUILD_TYPE=RelWithDebInfo
+ARG CTEST_EXTRA="-E '(.*offload|blt.*smoke)'"
+ARG CTEST_OPTIONS="${CTEST_EXTRA} -T test -V "
+ARG CMAKE_EXTRA=""
+ARG CMAKE_OPTIONS="-G Ninja -B build ${CMAKE_EXTRA} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DENABLE_WARNINGS=On"
+ARG PARALLEL=4
+ARG BUILD_EXTRA=""
+ARG CMAKE_BUILD_OPTS="--build build --parallel ${PARALLEL} ${BUILD_EXTRA}"
 
-FROM axom/compilers:gcc-5 AS gcc5-debug
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Debug -DENABLE_WARNINGS=On -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On -DENABLE_TBB=On ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+FROM ubuntu:bionic AS clang_base
+RUN apt-get update && apt-get install -y wget curl software-properties-common unzip
 
-FROM axom/compilers:gcc-6 AS gcc6
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_WARNINGS=On -DENABLE_TBB=On -DRAJA_ENABLE_RUNTIME_PLUGINS=On ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+### start compiler base images ###
+# there is no official container in the hub, but there is an official script
+# to install clang/llvm by version, installs a bit more than we need, but we
+# do not have to maintain it, so I'm alright with that
+FROM clang_base AS clang
+ARG VER
+ADD ./scripts/get-llvm.sh get-llvm.sh
+RUN ./get-llvm.sh $VER bah
 
-FROM axom/compilers:gcc-7 AS gcc7
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_WARNINGS=On -DENABLE_TBB=On ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+FROM gcc:${VER} AS gcc
 
-FROM axom/compilers:gcc-8 AS gcc8
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_WARNINGS=On -DENABLE_TBB=On -DRAJA_ENABLE_BOUNDS_CHECK=ON ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+FROM nvidia/cuda:${VER}-devel-ubuntu18.04 AS nvcc
 
-FROM axom/compilers:clang-9 AS clang9
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS=-fmodules -DENABLE_TBB=On ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+FROM rocm/dev-ubuntu-20.04:${VER} AS rocm
 
-FROM axom/compilers:clang-9 AS clang9-debug
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DENABLE_TBB=On -DCMAKE_CXX_FLAGS=-fsanitize=address ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+FROM intel/oneapi-basekit:${VER} AS oneapi
+### end compiler base images ###
 
-FROM axom/compilers:nvcc-10.2 AS nvcc10
+FROM ${BASE_IMG} AS base
+ARG VER
+ARG BASE_IMG
 ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DENABLE_CUDA=On -DCMAKE_CUDA_STANDARD=14 ..
-RUN cd build && make -j 2
-RUN cd build && ctest -T test --output-on-failure
+COPY --chown=axom:axom . /home/
+WORKDIR /home/
+RUN ./scripts/get-deps.sh
 
-FROM axom/compilers:nvcc-10.2 AS nvcc10-debug
-ENV GTEST_COLOR=1
-COPY --chown=axom:axom . /home/axom/workspace
-WORKDIR /home/axom/workspace
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=On -DCMAKE_CUDA_STANDARD=14 ..
-RUN cd build && make -j 2
-RUN cd build && ctest -T test --output-on-failure
+FROM base AS test
+ARG PRE_CMD
+ARG CTEST_OPTIONS
+ARG CMAKE_OPTIONS
+ARG CMAKE_BUILD_OPTS
+ARG COMPILER
+ENV COMPILER=${COMPILER:-g++}
+ENV HCC_AMDGPU_TARGET=gfx900
+RUN /bin/bash -c "${PRE_CMD} && cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=${COMPILER} ."
+RUN /bin/bash -c "${PRE_CMD} && cmake ${CMAKE_BUILD_OPTS}"
+RUN /bin/bash -c "${PRE_CMD} && cd build && ctest ${CTEST_OPTIONS}"
 
 FROM axom/compilers:rocm AS hip
 ENV GTEST_COLOR=1
 COPY --chown=axom:axom . /home/axom/workspace
 WORKDIR /home/axom/workspace
 ENV HCC_AMDGPU_TARGET=gfx900
-RUN mkdir build && cd build && cmake -DROCM_ROOT_DIR=/opt/rocm/include -DHIP_RUNTIME_INCLUDE_DIRS="/opt/rocm/include;/opt/rocm/hip/include" -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off -DENABLE_WARNINGS_AS_ERRORS=Off -DHIP_HIPCC_FLAGS=-fPIC ..
-RUN cd build && make -j 16
-RUN cd build && ctest -T test --output-on-failure
+RUN mkdir build && cd build && cmake  -DENABLE_WARNINGS_AS_ERRORS=Off  ..
+RUN cd build && cmake --build . -- -j 16
+RUN cd build && ctest -T test -E offload -E 'blt.*smoke' --output-on-failure
 
 FROM axom/compilers:oneapi AS sycl
 ENV GTEST_COLOR=1
 COPY --chown=axom:axom . /home/axom/workspace
 WORKDIR /home/axom/workspace
 RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=dpcpp -DENABLE_SYCL=On .."
-RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && cd build && make -j 16"
-RUN /bin/bash -c "cd build && ctest -T test --output-on-failure"
+RUN /bin/bash -c "source /opt/intel/inteloneapi/setvars.sh && cd build && cmake --build . -- -j 16"
+RUN /bin/bash -c "cd build && ctest -T test -E offload -E 'blt.*smoke' --output-on-failure"
 
 # this is here to stop azure from downloading oneapi for every test
 FROM alpine AS download_fast

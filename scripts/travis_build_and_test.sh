@@ -7,6 +7,8 @@
 # SPDX-License-Identifier: (BSD-3-Clause)   
 ###############################################################################
 
+export GTEST_COLOR=1
+
 function or_die () {
     "$@"
     local status=$?
