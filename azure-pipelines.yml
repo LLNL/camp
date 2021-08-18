@@ -93,7 +93,7 @@ jobs:
       rocm:
         base_img: rocm
         cmake_extra: -DHIP_ARCHITECTURES=gfx900 -DHIP_CLANG_PATH=/opt/rocm/llvm/bin -DHIP_HIPCC_FLAGS=-fPIC -DHIP_RUNTIME_INCLUDE_DIRS=/opt/rocm/include;/opt/rocm/hip/include -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off 
-     sycl:
+      sycl:
         base_img: oneapi
         compiler: dpcpp
   pool:
