@@ -121,7 +121,7 @@ jobs:
         --build-arg CTEST_EXTRA
         --build-arg PARALLEL
         --build-arg CMAKE_BUILD_OPTS
-      env:
+    env:
         BASE_IMG: $(base_img)
         VER: $(ver)
         COMPILER: $(COMPILER)
