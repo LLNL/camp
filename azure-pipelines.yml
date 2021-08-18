@@ -3,6 +3,14 @@ variables:
   DO_TEST: 'yes'
   DO_INSTALL: 'yes'
   COMPILER: 'g++'
+  base_img: gcc
+  ver: latest
+  pre_cmd: true
+  build_type: RelWithDebInfo
+  ctest_extra: "-E offload -E 'blt.*smoke'"
+  cmake_extra: ""
+  parallel: 4
+  cmake_build_opts: "--build build --parallel $(parallel)"
 
 jobs:
 - job: Windows
@@ -42,25 +50,52 @@ jobs:
   strategy:
     matrix:
       gcc6:
-        docker_target: gcc6
-      gcc5-debug:
-        docker_target: gcc5-debug
-      gcc7:
-        docker_target: gcc7
+        base_img: gcc
+        ver: 6
+        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DRAJA_ENABLE_RUNTIME_PLUGINS=On 
+      gcc6-debug:
+        base_img: gcc
+        ver: 6
+        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On
+        build_type: Debug
       gcc8:
-        docker_target: gcc8
-      clang9:
-        docker_target: clang9
-      clang9-debug:
-        docker_target: clang9-debug
+        base_img: gcc
+        ver: 8
+      gcc-latest:
+        base_img: gcc
+        ver: latest
+        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DRAJA_ENABLE_BOUNDS_CHECK=On
+      clang10:
+        base_img: clang
+        compiler: clang++
+        ver: 10
+      clang10-debug:
+        base_img: clang
+        compiler: clang++
+        ver: 10
+        cmake_extra: -DCMAKE_CXX_FLAGS=-fsanitize=address
+        build_type: Debug
+      clang-latest:
+        base_img: clang
+        compiler: clang++
+        ver: latest
+      # NVIDIA no longer supports "latest", must update manually
       nvcc10:
-        docker_target: nvcc10
+        base_img: nvcc
+        ver: 10.2
       nvcc10-debug:
-        docker_target: nvcc10-debug
-      hip:
-        docker_target: hip
-#      sycl:
-#        docker_target: sycl
+        base_img: nvcc
+        ver: 10.2
+        build_type: Debug
+      nvcc11:
+        base_img: nvcc
+        ver: 11.4.1
+      rocm:
+        base_img: rocm
+        cmake_extra: -DHIP_ARCHITECTURES=gfx900 -DHIP_CLANG_PATH=/opt/rocm/llvm/bin -DHIP_HIPCC_FLAGS=-fPIC -DHIP_RUNTIME_INCLUDE_DIRS=/opt/rocm/include;/opt/rocm/hip/include -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off 
+     sycl:
+        base_img: oneapi
+        compiler: dpcpp
   pool:
     vmImage: 'ubuntu-latest'
   variables:
@@ -75,7 +110,27 @@ jobs:
       containerRegistry: raja_ci_docker
       command: build
       dockerFile: 'Dockerfile'
-      arguments: '--target $(docker_target)'
+      arguments: >-
+        --target $(docker_target)
+        --build-arg BASE_IMG
+        --build-arg VER
+        --build-arg COMPILER
+        --build-arg PRE_CMD
+        --build-arg BUILD_TYPE
+        --build-arg CMAKE_EXTRA
+        --build-arg CTEST_EXTRA
+        --build-arg PARALLEL
+        --build-arg CMAKE_BUILD_OPTS
+      env:
+        BASE_IMG: $(base_img)
+        VER: $(ver)
+        COMPILER: $(COMPILER)
+        PRE_CMD: $(pre_cmd)
+        BUILD_TYPE: $(build_type)
+        CMAKE_EXTRA: $(cmake_extra)
+        CTEST_EXTRA: $(ctest_extra)
+        PARALLEL: $(parallel)
+        CMAKE_BUILD_OPTS: $(cmake_build_opts)
   - script: |
       CID=$(docker create llnl/camp:$(Build.BuildId))
       echo ${CID}
