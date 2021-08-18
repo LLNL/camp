@@ -111,7 +111,7 @@ jobs:
       command: build
       dockerFile: 'Dockerfile'
       arguments: >-
-        --target $(docker_target)
+        --target test
         --build-arg BASE_IMG
         --build-arg VER
         --build-arg COMPILER
