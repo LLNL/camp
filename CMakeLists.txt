@@ -29,6 +29,9 @@ execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   OUTPUT_FILE ${PROJECT_BINARY_DIR}/camp_headers.cmake
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )
+execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  )
 include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
 
 set (camp_depends)
