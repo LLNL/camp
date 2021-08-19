@@ -7,7 +7,7 @@ variables:
   ver: latest
   pre_cmd: true
   build_type: RelWithDebInfo
-  ctest_extra: "-E offload -E 'blt.*smoke'"
+  ctest_extra: "-E '(.*offload|blt.*smoke)'"
   cmake_extra: ""
   parallel: 4
   cmake_build_opts: "--build build --parallel $(parallel)"
