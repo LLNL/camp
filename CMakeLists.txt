@@ -23,7 +23,9 @@ if (CAMP_ENABLE_TESTS AND DEFINED ENABLE_TESTS)
 endif()
 
 # generate list of headers at configure time, no this is not perfect
-execute_process(COMMAND ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
+# note that this *DOES* work on windows if bash is installed, which
+# it is on azure
+execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   OUTPUT_FILE ${PROJECT_BINARY_DIR}/camp_headers.cmake
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )

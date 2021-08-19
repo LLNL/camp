@@ -28,7 +28,6 @@ jobs:
   - checkout: self
     clean: boolean
     submodules: recursive
-  - bash: scripts/gen-header-list.sh
   - task: CMake@1
     inputs:
       workingDir: 'build'
