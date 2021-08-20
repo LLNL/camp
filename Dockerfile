@@ -36,7 +36,15 @@ FROM nvidia/cuda:${VER}-devel-ubuntu18.04 AS nvcc
 
 FROM rocm/dev-ubuntu-20.04:${VER} AS rocm
 
-FROM intel/oneapi-basekit:${VER} AS oneapi
+# use the runtime container and then have it install the compiler,
+# save us a few gigabytes every time
+FROM intel/oneapi-runtime:${VER} AS oneapi
+ARG DEBIAN_FRONTEND=noninteractive
+ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    intel-oneapi-compiler-dpcpp-cpp
+RUN /bin/bash -c "echo 'source /opt/intel/oneapi/setvars.sh' >> ~/.profile"
 ### end compiler base images ###
 
 FROM ${BASE_IMG} AS base
@@ -55,9 +63,9 @@ ARG CMAKE_BUILD_OPTS
 ARG COMPILER
 ENV COMPILER=${COMPILER:-g++}
 ENV HCC_AMDGPU_TARGET=gfx900
-RUN /bin/bash -c "${PRE_CMD} && cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=${COMPILER} ."
-RUN /bin/bash -c "${PRE_CMD} && cmake ${CMAKE_BUILD_OPTS}"
-RUN /bin/bash -c "${PRE_CMD} && cd build && ctest ${CTEST_OPTIONS}"
+RUN /bin/bash -c "[[ -f ~/.profile ]] && source ~/.profile && ${PRE_CMD} && cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=${COMPILER} ."
+RUN /bin/bash -c "[[ -f ~/.profile ]] && source ~/.profile && ${PRE_CMD} && cmake ${CMAKE_BUILD_OPTS}"
+RUN /bin/bash -c "[[ -f ~/.profile ]] && source ~/.profile && ${PRE_CMD} && cd build && ctest ${CTEST_OPTIONS}"
 
 FROM axom/compilers:rocm AS hip
 ENV GTEST_COLOR=1
