@@ -14,6 +14,7 @@ http://github.com/llnl/camp
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <stdexcept>
 
 #if defined(__CUDACC__) || defined(CAMP_HAVE_CUDA)
 #include <cuda_runtime.h>
