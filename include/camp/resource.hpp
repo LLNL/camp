@@ -189,7 +189,7 @@ namespace resources
       using native_event = ::camp::resources::detail::get_event_type<Res>;
 
       EventProxy(EventProxy &&) = default;
-      EventProxy(EventProxy &) = delete;
+      EventProxy(EventProxy const &) = delete;
       EventProxy &operator=(EventProxy &&) = default;
       EventProxy &operator=(EventProxy const &) = delete;
 
