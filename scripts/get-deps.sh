@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
 apt-get update || true #ignore fail here, because rocm docker is broken
-apt-get install -y curl unzip
+apt-get install -y --no-install-recommends curl unzip sudo
+apt-get clean
+rm -rf /var/lib/apt/lists/*
 
 CMAKE=3.14.7
 mkdir installers
