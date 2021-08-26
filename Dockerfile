@@ -28,9 +28,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends gpg gpg-agent w
 # do not have to maintain it, so I'm alright with that
 FROM clang_base AS clang
 ARG VER
-ADD ./cspca.llnl.gov.cer.pem /usr/local/share/ca-certificates/cspca.llnl.gov.cer.crt
-ADD ./cspca.cer.pem /usr/local/share/ca-certificates/cspca.cer.crt
-RUN /usr/sbin/update-ca-certificates
 ADD ./scripts/get-llvm.sh get-llvm.sh
 RUN ./get-llvm.sh $VER bah
 
