@@ -20,7 +20,7 @@ ARG CMAKE_BUILD_OPTS="--build build --parallel ${PARALLEL} ${BUILD_EXTRA}"
 ARG CUDA_IMG_SUFFIX="-devel-ubuntu18.04"
 
 FROM ubuntu:bionic AS clang_base
-RUN apt-get update && apt-get install -y --no-install-recommends wget curl software-properties-common unzip && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends gpg gpg-agent wget curl software-properties-common unzip && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ### start compiler base images ###
 # there is no official container in the hub, but there is an official script
@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget curl softw
 # do not have to maintain it, so I'm alright with that
 FROM clang_base AS clang
 ARG VER
+ADD ./cspca.llnl.gov.cer.pem /usr/local/share/ca-certificates/cspca.llnl.gov.cer.crt
+ADD ./cspca.cer.pem /usr/local/share/ca-certificates/cspca.cer.crt
+RUN /usr/sbin/update-ca-certificates
 ADD ./scripts/get-llvm.sh get-llvm.sh
 RUN ./get-llvm.sh $VER bah
 
