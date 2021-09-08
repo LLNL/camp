@@ -30,7 +30,7 @@ namespace resources
     class SyclEvent
     {
     public:
-      SyclEvent(sycl::queue *qu) { m_event = sycl::event(); }
+      SyclEvent(sycl::queue*) { m_event = sycl::event(); }
       bool check() const { return true; }
       void wait() const { getSyclEvent_t().wait(); }
       sycl::event getSyclEvent_t() const { return m_event; }
@@ -105,7 +105,6 @@ namespace resources
 
         static int previous = 0;
 
-        static std::once_flag m_onceFlag;
         if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
@@ -176,7 +175,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { sycl::free(p, *qu); }
+      void deallocate(void *p, MemoryAccess) { sycl::free(p, *qu); }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
