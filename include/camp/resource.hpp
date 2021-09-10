@@ -194,6 +194,7 @@ namespace resources
       EventProxy &operator=(EventProxy const &) = delete;
 
       EventProxy(Res r) : resource_{move(r)} {}
+      EventProxy(Res *r) : resource_{move(*r)} {}
 
       template <typename T = Res>
       typename std::enable_if<!detail::is_erased_resource_or_proxy<T>::value,
