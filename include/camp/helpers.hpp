@@ -26,36 +26,29 @@ T* declptr();
 
 /// metafunction to get instance of value type
 template <typename T>
-CAMP_HOST_DEVICE
-auto val() noexcept -> decltype(std::declval<T>());
+CAMP_HOST_DEVICE auto val() noexcept -> decltype(std::declval<T>());
 
 /// metafunction to get instance of const type
 template <typename T>
-CAMP_HOST_DEVICE
-auto cval() noexcept -> decltype(std::declval<T const>());
+CAMP_HOST_DEVICE auto cval() noexcept -> decltype(std::declval<T const>());
 
 /// metafunction to expand a parameter pack and ignore result
 template <typename... Ts>
-CAMP_HOST_DEVICE
-#if (__cplusplus >= 201402L)
-constexpr
-#endif
-inline void sink(Ts const& ...)
+CAMP_HOST_DEVICE constexpr inline void sink(Ts const&...)
 {
 }
 
-namespace detail {
+namespace detail
+{
   using __expand_array_type = int[];
 }
-#define CAMP_EXPAND(...) ::camp::detail::__expand_array_type{0, ((void)(__VA_ARGS__),0)...}
+#define CAMP_EXPAND(...) \
+  ::camp::detail::__expand_array_type { 0, ((void)(__VA_ARGS__), 0)... }
 
-template<typename Fn, typename ...Args>
-CAMP_HOST_DEVICE
-#if (__cplusplus >= 201402L)
-constexpr
-#endif
-void for_each_arg(Fn &&f, Args&&...args) {
-  CAMP_EXPAND(f((Args &&)args));
+template <typename Fn, typename... Args>
+CAMP_HOST_DEVICE constexpr void for_each_arg(Fn&& f, Args&&... args)
+{
+  CAMP_EXPAND(f((Args &&) args));
 }
 
 // bring common utility routines into scope to allow ADL

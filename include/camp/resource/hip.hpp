@@ -14,7 +14,7 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_HAVE_HIP
+#ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.h>
 
 #include <exception>
@@ -266,6 +266,6 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
-#endif  //#ifdef CAMP_HAVE_HIP
+#endif  //#ifdef CAMP_ENABLE_HIP
 
 #endif /* __CAMP_HIP_HPP */

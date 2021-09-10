@@ -7,13 +7,16 @@ project (camp
 # Default to C++11 if not set so GTest/GMock can build
 if (NOT BLT_CXX_STD)
     set(BLT_CXX_STD "c++14" CACHE STRING "")
+else()
+    if (${BLT_CXX_STD} STREQUAL "c++11")
+      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++11, select a c++ standard of 14 or higher")
+    endif()
 endif()
 
 include(cmake/load_blt.cmake)
 
 
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
-
 
 # if ENABLE_TESTS is defined by a parent project, and
 # CAMP_ENABLE_TESTS has not been set to OFF set the
@@ -40,29 +43,23 @@ execute_process(COMMAND ${BASH} ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   )
 include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
 
+# backends
 set (camp_depends)
 
-if (ENABLE_OPENMP)
-  set (camp_depends
-    openmp)
-endif()
+set (camp_backends openmp cuda hip sycl)
 
-if(ENABLE_CUDA)
+foreach (backend ${camp_backends})
+  string(TOUPPER "${backend}" suffix)
+  if ("${ENABLE_${suffix}}")
+    set ("CAMP_ENABLE_${suffix}" On)
+    list (APPEND camp_depends ${backend})
+  endif()
+endforeach()
+
+if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "9.2")
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP dependency Googletest requires CUDA version 9.2.x or newer.")
   endif()
-endif()
-
-if(ENABLE_HIP)
-  if("${HIP_VERSION_STRING}" VERSION_LESS "3.5")
-    message(FATAL_ERROR "Trying to use HIP/ROCm version ${HIP_VERSION_STRING}. CAMP requires HIP/ROCm version 3.5 or newer. ")
-  endif()
-endif()
-
-if (ENABLE_CUDA)
-  set(camp_depends
-    ${camp_depends}
-    cuda)
   if(ENABLE_NV_TOOLS_EXT)
     set(camp_depends
       ${camp_depends}
@@ -70,17 +67,18 @@ if (ENABLE_CUDA)
   endif ()
 endif ()
 
-if (ENABLE_EXTERNAL_CUB)
-  set(camp_depends
-    ${camp_depends}
-    cub)
+if (ENABLE_HIP)
+  if("${HIP_VERSION_STRING}" VERSION_LESS "3.5")
+    message(FATAL_ERROR "Trying to use HIP/ROCm version ${HIP_VERSION_STRING}. CAMP requires HIP/ROCm version 3.5 or newer. ")
+  endif()
 endif ()
 
-if (ENABLE_HIP)
-  set(camp_depends
-    ${camp_depends}
-    hip)
-endif ()
+# end backends
+
+# Configure the config header file to allow config time options
+configure_file(${PROJECT_SOURCE_DIR}/include/camp/defines.in.hpp
+               ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
+
 blt_add_library (
   NAME camp
   HEADERS ${camp_headers}
@@ -88,16 +86,18 @@ blt_add_library (
   )
 target_include_directories (camp INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   )
 set_target_properties (camp PROPERTIES
   INTERFACE_LIB_VERSION $camp_VERSION
-  INTERFACE_COMPILE_FEATURES cxx_std_11)
+  INTERFACE_COMPILE_FEATURES cxx_std_14)
 
 include(CMakePackageConfigHelpers)
+
 write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/campConfigVersion.cmake"
-  VERSION 0.1.0
+  VERSION 0.2.3
   COMPATIBILITY AnyNewerVersion
   )
 
