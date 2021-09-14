@@ -62,7 +62,7 @@ endif()
 if (ENABLE_CUDA)
   set(camp_depends
     ${camp_depends}
-    cuda)
+    cuda_runtime)
   if(ENABLE_NV_TOOLS_EXT)
     set(camp_depends
       ${camp_depends}
@@ -79,7 +79,7 @@ endif ()
 if (ENABLE_HIP)
   set(camp_depends
     ${camp_depends}
-    hip)
+    hip_runtime)
 endif ()
 blt_add_library (
   NAME camp
