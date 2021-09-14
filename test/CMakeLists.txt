@@ -1,5 +1,5 @@
 function(camp_add_test TESTNAME)
-  cmake_parse_arguments(ABT "GTEST;RUN;OFFLOAD" "" "BUILD;TEST" ${ARGN})
+  cmake_parse_arguments(ABT "GTEST;RUN;OFFLOAD" "" "BUILD;TEST;DEPENDS_ON" ${ARGN})
 
 
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TESTNAME}.cpp")
@@ -16,6 +16,9 @@ function(camp_add_test TESTNAME)
 
   set(_depends camp gtest)
 
+  if(ABT_DEPENDS_ON)
+    list(APPEND _depends ${ABT_DEPENDS_ON})
+  endif()
   # allow masking of offload tests in CI
   if(ABT_OFFLOAD)
     set(TESTNAME ${TESTNAME}.offload)
@@ -26,7 +29,7 @@ function(camp_add_test TESTNAME)
   blt_add_executable(
     NAME ${TESTNAME}
     SOURCES ${ABT_BUILD}
-    DEPENDS_ON ${_depends} ${camp_depends}
+    DEPENDS_ON ${_depends}
     FOLDER test)
 
   # The test itself

@@ -8,7 +8,8 @@ project (camp
 if (NOT BLT_CXX_STD)
     set(BLT_CXX_STD "c++14" CACHE STRING "")
 else()
-    if (${BLT_CXX_STD} STREQUAL "c++11")
+    set(_unsupported_cxx "c++98" "c++11")
+    if (BLT_CXX_STD IN_LIST _unsupported_cxx)
       message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++11, select a c++ standard of 14 or higher")
     endif()
 endif()
@@ -47,12 +48,19 @@ include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
 set (camp_depends)
 
 set (camp_backends openmp cuda hip sycl)
+# NOTE: camp itself doesn't require a hip or cuda compiler,
+#       but some of its features are activated by having a device compiler
+set (camp_runtime_backends cuda hip)
 
 foreach (backend ${camp_backends})
   string(TOUPPER "${backend}" suffix)
   if ("${ENABLE_${suffix}}")
     set ("CAMP_ENABLE_${suffix}" On)
-    list (APPEND camp_depends ${backend})
+    if (backend IN_LIST camp_runtime_backends)
+      list (APPEND camp_depends ${backend}_runtime)
+    else()
+      list (APPEND camp_depends ${backend})
+    endif()
   endif()
 endforeach()
 
