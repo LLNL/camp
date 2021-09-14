@@ -144,24 +144,24 @@ namespace internal
 
 // by index
 template <camp::idx_t index, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple&& t) noexcept
+CAMP_HOST_DEVICE constexpr auto& get(Tuple&& tup) noexcept
 {
   using tpl = std::decay_t<Tuple>;
   static_assert(tuple_size<tpl>::value > index, "index out of range");
-  return t.base.internal::
+  return tup.base.internal::
       template tuple_storage<index, tuple_element_t<index, tpl>>::get_inner();
 }
 
 // by type
 template <typename T, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple&& t) noexcept
+CAMP_HOST_DEVICE constexpr auto& get(Tuple&& tup) noexcept
 {
   using tpl = std::decay_t<Tuple>;
   using index_type = camp::at_key<typename tpl::TMap, T>;
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return t.base.internal::template tuple_storage<
+  return tup.base.internal::template tuple_storage<
       index_type::value,
       tuple_element_t<index_type::value, tpl>>::get_inner();
 }
@@ -398,19 +398,19 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L const& l, R const& r) noexcept
 
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, camp::idx_t... Sequence, typename TupleLike>
-CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& t,
+CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& tup,
                                                   Fn&& f,
                                                   camp::idx_seq<Sequence...>)
 {
-  return f(::camp::get<Sequence>(t)...);
+  return f(::camp::get<Sequence>(tup)...);
 }
 
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, typename TupleLike>
-CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
+CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& tup, Fn&& f)
 {
   return invoke_with_order(
-      std::forward<TupleLike>(t),
+      std::forward<TupleLike>(tup),
       std::forward<Fn>(f),
       camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
 }
@@ -418,19 +418,19 @@ CAMP_HOST_DEVICE constexpr auto invoke(TupleLike&& t, Fn&& f)
 namespace detail
 {
   template <class T, class Tuple, idx_t... I>
-  constexpr T make_from_tuple_impl(Tuple&& t, idx_seq<I...>)
+  constexpr T make_from_tuple_impl(Tuple&& tup, idx_seq<I...>)
   {
-    return T(::camp::get<I>(std::forward<Tuple>(t))...);
+    return T(::camp::get<I>(std::forward<Tuple>(tup))...);
   }
 }  // namespace detail
 
 /// Instantiate T from tuple contents, like camp::invoke(tuple,constructor) but
 /// functional
 template <class T, class Tuple>
-constexpr T make_from_tuple(Tuple&& t)
+constexpr T make_from_tuple(Tuple&& tup)
 {
   return detail::make_from_tuple_impl<T>(
-      std::forward<Tuple>(t),
+      std::forward<Tuple>(tup),
       make_idx_seq_t<tuple_size<type::ref::rem<Tuple>>::value>{});
 }
 }  // namespace camp
@@ -438,18 +438,18 @@ constexpr T make_from_tuple(Tuple&& t)
 namespace internal
 {
 template <class Tuple, camp::idx_t... Idxs>
-void print_tuple(std::ostream& os, Tuple const& t, camp::idx_seq<Idxs...>)
+void print_tuple(std::ostream& os, Tuple const& tup, camp::idx_seq<Idxs...>)
 {
-  camp::sink((void*)&(os << (Idxs == 0 ? "" : ", ") << camp::get<Idxs>(t))...);
+  camp::sink((void*)&(os << (Idxs == 0 ? "" : ", ") << camp::get<Idxs>(tup))...);
 }
 }  // namespace internal
 
 template <class... Args>
-auto operator<<(std::ostream& os, camp::tuple<Args...> const& t)
+auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
     -> std::ostream&
 {
   os << "(";
-  internal::print_tuple(os, t, camp::make_idx_seq_t<sizeof...(Args)>{});
+  internal::print_tuple(os, tup, camp::make_idx_seq_t<sizeof...(Args)>{});
   return os << ")";
 }
 
