@@ -16,6 +16,14 @@ function(camp_add_test TESTNAME)
 
   set(_depends camp gtest)
 
+  if(ENABLE_CUDA)
+    list(APPEND _depends cuda)
+  endif()
+
+  if(ENABLE_HIP)
+    list(APPEND _depends hip)
+  endif()
+
   if(ABT_DEPENDS_ON)
     list(APPEND _depends ${ABT_DEPENDS_ON})
   endif()
