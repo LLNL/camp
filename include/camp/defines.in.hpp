@@ -109,7 +109,7 @@ namespace camp
 #define CAMP_HAVE_OPENMP
 #endif
 
-#if defined(ENABLE_TARGET_OPENMP)
+#if defined(CAMP_ENABLE_TARGET_OPENMP)
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #else
