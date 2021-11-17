@@ -68,6 +68,11 @@ if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "9.2")
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP dependency Googletest requires CUDA version 9.2.x or newer.")
   endif()
+
+  set(camp_depends
+    ${camp_depends}
+    cuda_runtime)
+
   if(ENABLE_NV_TOOLS_EXT)
     set(camp_depends
       ${camp_depends}
@@ -79,6 +84,10 @@ if (ENABLE_HIP)
   if("${HIP_VERSION_STRING}" VERSION_LESS "3.5")
     message(FATAL_ERROR "Trying to use HIP/ROCm version ${HIP_VERSION_STRING}. CAMP requires HIP/ROCm version 3.5 or newer. ")
   endif()
+
+  set(camp_depends
+    ${camp_depends}
+    hip_runtime)
 endif ()
 
 # end backends
