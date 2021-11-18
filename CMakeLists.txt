@@ -65,7 +65,7 @@ foreach (backend ${camp_backends})
 endforeach()
 
 if (ENABLE_CUDA)
-  if("${CUDA_VERSION_STRING}" VERSION_LESS "9.2")
+  if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP dependency Googletest requires CUDA version 9.2.x or newer.")
   endif()
 
