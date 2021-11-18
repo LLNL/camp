@@ -66,7 +66,7 @@ endforeach()
 
 if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
-    message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP dependency Googletest requires CUDA version 9.2.x or newer.")
+    message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP requires CUDA version 10.1 or newer.")
   endif()
 
   set(camp_depends
