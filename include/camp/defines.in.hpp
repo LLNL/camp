@@ -106,7 +106,7 @@ namespace camp
 #endif
 
 #if defined( CAMP_ENABLE_OPENMP ) && defined(_OPENMP)
-#define CAMP_HAVE_OPENMP
+#define CAMP_HAVE_OPENMP 1
 #endif
 
 #if defined(CAMP_ENABLE_TARGET_OPENMP)
