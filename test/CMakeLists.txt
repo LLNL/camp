@@ -38,6 +38,7 @@ endfunction()
 
 camp_add_test(resource GTEST OFFLOAD)
 camp_add_test(tuple GTEST)
+camp_add_test(optional GTEST)
 
 camp_add_test(accumulate)
 camp_add_test(at_key)

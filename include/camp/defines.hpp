@@ -66,6 +66,10 @@ namespace camp
 #define CAMP_CONSTEXPR14
 #endif
 
+#if defined(__cpp_lib_is_swappable) && __cpp_lib_is_swappable >= 201603
+#define CAMP_HAS_SWAPPABLE_TRAITS
+#endif
+
 // define host device macros
 #define CAMP_HIP_HOST_DEVICE
 
