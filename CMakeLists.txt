@@ -47,7 +47,7 @@ include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
 # backends
 set (camp_depends)
 
-set (camp_backends openmp cuda hip sycl)
+set (camp_backends target_openmp openmp cuda hip sycl)
 # NOTE: camp itself doesn't require a hip or cuda compiler,
 #       but some of its features are activated by having a device compiler
 set (camp_runtime_backends cuda hip)
@@ -63,6 +63,12 @@ foreach (backend ${camp_backends})
     endif()
   endif()
 endforeach()
+
+if (CAMP_ENABLE_TARGET_OPENMP)
+  if (NOT CAMP_ENABLE_OPENMP)
+    message(FATAL_ERROR "OpenMP must be enabled if TARGET_OPENMP is enabled")
+  endif ()
+endif ()
 
 if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "9.2")
