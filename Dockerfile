@@ -16,7 +16,7 @@ ARG CMAKE_EXTRA=""
 ARG CMAKE_OPTIONS="-G Ninja -B build ${CMAKE_EXTRA} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DENABLE_WARNINGS=On"
 ARG PARALLEL=4
 ARG BUILD_EXTRA=""
-ARG CMAKE_BUILD_OPTS="--build build --parallel ${PARALLEL} ${BUILD_EXTRA}"
+ARG CMAKE_BUILD_OPTS="--build build --verbose --parallel ${PARALLEL} ${BUILD_EXTRA}"
 ARG CUDA_IMG_SUFFIX="-devel-ubuntu18.04"
 
 FROM ubuntu:bionic AS clang_base
@@ -34,6 +34,8 @@ RUN ./get-llvm.sh $VER bah
 FROM gcc:${VER} AS gcc
 
 FROM nvidia/cuda:${VER}${CUDA_IMG_SUFFIX} AS nvcc
+
+FROM nvcr.io/nvidia/nvhpc:21.9-devel-cuda11.4-ubuntu20.04 AS nvhpc
 
 FROM rocm/dev-ubuntu-20.04:${VER} AS rocm
 
