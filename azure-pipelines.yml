@@ -10,7 +10,7 @@ variables:
   ctest_extra: "-E '(.*offload|blt.*smoke)'"
   cmake_extra: ""
   parallel: 4
-  cmake_build_opts: "--build build --parallel $(parallel)"
+  cmake_build_opts: "--build build --verbose --parallel $(parallel)"
 
 jobs:
 - job: Windows
