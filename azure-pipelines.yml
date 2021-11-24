@@ -61,14 +61,14 @@ jobs:
         base_img: gcc
         ver: latest
         cmake_extra:
-      clang8:
+      clang10:
         base_img: clang
         compiler: clang++
-        ver: 8
+        ver: 10
       clang10-debug:
         base_img: clang
         compiler: clang++
-        ver: 8
+        ver: 10
         cmake_extra: -DCMAKE_CXX_FLAGS=-fsanitize=address
         build_type: Debug
       clang-latest:
