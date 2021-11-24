@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.9)
 
 project (camp
-  LANGUAGES CXX
+  LANGUAGES CXX C
   VERSION 0.1.0)
 
 # Default to C++11 if not set so GTest/GMock can build
