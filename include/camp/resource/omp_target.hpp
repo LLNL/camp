@@ -14,7 +14,7 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_HAVE_OMP_OFFLOAD
+#ifdef CAMP_ENABLE_TARGET_OPENMP
 #include <omp.h>
 
 #include <map>
@@ -203,6 +203,6 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
-#endif  //#ifdef CAMP_HAVE_OMP_OFFLOAD
+#endif  //#ifdef CAMP_ENABLE_TARGET_OPENMP
 
 #endif /* __CAMP_OMP_TARGET_HPP */

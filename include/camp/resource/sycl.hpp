@@ -15,7 +15,7 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_HAVE_SYCL
+#ifdef CAMP_ENABLE_SYCL
 #include <CL/sycl.hpp>
 #include <map>
 using namespace cl;
@@ -199,6 +199,6 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
-#endif  //#ifdef CAMP_HAVE_SYCL
+#endif  //#ifdef CAMP_ENABLE_SYCL
 
 #endif /* __CAMP_SYCL_HPP */

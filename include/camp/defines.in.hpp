@@ -13,25 +13,31 @@ http://github.com/llnl/camp
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 #include <stdexcept>
+#include <string>
 
-#if defined(__CUDACC__) || defined(CAMP_HAVE_CUDA)
+// Define CAMP_CONFIG_OVERRIDE to change this on a per-file basis
+#if !defined(CAMP_CONFIG_OVERRIDE)
+#cmakedefine CAMP_ENABLE_OPENMP
+#cmakedefine CAMP_ENABLE_TARGET_OPENMP
+#cmakedefine CAMP_ENABLE_CUDA
+#cmakedefine CAMP_ENABLE_HIP
+#cmakedefine CAMP_ENABLE_SYCL
+#endif
+
+// include cuda header if configured, even if not in use
+#ifdef CAMP_ENABLE_CUDA
 #include <cuda_runtime.h>
 #endif
 
-#if defined(__HIPCC__) || defined(CAMP_HAVE_HIP)
+#ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.h>
 #endif
 
 namespace camp
 {
 
-#if defined(__NVCC__)
-#define CAMP_ALLOW_UNUSED_LOCAL(X) camp::sink(X)
-#else
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
-#endif
 
 #if defined(__clang__)
 #define CAMP_COMPILER_CLANG
@@ -44,7 +50,7 @@ namespace camp
 #elif defined(_WIN32)
 #define CAMP_COMPILER_MSVC
 #elif defined(__GNUC__)
-#define RAJA_COMPILER_GNU
+#define CAMP_COMPILER_GNU
 #else
 #pragma warn("Unknown compiler!")
 #endif
@@ -59,17 +65,10 @@ namespace camp
 #define CAMP_EMPTY_BASES
 #endif
 
-#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
-#define CAMP_HAS_CONSTEXPR14
-#define CAMP_CONSTEXPR14 constexpr
-#else
-#define CAMP_CONSTEXPR14
-#endif
-
 // define host device macros
 #define CAMP_HIP_HOST_DEVICE
 
-#if defined(__CUDACC__)
+#if defined(CAMP_ENABLE_CUDA) && defined(__CUDACC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
 #define CAMP_HAVE_CUDA 1
@@ -80,11 +79,11 @@ namespace camp
 #else
 #define CAMP_SUPPRESS_HD_WARN _Pragma("nv_exec_check_disable")
 #endif
-#else // only nvcc supports this pragma
+#else  // only nvcc supports this pragma
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
-#elif defined(__HIPCC__)
+#elif defined( CAMP_ENABLE_HIP ) && defined(__HIPCC__)
 #define CAMP_DEVICE __device__
 #define CAMP_HOST_DEVICE __host__ __device__
 #define CAMP_HAVE_HIP 1
@@ -94,7 +93,7 @@ namespace camp
 
 #define CAMP_SUPPRESS_HD_WARN
 
-#elif defined(SYCL_LANGUAGE_VERSION)
+#elif defined( CAMP_ENABLE_SYCL ) && defined(SYCL_LANGUAGE_VERSION)
 #define CAMP_HAVE_SYCL 1
 #define CAMP_DEVICE
 #define CAMP_HOST_DEVICE
@@ -106,7 +105,11 @@ namespace camp
 #define CAMP_SUPPRESS_HD_WARN
 #endif
 
-#if defined(ENABLE_TARGET_OPENMP)
+#if defined( CAMP_ENABLE_OPENMP ) && defined(_OPENMP)
+#define CAMP_HAVE_OPENMP 1
+#endif
+
+#if defined(CAMP_ENABLE_TARGET_OPENMP)
 #if _OPENMP >= 201511
 #define CAMP_HAVE_OMP_OFFLOAD 1
 #else
@@ -115,6 +118,10 @@ namespace camp
 #endif
 #endif
 
+// Compiler checks
+#if defined(__NVCC__) && __CUDACC_VER_MAJOR__ < 10
+#error nvcc below 10 is not supported
+#endif
 // This works for:
 //   clang
 //   nvcc 10 and higher using clang as a host compiler
@@ -122,13 +129,14 @@ namespace camp
 //   XL C++ at least back to 16.1.0, possibly farther
 #define CAMP_USE_MAKE_INTEGER_SEQ 0
 #define CAMP_USE_TYPE_PACK_ELEMENT 0
+
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 191125507
-  // __has_builtin exists but does not always expose this
+// __has_builtin exists but does not always expose this
 #undef CAMP_USE_MAKE_INTEGER_SEQ
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
-  // __type_pack_element remains unsupported
+// __type_pack_element remains unsupported
 #elif defined(__has_builtin)
-#if __has_builtin(__make_integer_seq) && ((!defined(__NVCC__) || __CUDACC_VER_MAJOR >= 10))
+#if __has_builtin(__make_integer_seq)
 #undef CAMP_USE_MAKE_INTEGER_SEQ
 #define CAMP_USE_MAKE_INTEGER_SEQ 1
 #undef CAMP_USE_TYPE_PACK_ELEMENT
@@ -139,15 +147,13 @@ namespace camp
 // This works for:
 //   GCC >= 8
 //   intel 19+ in GCC 8 or higher mode
-//   nvcc 10+ in GCC 8 or higher mode
+//   nvcc 10+ in GCC 8 or higher mode, no lower nvcc allowed anyway
 //   PGI 19+ in GCC 8 or higher mode
-#if __GNUC__ >= 8 && (\
-    /* intel compiler in gcc 8+ mode */ \
-    ((!defined(__INTEL_COMPILER)) || __INTEL_COMPILER >= 1900) \
-    /* nvcc in gcc 8+ mode */ \
-  ||((!defined(__NVCC__)) || __CUDACC_VER_MAJOR >= 10) \
-  ||((!defined(__PGIC__)) || __PGIC__ >= 19) \
-    )
+#if __GNUC__ >= 8                                               \
+    && (/* intel compiler in gcc 8+ mode */                     \
+        ((!defined(__INTEL_COMPILER))                           \
+         || __INTEL_COMPILER >= 1900) /* nvcc in gcc 8+ mode */ \
+        || ((!defined(__PGIC__)) || __PGIC__ >= 19))
 #define CAMP_USE_INTEGER_PACK 1
 #else
 #define CAMP_USE_INTEGER_PACK 0
@@ -167,7 +173,6 @@ namespace camp
 #endif
 
 
-
 // Types
 using idx_t = std::ptrdiff_t;
 using nullptr_t = decltype(nullptr);
@@ -181,10 +186,9 @@ using nullptr_t = decltype(nullptr);
   }
 
 
-#ifdef CAMP_HAVE_CUDA
+#ifdef CAMP_ENABLE_CUDA
 
-#define campCudaErrchk(ans)                             \
-    ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
+#define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
 inline cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
@@ -206,13 +210,12 @@ inline cudaError_t cudaAssert(cudaError_t code,
   return code;
 }
 
-#endif  //#ifdef CAMP_HAVE_CUDA
+#endif  //#ifdef CAMP_ENABLE_CUDA
 
 
-#ifdef CAMP_HAVE_HIP
+#ifdef CAMP_ENABLE_HIP
 
-#define campHipErrchk(ans)                             \
-    ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
+#define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
 inline hipError_t hipAssert(hipError_t code,
                             const char *call,
@@ -234,8 +237,8 @@ inline hipError_t hipAssert(hipError_t code,
   return code;
 }
 
-#endif  //#ifdef CAMP_HAVE_HIP
+#endif  //#ifdef CAMP_ENABLE_HIP
 
 }  // namespace camp
 
-#endif
+#endif // CAMP_DEFINES_HPP

@@ -15,7 +15,7 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_HAVE_CUDA
+#ifdef CAMP_ENABLE_CUDA
 
 #include <cuda_runtime.h>
 
@@ -268,6 +268,6 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
-#endif  //#ifdef CAMP_HAVE_CUDA
+#endif  //#ifdef CAMP_ENABLE_CUDA
 
 #endif /* __CAMP_CUDA_HPP */

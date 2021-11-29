@@ -10,7 +10,7 @@ variables:
   ctest_extra: "-E '(.*offload|blt.*smoke)'"
   cmake_extra: ""
   parallel: 4
-  cmake_build_opts: "--build build --parallel $(parallel)"
+  cmake_build_opts: "--build build --verbose --parallel $(parallel)"
 
 jobs:
 - job: Windows
@@ -49,14 +49,10 @@ jobs:
   timeoutInMinutes: 360
   strategy:
     matrix:
-      gcc6:
+      gcc8-debug:
         base_img: gcc
-        ver: 6
-        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DRAJA_ENABLE_RUNTIME_PLUGINS=On 
-      gcc6-debug:
-        base_img: gcc
-        ver: 6
-        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On
+        ver: 8
+        cmake_extra: -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On
         build_type: Debug
       gcc8:
         base_img: gcc
@@ -64,7 +60,7 @@ jobs:
       gcc-latest:
         base_img: gcc
         ver: latest
-        cmake_extra: -DENABLE_TBB=On -DRAJA_DEPRECATED_TESTS=On -DRAJA_ENABLE_BOUNDS_CHECK=On
+        cmake_extra:
       clang10:
         base_img: clang
         compiler: clang++
@@ -92,7 +88,8 @@ jobs:
         ver: 11.4.1
       rocm:
         base_img: rocm
-        cmake_extra: -DHIP_CLANG_PATH=/opt/rocm/llvm/bin -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off 
+        cmake_extra: -DHIP_CLANG_PATH=/opt/rocm/llvm/bin -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
+        compiler: /opt/rocm/bin/amdclang++
       sycl:
         base_img: oneapi
         compiler: dpcpp
