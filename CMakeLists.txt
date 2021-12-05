@@ -39,10 +39,8 @@ execute_process(COMMAND ${BASH} ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   OUTPUT_FILE ${PROJECT_BINARY_DIR}/camp_headers.cmake
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )
-execute_process(COMMAND ${BASH} ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  )
 include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
+list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
 
 # backends
 set (camp_depends)
@@ -152,6 +150,10 @@ install(DIRECTORY
   ${PROJECT_SOURCE_DIR}/include/
   DESTINATION
   include)
+install(FILES
+  "${PROJECT_BINARY_DIR}/include/camp/defines.hpp"
+  DESTINATION
+  include/camp)
 
 if(CAMP_ENABLE_TESTS)
 enable_testing()
