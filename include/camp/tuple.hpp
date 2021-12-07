@@ -140,30 +140,51 @@ namespace internal
       return ((Type*)this)[0];
     }
   };
+
+  template <typename T, camp::idx_t I>
+  using tpl_get_store = internal::tuple_storage<I, tuple_element_t<I, T>>;
 }  // namespace internal
 
 // by index
 template <camp::idx_t index, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple&& tup) noexcept
+CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
 {
-  using tpl = std::decay_t<Tuple>;
-  static_assert(tuple_size<tpl>::value > index, "index out of range");
-  return tup.base.internal::
-      template tuple_storage<index, tuple_element_t<index, tpl>>::get_inner();
+  using internal::tpl_get_store;
+  static_assert(tuple_size<Tuple>::value > index, "index out of range");
+  return static_cast<tpl_get_store<Tuple, index> const&>(t.base).get_inner();
+}
+
+template <camp::idx_t index, class Tuple>
+CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
+{
+  using internal::tpl_get_store;
+  static_assert(tuple_size<Tuple>::value > index, "index out of range");
+  return static_cast<tpl_get_store<Tuple, index>&>(t.base).get_inner();
 }
 
 // by type
 template <typename T, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple&& tup) noexcept
+CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
 {
-  using tpl = std::decay_t<Tuple>;
-  using index_type = camp::at_key<typename tpl::TMap, T>;
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename Tuple::TMap, T>;
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return tup.base.internal::template tuple_storage<
-      index_type::value,
-      tuple_element_t<index_type::value, tpl>>::get_inner();
+  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
+      .get_inner();
+}
+
+template <typename T, class Tuple>
+CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename Tuple::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
+      .get_inner();
 }
 
 namespace internal
@@ -220,7 +241,6 @@ namespace internal
     using type = camp::list<camp::list<Types, camp::num<Indices>>...>;
   };
 
-
 }  // namespace internal
 
 template <typename... Elements>
@@ -248,10 +268,14 @@ private:
   Base base;
 
   template <camp::idx_t index, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple&& t) noexcept;
+  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple& t) noexcept;
+  template <camp::idx_t index, class Tuple>
+  CAMP_HOST_DEVICE constexpr friend auto& get(const Tuple& t) noexcept;
 
   template <typename T, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple&& t) noexcept;
+  CAMP_HOST_DEVICE constexpr friend auto& get(const Tuple& t) noexcept;
+  template <typename T, class Tuple>
+  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple& t) noexcept;
 
 public:
   CAMP_HOST_DEVICE constexpr explicit tuple(const Elements&... rest)
