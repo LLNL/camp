@@ -4,18 +4,17 @@ project (camp
   LANGUAGES CXX C
   VERSION 0.1.0)
 
-# Default to C++11 if not set so GTest/GMock can build
+# Default to C++17 if not set so GTest/GMock can build
 if (NOT BLT_CXX_STD)
-    set(BLT_CXX_STD "c++14" CACHE STRING "")
+    set(BLT_CXX_STD "c++17" CACHE STRING "")
 else()
-    set(_unsupported_cxx "c++98" "c++11")
+    set(_unsupported_cxx "c++98" "c++11" "c++14")
     if (BLT_CXX_STD IN_LIST _unsupported_cxx)
-      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++11, select a c++ standard of 14 or higher")
+      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++ standards below c++17, select a c++ standard of 14 or higher")
     endif()
 endif()
 
 include(cmake/load_blt.cmake)
-
 
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
 
@@ -112,7 +111,7 @@ target_include_directories (camp INTERFACE
   )
 set_target_properties (camp PROPERTIES
   INTERFACE_LIB_VERSION $camp_VERSION
-  INTERFACE_COMPILE_FEATURES cxx_std_14)
+  INTERFACE_COMPILE_FEATURES cxx_std_17)
 
 include(CMakePackageConfigHelpers)
 

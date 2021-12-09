@@ -10,9 +10,13 @@
 .vscode/
 .cache/
 
+# codespaces clean
+.venv/
+
 # build directories
-build/
-build-*/
+/build/
+/build-*/
+/*-build/
 cmake-build-*/
 docker-*-build/
 /Debug/

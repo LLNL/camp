@@ -106,12 +106,15 @@ namespace internal
     {
     }
 
-    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
+    CAMP_HOST_DEVICE constexpr auto& get_inner(::camp::num<index>) const noexcept
     {
       return val;
     }
 
-    CAMP_HOST_DEVICE constexpr Type& get_inner() noexcept { return val; }
+    CAMP_HOST_DEVICE constexpr auto& get_inner(::camp::num<index>) noexcept
+    {
+      return val;
+    }
 
   public:
     Type val;
@@ -130,12 +133,12 @@ namespace internal
     {
     }
 
-    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
+    CAMP_HOST_DEVICE constexpr const Type& get_inner(::camp::num<index>) const noexcept
     {
       return ((Type const*)this)[0];
     }
 
-    CAMP_HOST_DEVICE constexpr Type& get_inner() noexcept
+    CAMP_HOST_DEVICE constexpr Type& get_inner(::camp::num<index>) noexcept
     {
       return ((Type*)this)[0];
     }
@@ -151,7 +154,7 @@ CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
 {
   using internal::tpl_get_store;
   static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index> const&>(t.base).get_inner();
+  return t.base.get_inner(num<index>{});
 }
 
 template <camp::idx_t index, class Tuple>
@@ -159,7 +162,7 @@ CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
 {
   using internal::tpl_get_store;
   static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index>&>(t.base).get_inner();
+  return t.base.get_inner(num<index>{});
 }
 
 // by type
@@ -171,8 +174,7 @@ CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
+  return t.base.get_inner(index_type{});
 }
 
 template <typename T, class Tuple>
@@ -183,8 +185,7 @@ CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
   static_assert(!std::is_same<camp::nil, index_type>::value,
                 "invalid type index");
 
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
+  return t.base.get_inner(index_type{});
 }
 
 namespace internal
@@ -228,10 +229,12 @@ namespace internal
     template <typename RTuple>
     CAMP_HOST_DEVICE tuple_helper& operator=(const RTuple& rhs)
     {
-      return (camp::sink((this->tuple_storage<Indices, Types>::get_inner() =
+      return (camp::sink((this->get_inner(num<Indices>{}) =
                               ::camp::get<Indices>(rhs))...),
               *this);
     }
+    
+    using internal::tuple_storage<Indices, Types>::get_inner...;
   };
 
   template <typename Types, typename Indices>
