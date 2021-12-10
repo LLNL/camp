@@ -10,7 +10,7 @@ if (NOT BLT_CXX_STD)
 else()
     set(_unsupported_cxx "c++98" "c++11" "c++14")
     if (BLT_CXX_STD IN_LIST _unsupported_cxx)
-      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++ standards below c++17, select a c++ standard of 14 or higher")
+      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++ standards below c++17, select a c++ standard of 17 or higher")
     endif()
 endif()
 
