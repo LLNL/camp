@@ -115,7 +115,7 @@ target_include_directories (camp INTERFACE
   $<INSTALL_INTERFACE:include>
   )
 set_target_properties (camp PROPERTIES
-  INTERFACE_LIB_VERSION $camp_VERSION
+  INTERFACE_LIB_VERSION ${PROJECT_VERSION}
   INTERFACE_COMPILE_FEATURES cxx_std_14)
 
 include(CMakePackageConfigHelpers)
