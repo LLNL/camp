@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.9)
 
 project (camp
   LANGUAGES CXX C
-  VERSION 0.1.0)
+  VERSION 0.4.0)
 
 # Default to C++11 if not set so GTest/GMock can build
 if (NOT BLT_CXX_STD)
@@ -111,14 +111,14 @@ target_include_directories (camp INTERFACE
   $<INSTALL_INTERFACE:include>
   )
 set_target_properties (camp PROPERTIES
-  INTERFACE_LIB_VERSION $camp_VERSION
+  INTERFACE_LIB_VERSION ${PACKAGE_VERSION}
   INTERFACE_COMPILE_FEATURES cxx_std_14)
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/campConfigVersion.cmake"
-  VERSION 0.2.3
+  VERSION ${PACKAGE_VERSION}
   COMPATIBILITY AnyNewerVersion
   )
 
