@@ -16,7 +16,7 @@ http://github.com/llnl/camp
 #include <stdexcept>
 #include <string>
 
-#include "config.hpp"
+#include <camp/config.hpp>
 
 // include cuda header if configured, even if not in use
 #ifdef CAMP_ENABLE_CUDA
