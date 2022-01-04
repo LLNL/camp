@@ -7,10 +7,10 @@
 #cmakedefine CAMP_ENABLE_SYCL
 #endif
 
-#cmakedefine CAMP_VERSION_MAJOR
-#cmakedefine CAMP_VERSION_MINOR
-#cmakedefine CAMP_VERSION_PATCH
+#define CAMP_VERSION_MAJOR @camp_VERSION_MAJOR@
+#define CAMP_VERSION_MINOR @camp_VERSION_MINOR@
+#define CAMP_VERSION_PATCH @camp_VERSION_PATCH@
 
-#define CAMP_VERSION (CAMP_VERSION_MAJOR * 10000) \
-                    +(CAMP_VERSION_MINOR * 100) \
+#define CAMP_VERSION (CAMP_VERSION_MAJOR * 1000000) \
+                    +(CAMP_VERSION_MINOR * 1000) \
                     +(CAMP_VERSION_PATCH)

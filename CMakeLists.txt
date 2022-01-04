@@ -4,6 +4,10 @@ project (camp
   LANGUAGES CXX C
   VERSION 0.4.0)
 
+set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+
 # Default to C++11 if not set so GTest/GMock can build
 if (NOT BLT_CXX_STD)
     set(BLT_CXX_STD "c++14" CACHE STRING "")
