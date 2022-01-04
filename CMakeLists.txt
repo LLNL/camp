@@ -40,7 +40,7 @@ execute_process(COMMAND ${BASH} ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )
 include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
-list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
+list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
 # backends
 set (camp_depends)
@@ -97,8 +97,8 @@ endif ()
 # end backends
 
 # Configure the config header file to allow config time options
-configure_file(${PROJECT_SOURCE_DIR}/include/camp/defines.in.hpp
-               ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
+configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
+               ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
 blt_add_library (
   NAME camp
@@ -151,7 +151,7 @@ install(DIRECTORY
   DESTINATION
   include)
 install(FILES
-  "${PROJECT_BINARY_DIR}/include/camp/defines.hpp"
+  "${PROJECT_BINARY_DIR}/include/camp/config.hpp"
   DESTINATION
   include/camp)
 
