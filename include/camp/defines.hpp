@@ -16,14 +16,7 @@ http://github.com/llnl/camp
 #include <stdexcept>
 #include <string>
 
-// Define CAMP_CONFIG_OVERRIDE to change this on a per-file basis
-#if !defined(CAMP_CONFIG_OVERRIDE)
-#cmakedefine CAMP_ENABLE_OPENMP
-#cmakedefine CAMP_ENABLE_TARGET_OPENMP
-#cmakedefine CAMP_ENABLE_CUDA
-#cmakedefine CAMP_ENABLE_HIP
-#cmakedefine CAMP_ENABLE_SYCL
-#endif
+#include <camp/config.hpp>
 
 // include cuda header if configured, even if not in use
 #ifdef CAMP_ENABLE_CUDA

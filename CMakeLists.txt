@@ -2,7 +2,11 @@ cmake_minimum_required (VERSION 3.9)
 
 project (camp
   LANGUAGES CXX C
-  VERSION 0.1.0)
+  VERSION 0.4.0)
+
+set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 # Default to C++11 if not set so GTest/GMock can build
 if (NOT BLT_CXX_STD)
@@ -40,7 +44,7 @@ execute_process(COMMAND ${BASH} ${PROJECT_SOURCE_DIR}/scripts/gen-header-list.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )
 include(${PROJECT_BINARY_DIR}/camp_headers.cmake)
-list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
+list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
 # backends
 set (camp_depends)
@@ -97,8 +101,8 @@ endif ()
 # end backends
 
 # Configure the config header file to allow config time options
-configure_file(${PROJECT_SOURCE_DIR}/include/camp/defines.in.hpp
-               ${PROJECT_BINARY_DIR}/include/camp/defines.hpp)
+configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
+               ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
 blt_add_library (
   NAME camp
@@ -111,14 +115,14 @@ target_include_directories (camp INTERFACE
   $<INSTALL_INTERFACE:include>
   )
 set_target_properties (camp PROPERTIES
-  INTERFACE_LIB_VERSION $camp_VERSION
+  INTERFACE_LIB_VERSION ${PROJECT_VERSION}
   INTERFACE_COMPILE_FEATURES cxx_std_14)
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/campConfigVersion.cmake"
-  VERSION 0.2.3
+  VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
   )
 
@@ -151,7 +155,7 @@ install(DIRECTORY
   DESTINATION
   include)
 install(FILES
-  "${PROJECT_BINARY_DIR}/include/camp/defines.hpp"
+  "${PROJECT_BINARY_DIR}/include/camp/config.hpp"
   DESTINATION
   include/camp)
 
