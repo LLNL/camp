@@ -106,7 +106,7 @@ blt_add_library (
   SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
   )
-target_include_directories (camp INTERFACE
+target_include_directories (camp PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>

@@ -17,7 +17,6 @@ http://github.com/llnl/camp
 
 #include "camp/defines.hpp"
 
-#include <array>
 #include <type_traits>
 
 namespace camp

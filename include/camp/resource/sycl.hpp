@@ -18,6 +18,7 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_SYCL
 #include <CL/sycl.hpp>
 #include <map>
+#include <array>
 using namespace cl;
 
 namespace camp

@@ -17,7 +17,7 @@ http://github.com/llnl/camp
  * \brief   Exceptionally basic tuple for host-device support
  */
 
-#include <iostream>
+#include <sstream>
 #include <type_traits>
 
 #include "camp/concepts.hpp"
