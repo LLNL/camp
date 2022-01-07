@@ -103,6 +103,7 @@ configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
 blt_add_library (
   NAME camp
   HEADERS ${camp_headers}
+  SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
   )
 target_include_directories (camp INTERFACE
