@@ -121,6 +121,8 @@ namespace resources
           }
         }
         ::camp::throw_re("invalid pointer detected");
+        // unreachable
+        return MemoryAccess::Unknown;
       }
 
     public:

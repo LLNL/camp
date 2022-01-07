@@ -183,7 +183,7 @@ void throw_re(const char *s);
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
-inline cudaError_t cudaAssert(cudaError_t code,
+cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
                               const char *file,
                               int line);
@@ -195,7 +195,7 @@ inline cudaError_t cudaAssert(cudaError_t code,
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
-inline hipError_t hipAssert(hipError_t code,
+hipError_t hipAssert(hipError_t code,
                             const char *call,
                             const char *file,
                             int line);
