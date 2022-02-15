@@ -49,10 +49,10 @@ list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 # backends
 set (camp_depends)
 
-set (camp_backends target_openmp openmp cuda hip sycl)
+set (camp_backends openmp cuda blt::hip sycl)
 # NOTE: camp itself doesn't require a hip or cuda compiler,
 #       but some of its features are activated by having a device compiler
-set (camp_runtime_backends cuda hip)
+set (camp_runtime_backends cuda blt::hip)
 
 foreach (backend ${camp_backends})
   string(TOUPPER "${backend}" suffix)
@@ -77,10 +77,6 @@ if (ENABLE_CUDA)
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP requires CUDA version 10.1 or newer.")
   endif()
 
-  set(camp_depends
-    ${camp_depends}
-    cuda_runtime)
-
   if(ENABLE_NV_TOOLS_EXT)
     set(camp_depends
       ${camp_depends}
@@ -92,10 +88,6 @@ if (ENABLE_HIP)
   if("${HIP_VERSION_STRING}" VERSION_LESS "3.5")
     message(FATAL_ERROR "Trying to use HIP/ROCm version ${HIP_VERSION_STRING}. CAMP requires HIP/ROCm version 3.5 or newer. ")
   endif()
-
-  set(camp_depends
-    ${camp_depends}
-    hip_runtime)
 endif ()
 
 # end backends
