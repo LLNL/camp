@@ -19,17 +19,12 @@ ARG BUILD_EXTRA=""
 ARG CMAKE_BUILD_OPTS="--build build --verbose --parallel ${PARALLEL} ${BUILD_EXTRA}"
 ARG CUDA_IMG_SUFFIX="-devel-ubuntu18.04"
 
-FROM ubuntu:focal AS clang_base
-RUN apt-get update && apt-get install -y --no-install-recommends gpg gpg-agent wget curl software-properties-common unzip && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 ### start compiler base images ###
 # there is no official container in the hub, but there is an official script
 # to install clang/llvm by version, installs a bit more than we need, but we
 # do not have to maintain it, so I'm alright with that
-FROM clang_base AS clang
-ARG VER
-ADD ./scripts/get-llvm.sh get-llvm.sh
-RUN ./get-llvm.sh $VER
+FROM ghcr.io/rse-ops/clang-ubuntu-20.04:llvm-${VER} AS clang
+ENV LD_LIBRARY_PATH=/opt/view/lib
 
 FROM gcc:${VER} AS gcc
 
