@@ -19,7 +19,7 @@ ARG BUILD_EXTRA=""
 ARG CMAKE_BUILD_OPTS="--build build --verbose --parallel ${PARALLEL} ${BUILD_EXTRA}"
 ARG CUDA_IMG_SUFFIX="-devel-ubuntu18.04"
 
-FROM ubuntu:bionic AS clang_base
+FROM ubuntu:focal AS clang_base
 RUN apt-get update && apt-get install -y --no-install-recommends gpg gpg-agent wget curl software-properties-common unzip && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ### start compiler base images ###
@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gpg gpg-agent w
 FROM clang_base AS clang
 ARG VER
 ADD ./scripts/get-llvm.sh get-llvm.sh
-RUN ./get-llvm.sh $VER bah
+RUN ./get-llvm.sh $VER
 
 FROM gcc:${VER} AS gcc
 
