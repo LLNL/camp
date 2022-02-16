@@ -88,8 +88,8 @@ jobs:
         ver: 11.4.1
       rocm:
         base_img: rocm
-        cmake_extra: -DHIP_CLANG_PATH=/opt/rocm/llvm/bin -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
-        compiler: /opt/rocm/bin/amdclang++
+        cmake_extra: -DROCM_PATH=/opt/rocm -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
+        compiler: /opt/rocm/llvm/bin/amdclang++
       sycl:
         base_img: oneapi
         compiler: dpcpp

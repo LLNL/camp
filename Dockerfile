@@ -71,7 +71,6 @@ ARG CMAKE_OPTIONS
 ARG CMAKE_BUILD_OPTS
 ARG COMPILER
 ENV COMPILER=${COMPILER:-g++}
-ENV HCC_AMDGPU_TARGET=gfx900
 RUN /bin/bash -c "[[ -f ~/setup_env.sh ]] && source ~/setup_env.sh ; ${PRE_CMD} && cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=${COMPILER} ."
 RUN /bin/bash -c "[[ -f ~/setup_env.sh ]] && source ~/setup_env.sh ; ${PRE_CMD} && cmake ${CMAKE_BUILD_OPTS}"
 RUN /bin/bash -c "[[ -f ~/setup_env.sh ]] && source ~/setup_env.sh ; ${PRE_CMD} && cd build && ctest ${CTEST_OPTIONS}"
