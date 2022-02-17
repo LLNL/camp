@@ -263,7 +263,7 @@ public:
       camp::list<Elements...>,
       camp::make_idx_seq_t<sizeof...(Elements)>>::type;
   using type = tuple;
-  Base base;
+  Base base;  // Place this back into private when XLC can handle this better. 
 
 private:
 
