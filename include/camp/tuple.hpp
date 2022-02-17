@@ -263,9 +263,9 @@ public:
       camp::list<Elements...>,
       camp::make_idx_seq_t<sizeof...(Elements)>>::type;
   using type = tuple;
+  Base base;  // Place this back into private when XLC can handle this better. 
 
 private:
-  Base base;
 
   template <camp::idx_t index, class Tuple>
   CAMP_HOST_DEVICE constexpr friend auto& get(Tuple& t) noexcept;
