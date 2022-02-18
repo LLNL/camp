@@ -21,7 +21,7 @@ function(camp_add_test TESTNAME)
   endif()
 
   if(ENABLE_HIP)
-    list(APPEND _depends hip)
+    list(APPEND _depends blt::hip)
   endif()
 
   if(ABT_DEPENDS_ON)
