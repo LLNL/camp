@@ -49,20 +49,24 @@ list (APPEND camp_headers ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 # backends
 set (camp_depends)
 
-set (camp_backends openmp cuda blt::hip sycl)
+set (camp_backends openmp cuda hip sycl)
 # NOTE: camp itself doesn't require a hip or cuda compiler,
 #       but some of its features are activated by having a device compiler
-set (camp_runtime_backends cuda blt::hip)
+set (camp_runtime_backends cuda hip)
 
 foreach (backend ${camp_backends})
   string(TOUPPER "${backend}" suffix)
   if ("${ENABLE_${suffix}}")
     set ("CAMP_ENABLE_${suffix}" On)
+  endif()
+  if ("CAMP_ENABLE_${suffix}")
     if (backend IN_LIST camp_runtime_backends)
-      list (APPEND camp_depends ${backend}_runtime)
-    else()
-      list (APPEND camp_depends ${backend})
+      set (backend ${backend}_runtime)  
     endif()
+    if (TARGET blt::${backend})
+      set (backend blt::${backend})
+    endif()
+    list (APPEND camp_depends ${backend})
   endif()
 endforeach()
 
