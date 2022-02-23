@@ -21,7 +21,6 @@ void throw_re(const char *s) { throw std::runtime_error(s); }
 
 #ifdef CAMP_ENABLE_CUDA
 
-#define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
 cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
@@ -46,8 +45,6 @@ cudaError_t cudaAssert(cudaError_t code,
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
 #ifdef CAMP_ENABLE_HIP
-
-#define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
 hipError_t hipAssert(hipError_t code,
                             const char *call,
