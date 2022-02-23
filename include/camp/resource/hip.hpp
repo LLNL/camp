@@ -17,8 +17,6 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.h>
 
-#include <exception>
-
 namespace camp
 {
 namespace resources
@@ -122,7 +120,9 @@ namespace resources
               return MemoryAccess::Unknown;
           }
         }
-        throw std::runtime_error("invalid pointer detected");
+        ::camp::throw_re("invalid pointer detected");
+        // unreachable
+        return MemoryAccess::Unknown;
       }
 
     public:
@@ -229,7 +229,7 @@ namespace resources
             campHipErrchk(hipFree(p));
             break;
           case MemoryAccess::Unknown:
-            throw std::runtime_error("Unknown memory access type, cannot free");
+            ::camp::throw_re("Unknown memory access type, cannot free");
             break;
         }
       }

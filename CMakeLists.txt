@@ -59,7 +59,7 @@ foreach (backend ${camp_backends})
   if ("${ENABLE_${suffix}}")
     set ("CAMP_ENABLE_${suffix}" On)
   endif()
-  if ("CAMP_ENABLE_${suffix}")
+  if (${CAMP_ENABLE_${suffix}})
     if (backend IN_LIST camp_runtime_backends)
       set (backend ${backend}_runtime)  
     endif()
@@ -103,9 +103,10 @@ configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
 blt_add_library (
   NAME camp
   HEADERS ${camp_headers}
+  SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
   )
-target_include_directories (camp INTERFACE
+target_include_directories (camp PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>

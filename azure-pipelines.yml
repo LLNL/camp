@@ -35,7 +35,7 @@ jobs:
   - task: CMake@1
     inputs:
       workingDir: 'build'
-      cmakeArgs: '--build . --config Release --verbose'
+      cmakeArgs: '--build . --config Release --verbose --parallel $(parallel)'
   - task: CmdLine@2
     inputs:
       script: 'ctest.exe -T test -C Release'

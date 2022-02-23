@@ -12,7 +12,6 @@ http://github.com/llnl/camp
 #define __CAMP_EVENT_HPP
 
 #include<type_traits>
-#include<exception>
 #include<memory>
 
 namespace camp
@@ -60,7 +59,7 @@ namespace resources
       {
         auto result = dynamic_cast<EventModel<T> *>(m_value.get());
         if (result == nullptr) {
-          throw std::runtime_error("Incompatible Event type get cast.");
+          ::camp::throw_re("Incompatible Event type get cast.");
         }
         return *result->get();
       }

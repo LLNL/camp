@@ -19,8 +19,6 @@ http://github.com/llnl/camp
 
 #include <cuda_runtime.h>
 
-#include <exception>
-
 namespace camp
 {
 namespace resources
@@ -125,7 +123,7 @@ namespace resources
               return MemoryAccess::Managed;
           }
         }
-        throw std::runtime_error("invalid pointer detected");
+        ::camp::throw_re("invalid pointer detected");
       }
     public:
       Cuda(int group = -1, int dev = 0)
@@ -232,7 +230,7 @@ namespace resources
             campCudaErrchk(cudaFree(p));
             break;
           case MemoryAccess::Unknown:
-            throw std::runtime_error("Unknown memory access type, cannot free");
+            ::camp::throw_re("Unknown memory access type, cannot free");
         }
       }
       void memcpy(void *dst, const void *src, size_t size)

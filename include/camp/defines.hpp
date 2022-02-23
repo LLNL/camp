@@ -13,8 +13,6 @@ http://github.com/llnl/camp
 
 #include <cstddef>
 #include <cstdint>
-#include <stdexcept>
-#include <string>
 
 #include <camp/config.hpp>
 
@@ -178,30 +176,17 @@ using nullptr_t = decltype(nullptr);
     using type = typename X<Lambda::template expr, Rest...>::type; \
   }
 
+/// Throw a runtime_error, avoid including exception everywhere
+void throw_re(const char *s);
 
 #ifdef CAMP_ENABLE_CUDA
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
-inline cudaError_t cudaAssert(cudaError_t code,
+cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
                               const char *file,
-                              int line)
-{
-  if (code != cudaSuccess && code != cudaErrorNotReady) {
-    std::string msg;
-    msg += "campCudaErrchk(";
-    msg += call;
-    msg += ") ";
-    msg += cudaGetErrorString(code);
-    msg += " ";
-    msg += file;
-    msg += ":";
-    msg += std::to_string(line);
-    throw std::runtime_error(msg);
-  }
-  return code;
-}
+                              int line);
 
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
@@ -210,25 +195,10 @@ inline cudaError_t cudaAssert(cudaError_t code,
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
-inline hipError_t hipAssert(hipError_t code,
+hipError_t hipAssert(hipError_t code,
                             const char *call,
                             const char *file,
-                            int line)
-{
-  if (code != hipSuccess && code != hipErrorNotReady) {
-    std::string msg;
-    msg += "campHipErrchk(";
-    msg += call;
-    msg += ") ";
-    msg += hipGetErrorString(code);
-    msg += " ";
-    msg += file;
-    msg += ":";
-    msg += std::to_string(line);
-    throw std::runtime_error(msg);
-  }
-  return code;
-}
+                            int line);
 
 #endif  //#ifdef CAMP_ENABLE_HIP
 

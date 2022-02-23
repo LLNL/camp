@@ -12,7 +12,6 @@ http://github.com/llnl/camp
 #define CAMP_HELPERS_HPP
 
 #include <cstddef>
-#include <iterator>
 #include <utility>
 
 #include "camp/defines.hpp"
