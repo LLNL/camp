@@ -124,11 +124,10 @@ namespace resources
           }
         }
         ::camp::throw_re("invalid pointer detected");
-        #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
-        // This return statement exists because nvcc is annoying
+        // This return statement exists because compilers do not determine the
+        // above unconditionally throws
         // related: https://stackoverflow.com/questions/64523302/cuda-missing-return-statement-at-end-of-non-void-function-in-constexpr-if-fun
         return MemoryAccess::Unknown;
-        #endif
       }
     public:
       Cuda(int group = -1, int dev = 0)
