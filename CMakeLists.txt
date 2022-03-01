@@ -100,26 +100,21 @@ endif ()
 configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
                ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
-set(camp_defines)
-if (COMPILER_FAMILY_IS_MSVC)
-  if (NOT BUILD_SHARED_LIBS)
-  set (camp_defines
-    ${raja_defines}
-    CAMP_WIN_STATIC_BUILD)
-  else (NOT BUILD_SHARED_LIBS)
-  set (camp_defines
-    ${raja_defines}
-    CAMP_DLL_EXPORTS)
-  endif (NOT BUILD_SHARED_LIBS)
-endif ()
-
 blt_add_library (
   NAME camp
   HEADERS ${camp_headers}
   SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
-  DEFINES ${camp_defines}
   )
+
+if (COMPILER_FAMILY_IS_MSVC)
+  if (NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(camp PUBLIC WIN_STATIC_BUILD)
+  else (NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(camp PRIVATE CAMP_DLL_EXPORTS)
+  endif (NOT BUILD_SHARED_LIBS)
+endif ()
+
 target_include_directories (camp PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
