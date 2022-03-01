@@ -100,11 +100,25 @@ endif ()
 configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
                ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
+set(camp_defines)
+if (COMPILER_FAMILY_IS_MSVC)
+  if (NOT BUILD_SHARED_LIBS)
+  set (camp_defines
+    ${raja_defines}
+    CAMP_WIN_STATIC_BUILD)
+  else (NOT BUILD_SHARED_LIBS)
+  set (camp_defines
+    ${raja_defines}
+    CAMP_DLL_EXPORTS)
+  endif (NOT BUILD_SHARED_LIBS)
+endif ()
+
 blt_add_library (
   NAME camp
   HEADERS ${camp_headers}
   SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
+  DEFINES ${camp_defines}
   )
 target_include_directories (camp PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -123,14 +137,12 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
   )
 
-install(TARGETS camp
+install(TARGETS
+  camp
   EXPORT campTargets
-  LIBRARY DESTINATION lib COMPONENT Runtime
-  ARCHIVE DESTINATION lib COMPONENT Development
-  RUNTIME DESTINATION bin COMPONENT Runtime
-  PUBLIC_HEADER DESTINATION include COMPONENT Development
-  BUNDLE DESTINATION bin COMPONENT Runtime
-  )
+  RUNTIME DESTINATION lib
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(

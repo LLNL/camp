@@ -177,13 +177,13 @@ using nullptr_t = decltype(nullptr);
   }
 
 /// Throw a runtime_error, avoid including exception everywhere
-void throw_re(const char *s);
+CAMP_DLL_EXPORT void throw_re(const char *s);
 
 #ifdef CAMP_ENABLE_CUDA
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
-cudaError_t cudaAssert(cudaError_t code,
+CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
                               const char *file,
                               int line);
@@ -195,7 +195,7 @@ cudaError_t cudaAssert(cudaError_t code,
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
-hipError_t hipAssert(hipError_t code,
+CAMP_DLL_EXPORT hipError_t hipAssert(hipError_t code,
                             const char *call,
                             const char *file,
                             int line);
