@@ -106,6 +106,15 @@ blt_add_library (
   SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
   )
+
+if (COMPILER_FAMILY_IS_MSVC)
+  if (NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(camp PUBLIC WIN_STATIC_BUILD)
+  else (NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(camp PRIVATE CAMP_DLL_EXPORTS)
+  endif (NOT BUILD_SHARED_LIBS)
+endif ()
+
 target_include_directories (camp PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -123,14 +132,12 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
   )
 
-install(TARGETS camp
+install(TARGETS
+  camp
   EXPORT campTargets
-  LIBRARY DESTINATION lib COMPONENT Runtime
-  ARCHIVE DESTINATION lib COMPONENT Development
-  RUNTIME DESTINATION bin COMPONENT Runtime
-  PUBLIC_HEADER DESTINATION include COMPONENT Development
-  BUNDLE DESTINATION bin COMPONENT Runtime
-  )
+  RUNTIME DESTINATION lib
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
