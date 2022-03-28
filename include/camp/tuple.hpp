@@ -460,20 +460,22 @@ constexpr T make_from_tuple(Tuple&& tup)
 
 namespace detail
 {
-  template <class Fn, class Tuple, idx_t... I>
-  constexpr auto apply_impl(Fn&& f, Tuple&& tup, idx_seq<I...>)
+  template <class Fn, class TupleLike, idx_t... I>
+  constexpr auto apply_impl(Fn&& f, TupleLike&& tup, idx_seq<I...>)
   {
-    return f(::camp::get<I>(std::forward<Tuple>(tup))...);
+    return f(::camp::get<I>(std::forward<TupleLike>(tup))...);
   }
 }  // namespace detail
 
 /// Forward the elements of a tuple to a callable
-template <class Fn, class Tuple>
-CAMP_HOST_DEVICE constexpr auto apply(Fn&& f, Tuple&& tup) {
-  return detail::apply_impl<Fn, Tuple>(
+template <class Fn, class TupleLike>
+CAMP_HOST_DEVICE constexpr auto apply(Fn&& f, TupleLike&& tup)
+{
+  return detail::apply_impl<Fn, TupleLike>(
       std::forward<Fn>(f),
-      std::forward<Tuple>(tup),
+      std::forward<TupleLike>(tup),
       camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
+}
 }  // namespace camp
 
 namespace internal
