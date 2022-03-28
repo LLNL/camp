@@ -142,6 +142,33 @@ private:
 
 TEST(CampTuple, NoDefault) { camp::tuple<NoDefCon> t(NoDefCon(1)); }
 
+template <class T>
+T sum(T&& start) {
+  return start;
+}
+
+template <class T, class U>
+auto sum(T&& start, U&& first) {
+  return start + first;
+}
+
+template <class T, class U, class... Args>
+auto sum(T&& start, U&& first, Args... args) {
+  return first + sum(std::forward<T>(start), std::forward<Args>(args)...);
+}
+
+TEST(CampTuple, Apply)
+{
+  auto t1 = camp::make_tuple();
+  ASSERT_EQ(camp::apply(sum, 4, t1), 4);
+
+  auto t2 = camp::make_tuple(1);
+  ASSERT_EQ(camp::apply(sum, 7.1, t2), 8.1);
+
+  auto t3 = camp::make_tuple(4.0, 2);
+  ASSERT_EQ(camp::apply(sum, 1, t3), 6.0);
+}
+
 struct s1;
 struct s2;
 struct s3;
