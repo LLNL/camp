@@ -142,6 +142,35 @@ private:
 
 TEST(CampTuple, NoDefault) { camp::tuple<NoDefCon> t(NoDefCon(1)); }
 
+int testFunctionWithoutArgs()
+{
+  return 42;
+}
+
+struct TestFunctor {
+  double operator()(double value)
+  {
+    return value;
+  }
+};
+
+auto testLambda = [] (int value1, double value2)
+{
+  return value1 + value2;
+};
+
+TEST(CampTuple, Apply)
+{
+  auto t1 = camp::make_tuple();
+  ASSERT_EQ(camp::apply(testFunctionWithoutArgs, t1), 42);
+
+  auto t2 = camp::make_tuple(8.1);
+  ASSERT_NEAR(camp::apply(TestFunctor{}, t2), 8.1, 1e-15);
+
+  auto t3 = camp::make_tuple(2, 5.5);
+  ASSERT_NEAR(camp::apply(testLambda, t3), 7.5, 1e-15);
+}
+
 struct s1;
 struct s2;
 struct s3;
