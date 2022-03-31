@@ -171,6 +171,23 @@ TEST(CampTuple, Apply)
   ASSERT_NEAR(camp::apply(testLambda, t3), 7.5, 1e-15);
 }
 
+#if defined(__cplusplus) && __cplusplus >= 201703L
+TEST(CampTuple, ClassTemplateArgumentDeduction)
+{
+  camp::tuple t{3, 9.9};
+  ASSERT_EQ(camp::get<0>(t), 3);
+  ASSERT_NEAR(camp::get<1>(t), 9.9, 1e-15);
+}
+
+TEST(CampTuple, StructuredBindings)
+{
+  auto t = camp::make_tuple(3, 9.9);
+  auto [a, b] = t;
+  ASSERT_EQ(a, 3);
+  ASSERT_NEAR(b, 9.9, 1e-15);
+}
+#endif
+
 struct s1;
 struct s2;
 struct s3;

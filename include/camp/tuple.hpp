@@ -359,13 +359,20 @@ public:
 };
 
 template <>
-class tuple<>
+struct tuple<>
 {
 public:
   using TList = camp::list<>;
   using TMap = TList;
   using type = tuple;
 };
+
+#if defined(__cplusplus) && __cplusplus >= 201703L
+/// Class template argument deduction rule for tuples
+/// e.g. camp::tuple t{1, 2.0};
+template <typename... T>
+tuple(T...) -> tuple<T...>;
+#endif
 
 template <typename... Tags, typename... Args>
 struct as_list_s<tagged_tuple<camp::list<Tags...>, Args...>> {
@@ -484,5 +491,21 @@ auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
   return os << ")";
 }
 
+#if defined(__cplusplus) && __cplusplus >= 201703L
+/// This allows structured bindings to be used with camp::tuple
+/// e.g. auto t = make_tuple(1, 2.0);
+///      auto [a, b] = t;
+namespace std {
+  template <typename... T>
+  struct tuple_size<camp::tuple<T...> > {
+    static constexpr size_t value = sizeof...(T);
+  };
+
+  template <size_t i, typename ... T>
+  struct tuple_element<i, camp::tuple<T...>> {
+    using type = decltype(camp::get<i>(camp::tuple<T...>{}));
+  };
+} // namespace std
+#endif
 
 #endif /* camp_tuple_HPP__ */
