@@ -426,7 +426,7 @@ CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& tup,
                                                   Fn&& f,
                                                   camp::idx_seq<Sequence...>)
 {
-  return f(::camp::get<Sequence>(tup)...);
+  return f(::camp::get<Sequence>(std::forward<TupleLike>(tup))...);
 }
 
 CAMP_SUPPRESS_HD_WARN
@@ -458,23 +458,11 @@ constexpr T make_from_tuple(Tuple&& tup)
       make_idx_seq_t<tuple_size<type::ref::rem<Tuple>>::value>{});
 }
 
-namespace detail
-{
-  template <class Fn, class TupleLike, idx_t... I>
-  constexpr auto apply_impl(Fn&& f, TupleLike&& tup, idx_seq<I...>)
-  {
-    return f(::camp::get<I>(std::forward<TupleLike>(tup))...);
-  }
-}  // namespace detail
-
 /// Forward the elements of a tuple to a callable
 template <class Fn, class TupleLike>
 CAMP_HOST_DEVICE constexpr auto apply(Fn&& f, TupleLike&& tup)
 {
-  return detail::apply_impl<Fn, TupleLike>(
-      std::forward<Fn>(f),
-      std::forward<TupleLike>(tup),
-      camp::make_idx_seq_t<tuple_size<camp::decay<TupleLike>>::value>{});
+  return ::camp::invoke(std::forward<TupleLike>(tup), std::forward<Fn>(f));
 }
 }  // namespace camp
 
