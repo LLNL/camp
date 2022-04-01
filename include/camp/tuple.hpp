@@ -370,8 +370,11 @@ public:
 #if defined(__cplusplus) && __cplusplus >= 201703L
 /// Class template argument deduction rule for tuples
 /// e.g. camp::tuple t{1, 2.0};
-template <typename... T>
+template <class... T>
 tuple(T...) -> tuple<T...>;
+
+template <class... T>
+tagged_tuple(T...) -> tagged_tuple<T...>;
 #endif
 
 template <typename... Tags, typename... Args>
@@ -504,6 +507,16 @@ namespace std {
   template <size_t i, typename ... T>
   struct tuple_element<i, camp::tuple<T...>> {
     using type = decltype(camp::get<i>(camp::tuple<T...>{}));
+  };
+
+  template <typename... T>
+  struct tuple_size<camp::tagged_tuple<T...> > {
+    static constexpr size_t value = sizeof...(T);
+  };
+
+  template <size_t i, typename ... T>
+  struct tuple_element<i, camp::tagged_tuple<T...>> {
+    using type = decltype(camp::get<i>(camp::tagged_tuple<T...>{}));
   };
 } // namespace std
 #endif
