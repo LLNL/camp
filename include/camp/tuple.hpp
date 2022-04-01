@@ -372,9 +372,6 @@ public:
 /// e.g. camp::tuple t{1, 2.0};
 template <class... T>
 tuple(T...) -> tuple<T...>;
-
-template <class... T>
-tagged_tuple(T...) -> tagged_tuple<T...>;
 #endif
 
 template <typename... Tags, typename... Args>
@@ -509,14 +506,14 @@ namespace std {
     using type = decltype(camp::get<i>(camp::tuple<T...>{}));
   };
 
-  template <typename... T>
-  struct tuple_size<camp::tagged_tuple<T...> > {
-    static constexpr size_t value = sizeof...(T);
+  template <typename TagList, typename... Elements>
+  struct tuple_size<camp::tagged_tuple<TagList, Elements...> > {
+    static constexpr size_t value = sizeof...(Elements);
   };
 
-  template <size_t i, typename ... T>
-  struct tuple_element<i, camp::tagged_tuple<T...>> {
-    using type = decltype(camp::get<i>(camp::tagged_tuple<T...>{}));
+  template <size_t i, typename TagList, typename... Elements>
+  struct tuple_element<i, camp::tagged_tuple<TagList, Elements...>> {
+    using type = decltype(camp::get<i>(camp::tagged_tuple<TagList, Elements...>{}));
   };
 } // namespace std
 #endif

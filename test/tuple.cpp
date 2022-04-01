@@ -209,3 +209,13 @@ TEST(CampTaggedTuple, MakeTagged)
   camp::get<s1>(t) = 15;
   ASSERT_EQ(camp::get<s1>(t), 15);
 }
+
+#if defined(__cplusplus) && __cplusplus >= 201703L
+TEST(CampTaggedTuple, StructuredBindings)
+{
+  auto t = camp::make_tagged_tuple<camp::list<s1, s2>>('a', 5);
+  auto [a, b] = t;
+  ASSERT_EQ(a, 'a');
+  ASSERT_EQ(b, 5);
+}
+#endif
