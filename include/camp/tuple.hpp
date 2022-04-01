@@ -492,10 +492,10 @@ auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
 }
 
 #if defined(__cplusplus) && __cplusplus >= 201703L
-/// This allows structured bindings to be used with camp::tuple
-/// e.g. auto t = make_tuple(1, 2.0);
-///      auto [a, b] = t;
 namespace std {
+  /// This allows structured bindings to be used with camp::tuple
+  /// e.g. auto t = make_tuple(1, 2.0);
+  ///      auto [a, b] = t;
   template <typename... T>
   struct tuple_size<camp::tuple<T...> > {
     static constexpr size_t value = sizeof...(T);
@@ -506,6 +506,11 @@ namespace std {
     using type = decltype(camp::get<i>(camp::tuple<T...>{}));
   };
 
+  /// This allows structured bindings to be used with camp::tagged_tuple
+  /// e.g. struct s1;
+  ///      struct s2;
+  ///      auto t = make_tagged_tuple<list<s1, s2>>(1, 2.0);
+  ///      auto [a, b] = t;
   template <typename TagList, typename... Elements>
   struct tuple_size<camp::tagged_tuple<TagList, Elements...> > {
     static constexpr size_t value = sizeof...(Elements);
