@@ -10,6 +10,9 @@
 .vscode/
 .cache/
 
+# editor temporaries
+*.swp
+
 # build directories
 build/
 build-*/
