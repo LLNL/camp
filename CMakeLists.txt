@@ -19,7 +19,6 @@ else()
 endif()
 
 include(cmake/load_blt.cmake)
-blt_export_tpl_targets(EXPORT campTargets NAMESPACE camp)
 
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
 
