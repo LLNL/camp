@@ -20,6 +20,7 @@ endif()
 
 include(cmake/load_blt.cmake)
 
+
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
 
 # if ENABLE_TESTS is defined by a parent project, and
@@ -146,10 +147,8 @@ configure_package_config_file(
   lib/cmake/camp
   )
 
-
 install(EXPORT campTargets
   DESTINATION lib/cmake/camp)
-
 install(FILES
   "${PROJECT_BINARY_DIR}/campConfigVersion.cmake"
   "${PROJECT_BINARY_DIR}/campConfig.cmake"
