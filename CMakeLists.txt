@@ -149,6 +149,9 @@ configure_package_config_file(
 
 install(EXPORT campTargets
   DESTINATION lib/cmake/camp)
+
+blt_export_tpl_targets(EXPORT campTargets NAMESPACE camp)
+
 install(FILES
   "${PROJECT_BINARY_DIR}/campConfigVersion.cmake"
   "${PROJECT_BINARY_DIR}/campConfig.cmake"
