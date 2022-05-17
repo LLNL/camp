@@ -471,7 +471,6 @@ CAMP_HOST_DEVICE constexpr auto apply(Fn&& f, TupleLike&& tup)
 {
   return ::camp::invoke(std::forward<TupleLike>(tup), std::forward<Fn>(f));
 }
-}  // namespace camp
 
 namespace internal
 {
@@ -481,13 +480,14 @@ void print_tuple(std::ostream& os, Tuple const& tup, camp::idx_seq<Idxs...>)
   camp::sink((void*)&(os << (Idxs == 0 ? "" : ", ") << camp::get<Idxs>(tup))...);
 }
 }  // namespace internal
+}  // namespace camp
 
 template <class... Args>
 auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
     -> std::ostream&
 {
   os << "(";
-  internal::print_tuple(os, tup, camp::make_idx_seq_t<sizeof...(Args)>{});
+  ::camp::internal::print_tuple(os, tup, camp::make_idx_seq_t<sizeof...(Args)>{});
   return os << ")";
 }
 
