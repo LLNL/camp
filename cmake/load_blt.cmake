@@ -1,4 +1,5 @@
 if (NOT BLT_LOADED)
+  set(BLT_EXPORT_THIRDPARTY ON CACHE BOOL "")
   if (DEFINED BLT_SOURCE_DIR)
     if (NOT EXISTS ${BLT_SOURCE_DIR}/SetupBLT.cmake)
       message(FATAL_ERROR "Given BLT_SOURCE_DIR does not contain SetupBLT.cmake")
@@ -18,3 +19,4 @@ if (NOT BLT_LOADED)
   include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 endif()
 
+blt_export_tpl_targets(EXPORT campTargets NAMESPACE camp)
