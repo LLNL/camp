@@ -72,7 +72,9 @@ set (camp_runtime_backends cuda hip)
 
 foreach (backend ${camp_backends})
   string(TOUPPER "${backend}" suffix)
-  cmake_dependent_option("CAMP_ENABLE_${suffix}" "Enable ${backend} backend" On "ENABLE_${suffix}" Off)
+  # NOTE: can't do this because of the lack of sycl support and usage upstream
+  # in blt
+  # cmake_dependent_option("CAMP_ENABLE_${suffix}" "Enable ${backend} backend" On "ENABLE_${suffix}" Off)
   if ("${ENABLE_${suffix}}")
     set ("CAMP_ENABLE_${suffix}" On)
   endif()
