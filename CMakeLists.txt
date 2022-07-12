@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.14.5)
 
 project (camp
-  LANGUAGES CXX C
+  LANGUAGES CXX
   VERSION 0.4.0)
 
 set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -87,7 +87,7 @@ foreach (backend ${camp_backends})
   endif()
 endforeach()
 
-cmake_dependent_option(CAMP_ENABLE_TARGET_OPENMP "Enable OpenMP offload as device runtime" On "CAMP_ENABLE_OPENMP" Off)
+cmake_dependent_option(CAMP_ENABLE_TARGET_OPENMP "Enable OpenMP offload as device runtime" Off "CAMP_ENABLE_OPENMP" Off)
 
 if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
