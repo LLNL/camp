@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.14.5)
 
 project (camp
-  LANGUAGES CXX
+  LANGUAGES CXX C
   VERSION 0.4.0)
 
 set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
