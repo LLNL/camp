@@ -3,6 +3,7 @@
 set(camp_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@" CACHE FILEPATH "camp install prefix path")
 
 if (@CAMP_ENABLE_CUDA@)
+  include(CMakeFindDependencyMacro)
   find_dependency(Threads)
 endif ()
 
