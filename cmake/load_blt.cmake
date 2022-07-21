@@ -19,4 +19,4 @@ if (NOT BLT_LOADED)
   include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 endif()
 
-blt_export_tpl_targets(EXPORT campTargets NAMESPACE camp)
+blt_export_tpl_targets(EXPORT campTargets NAMESPACE blt)
