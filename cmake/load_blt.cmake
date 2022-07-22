@@ -19,4 +19,9 @@ if (NOT BLT_LOADED)
   include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 endif()
 
-blt_export_tpl_targets(EXPORT campTargets NAMESPACE camp)
+if (NOT BLT_EXPORTED)
+  set(BLT_EXPORTED On CACHE BOOL "" FORCE)
+  blt_export_tpl_targets(EXPORT bltTargets NAMESPACE blt)
+  install(EXPORT bltTargets
+    DESTINATION  lib/cmake/camp)
+endif()
