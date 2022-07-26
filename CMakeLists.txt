@@ -26,8 +26,7 @@ if(NOT DEFINED BLT_CXX_STD)
   set(BLT_CXX_STD c++${CAMP_CXX_STD} CACHE STRING "Version of C++
   standard")
   message("Using C++ standard: ${BLT_CXX_STD}")
-else() #check BLT_CXX_STD is high enough by disallowing the only
-  invalid option
+else() #check BLT_CXX_STD is high enough by disallowing the only invalid option
   set(_unsupported_cxx "c++98" "c++11")
   if (BLT_CXX_STD IN_LIST _unsupported_cxx)
     message(FATAL_ERROR "CAMP and the RAJA framework no
