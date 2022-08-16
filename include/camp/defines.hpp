@@ -163,6 +163,14 @@ namespace camp
 #define CAMP_USE_PLATFORM_DEFAULT_STREAM 0
 #endif
 
+/// Check for existence and >= value in one
+#define CAMP_FEAT_TEST(name, val) defined(name) && ((name) > (val))
+
+#if CAMP_FEAT_TEST(__cpp_inline_variables, 201606L)
+#define CAMP17_INLINE inline
+#else
+#define CAMP17_INLINE
+#endif
 
 // Types
 using idx_t = std::ptrdiff_t;
@@ -175,6 +183,13 @@ using nullptr_t = decltype(nullptr);
   struct X##_l {                                                   \
     using type = typename X<Lambda::template expr, Rest...>::type; \
   }
+
+// Usual string creation, unquoting and cat operators
+#define CAMP_STRINGIFY_IMPL(x) #x
+#define CAMP_STRINGIFY(x) CAMP_STRINGIFY_IMPL(x)
+#define CAMP_UNQUOTE(...) __VA_ARGS__
+#define CAMP_PP_CAT_(X, ...) X##__VA_ARGS__
+#define CAMP_PP_CAT(X, ...) CAMP_PP_CAT_(X, __VA_ARGS__)
 
 /// Throw a runtime_error, avoid including exception everywhere
 CAMP_DLL_EXPORT void throw_re(const char *s);

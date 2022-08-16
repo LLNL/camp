@@ -14,6 +14,7 @@ http://github.com/llnl/camp
 #include <type_traits>
 
 #include <camp/defines.hpp>
+#include "camp/detector.hpp"
 #include "camp/helpers.hpp"
 #include "camp/lambda.hpp"
 #include "camp/list.hpp"
