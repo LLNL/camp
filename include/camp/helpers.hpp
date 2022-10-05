@@ -42,7 +42,8 @@ namespace detail
   using __expand_array_type = int[];
 }
 #define CAMP_EXPAND(...) \
-  ::camp::detail::__expand_array_type { 0, ((void)(__VA_ARGS__), 0)... }
+  ::camp::detail::__expand_array_type camp_unused_expansion_array{ 0, ((void)(__VA_ARGS__), 0)... }; \
+  ::camp::sink(camp_unused_expansion_array)
 
 template <typename Fn, typename... Args>
 CAMP_HOST_DEVICE constexpr void for_each_arg(Fn&& f, Args&&... args)
