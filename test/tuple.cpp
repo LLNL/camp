@@ -24,6 +24,128 @@ static_assert(std::is_same<camp::tuple<int &, int const &, int>,
                                camp::val<camp::tuple<int const &, int>>()))>::value,
               "tuple_cat pair nuking refs");
 
+static_assert(std::is_same<camp::tuple<int &&, int const &&, int>,
+                           decltype(camp::tuple_cat_pair(
+                               camp::val<camp::tuple<int &&>>(),
+                               camp::val<camp::tuple<int const &&, int>>()))>::value,
+              "tuple_cat pair nuking rvalue refs");
+
+static_assert(std::is_same<camp::tuple<int &, int const &, int &&, int const &&>,
+                           decltype(camp::forward_as_tuple(
+                               camp::val<int &>(),
+                               camp::val<int const &>(),
+                               camp::val<int &&>(),
+                               camp::val<int const &&>()))>::value,
+              "forward_as_tuple nuking refs");
+
+#define CAMP_TEST_TUPLE_GET_REFS(GET_REF, TYPE_REF, TUPLE_REF) \
+static_assert(std::is_same<int GET_REF, \
+                           decltype(camp::get<0>( \
+                               camp::val<camp::tuple<int TYPE_REF> TUPLE_REF>()))>::value, \
+              "get nuking refs");
+
+#define CAMP_TEST_TUPLE_GET_T_REFS(GET_REF, TYPE_REF, TUPLE_REF) \
+static_assert(std::is_same<int GET_REF, \
+                           decltype(camp::get<int TYPE_REF>( \
+                               camp::val<camp::tuple<int TYPE_REF> TUPLE_REF>()))>::value, \
+              "get nuking refs");
+
+#define CAMP_TEST_TAGGED_TUPLE_GET_REFS(GET_REF, TYPE_REF, TUPLE_REF) \
+static_assert(std::is_same<int GET_REF, \
+                           decltype(camp::get<0>( \
+                               camp::val<camp::tagged_tuple<camp::list<float>, int TYPE_REF> TUPLE_REF>()))>::value, \
+              "get nuking refs");
+
+#define CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(GET_REF, TYPE_REF, TUPLE_REF) \
+static_assert(std::is_same<int GET_REF, \
+                           decltype(camp::get<float>( \
+                               camp::val<camp::tagged_tuple<camp::list<float>, int TYPE_REF> TUPLE_REF>()))>::value, \
+              "get nuking refs");
+
+CAMP_TEST_TUPLE_GET_REFS(     & ,      & ,      & )
+CAMP_TEST_TUPLE_GET_REFS(     & ,      & ,      &&)
+CAMP_TEST_TUPLE_GET_REFS(     & ,      & , const& )
+CAMP_TEST_TUPLE_GET_REFS(     & ,      & , const&&)
+
+CAMP_TEST_TUPLE_GET_REFS(const& , const& ,      & )
+CAMP_TEST_TUPLE_GET_REFS(const& , const& ,      &&)
+CAMP_TEST_TUPLE_GET_REFS(const& , const& , const& )
+CAMP_TEST_TUPLE_GET_REFS(const& , const& , const&&)
+
+CAMP_TEST_TUPLE_GET_REFS(     & ,      &&,      & )
+CAMP_TEST_TUPLE_GET_REFS(     &&,      &&,      &&)
+CAMP_TEST_TUPLE_GET_REFS(     & ,      &&, const& )
+CAMP_TEST_TUPLE_GET_REFS(     &&,      &&, const&&)
+
+CAMP_TEST_TUPLE_GET_REFS(const& , const&&,      & )
+CAMP_TEST_TUPLE_GET_REFS(const&&, const&&,      &&)
+CAMP_TEST_TUPLE_GET_REFS(const& , const&&, const& )
+CAMP_TEST_TUPLE_GET_REFS(const&&, const&&, const&&)
+
+
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & ,      & )
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & ,      &&)
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & , const& )
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & , const&&)
+
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const& ,      & )
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const& ,      &&)
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const& , const& )
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const& , const&&)
+
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      &&,      & )
+CAMP_TEST_TUPLE_GET_T_REFS(     &&,      &&,      &&)
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,      &&, const& )
+CAMP_TEST_TUPLE_GET_T_REFS(     &&,      &&, const&&)
+
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const&&,      & )
+CAMP_TEST_TUPLE_GET_T_REFS(const&&, const&&,      &&)
+CAMP_TEST_TUPLE_GET_T_REFS(const& , const&&, const& )
+CAMP_TEST_TUPLE_GET_T_REFS(const&&, const&&, const&&)
+
+
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & , const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const& ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const& ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const& , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const& , const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      &&,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     &&,      &&,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      &&, const& )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     &&,      &&, const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const&&,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const&&, const&&,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const&&, const& )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const&&, const&&, const&&)
+
+
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & , const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const& ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const& ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const& , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const& , const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      &&,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     &&,      &&,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      &&, const& )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     &&,      &&, const&&)
+
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const&&,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const&&, const&&,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& , const&&, const& )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const&&, const&&, const&&)
+
+
 // Size tests, ensure that EBO is being applied
 struct A {
 };
