@@ -239,6 +239,7 @@ TEST(CampTuple, ForwardAsTuple)
   const int d{7};
   [](camp::tuple<int &, int &, int &&, MoveOnly&&, int const&&> t) {
     MoveOnly c{camp::get<3>(std::move(t))};
+    ASSERT_NE(&c, nullptr);
     ASSERT_EQ(camp::get<2>(t), 5);
     ASSERT_EQ(camp::get<4>(t), 7);
     camp::get<1>(t) = 3;
