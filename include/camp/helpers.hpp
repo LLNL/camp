@@ -41,7 +41,7 @@ namespace detail
 {
   using __expand_array_type = int[];
 }
-#define CAMP_EXPAND(...) ::camp::sink( \
+#define CAMP_EXPAND(...) static_cast<void>( \
   ::camp::detail::__expand_array_type { 0, ((void)(__VA_ARGS__), 0)... })
 
 template <typename Fn, typename... Args>
