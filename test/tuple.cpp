@@ -225,16 +225,27 @@ TEST(CampTuple, Assign)
   ASSERT_EQ(camp::get<1>(t2), 'a');
 }
 
+struct MoveOnly {
+  MoveOnly() = default;
+  MoveOnly(MoveOnly const&) = delete;
+  MoveOnly(MoveOnly     &&) = default;
+  MoveOnly& operator=(MoveOnly const&) = delete;
+  MoveOnly& operator=(MoveOnly     &&) = default;
+};
+
 TEST(CampTuple, ForwardAsTuple)
 {
   int a, b;
-  [](camp::tuple<int &, int &, int &&> t) {
+  const int d{7};
+  [](camp::tuple<int &, int &, int &&, MoveOnly&&, int const&&> t) {
+    MoveOnly c{camp::get<3>(std::move(t))};
     ASSERT_EQ(camp::get<2>(t), 5);
+    ASSERT_EQ(camp::get<4>(t), 7);
     camp::get<1>(t) = 3;
     camp::get<2>(t) = 3;
     ASSERT_EQ(camp::get<1>(t), 3);
     ASSERT_EQ(camp::get<2>(t), 3);
-  }(camp::forward_as_tuple(a, b, int{5}));
+  }(camp::forward_as_tuple(a, b, int{5}, MoveOnly{}, std::move(d)));
 }
 
 TEST(CampTuple, GetByIndex)
@@ -271,6 +282,25 @@ TEST(CampTuple, CatPair)
       tuple_cat_pair(t1, camp::idx_seq<1, 0>{}, t2, camp::idx_seq<1, 0>{});
   ASSERT_EQ(camp::get<0>(t5), 'a');
   ASSERT_EQ(camp::get<3>(t5), 5.1f);
+}
+
+TEST(CampTuple, CatPairFwd)
+{
+  MoveOnly a;
+  char b;
+  float c;
+  MoveOnly d;
+  auto t1 = camp::forward_as_tuple(std::move(a), std::move(b));
+  auto t2 = camp::forward_as_tuple(std::move(c), std::move(d));
+  auto t3 = tuple_cat_pair(std::move(t1), std::move(t2));
+
+  ASSERT_EQ(&camp::get<0>(t3), &a);
+  ASSERT_EQ(&camp::get<1>(t3), &b);
+  ASSERT_EQ(&camp::get<2>(t3), &c);
+  ASSERT_EQ(&camp::get<3>(t3), &d);
+
+  MoveOnly e{camp::get<3>(std::move(t3))};
+  e = camp::get<0>(std::move(t3));
 }
 
 struct NoDefCon {
