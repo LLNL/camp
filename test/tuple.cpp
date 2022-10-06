@@ -62,6 +62,11 @@ static_assert(std::is_same<int GET_REF, \
                                camp::val<camp::tagged_tuple<camp::list<float>, int TYPE_REF> TUPLE_REF>()))>::value, \
               "get nuking refs");
 
+CAMP_TEST_TUPLE_GET_REFS(     & ,        ,      & )
+CAMP_TEST_TUPLE_GET_REFS(     &&,        ,      &&)
+CAMP_TEST_TUPLE_GET_REFS(const& ,        , const& )
+CAMP_TEST_TUPLE_GET_REFS(const&&,        , const&&)
+
 CAMP_TEST_TUPLE_GET_REFS(     & ,      & ,      & )
 CAMP_TEST_TUPLE_GET_REFS(     & ,      & ,      &&)
 CAMP_TEST_TUPLE_GET_REFS(     & ,      & , const& )
@@ -82,6 +87,11 @@ CAMP_TEST_TUPLE_GET_REFS(const&&, const&&,      &&)
 CAMP_TEST_TUPLE_GET_REFS(const& , const&&, const& )
 CAMP_TEST_TUPLE_GET_REFS(const&&, const&&, const&&)
 
+
+CAMP_TEST_TUPLE_GET_T_REFS(     & ,        ,      & )
+CAMP_TEST_TUPLE_GET_T_REFS(     &&,        ,      &&)
+CAMP_TEST_TUPLE_GET_T_REFS(const& ,        , const& )
+CAMP_TEST_TUPLE_GET_T_REFS(const&&,        , const&&)
 
 CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & ,      & )
 CAMP_TEST_TUPLE_GET_T_REFS(     & ,      & ,      &&)
@@ -104,6 +114,11 @@ CAMP_TEST_TUPLE_GET_T_REFS(const& , const&&, const& )
 CAMP_TEST_TUPLE_GET_T_REFS(const&&, const&&, const&&)
 
 
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,        ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(     &&,        ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& ,        , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_REFS(const&&,        , const&&)
+
 CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & ,      & )
 CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & ,      &&)
 CAMP_TEST_TAGGED_TUPLE_GET_REFS(     & ,      & , const& )
@@ -124,6 +139,11 @@ CAMP_TEST_TAGGED_TUPLE_GET_REFS(const&&, const&&,      &&)
 CAMP_TEST_TAGGED_TUPLE_GET_REFS(const& , const&&, const& )
 CAMP_TEST_TAGGED_TUPLE_GET_REFS(const&&, const&&, const&&)
 
+
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,        ,      & )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     &&,        ,      &&)
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const& ,        , const& )
+CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const&&,        , const&&)
 
 CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & ,      & )
 CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(     & ,      & ,      &&)
