@@ -288,8 +288,8 @@ TEST(CampTuple, CatPair)
 TEST(CampTuple, CatPairFwd)
 {
   MoveOnly a;
-  char b;
-  float c;
+  char b{'a'};
+  float c{5.1f};
   MoveOnly d;
   auto t1 = camp::forward_as_tuple(std::move(a), std::move(b));
   auto t2 = camp::forward_as_tuple(std::move(c), std::move(d));
