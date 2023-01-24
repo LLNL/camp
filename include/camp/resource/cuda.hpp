@@ -79,34 +79,53 @@ namespace resources
 
     class Cuda
     {
-      static cudaStream_t get_a_stream(int num)
+      static int get_current_device()
       {
-        static cudaStream_t streams[16] = {};
-        static int previous = 0;
+        int dev = -1;
+        campCudaErrchk(cudaGetDevice(&dev));
+        return dev;
+      }
 
-        static std::once_flag m_onceFlag;
-        static std::mutex m_mtx;
+      static cudaStream_t get_a_stream(int num, int dev)
+      {
+        static constexpr int num_streams = 16;
+        struct Streams {
+          cudaStream_t streams[num_streams] = {};
+          int previous = 0;
 
-        std::call_once(m_onceFlag, [] {
-          if (streams[0] == nullptr) {
-            for (auto &s : streams) {
-              campCudaErrchk(cudaStreamCreate(&s));
+          std::once_flag onceFlag;
+          std::mutex mtx;
+        };
+
+        static std::vector<Streams> devices([] {
+          int count = -1;
+          campcudaErrchk(cudaGetDeviceCount(&count));
+          return count;
+        }());
+
+        std::call_once(devices[dev].onceFlag, [&] {
+          auto d{device_guard(dev)};
+          if (devices[dev].streams[0] == nullptr) {
+            for (auto &s : devices[dev].streams) {
+              campcudaErrchk(cudaStreamCreate(&s));
             }
           }
         });
 
         if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return streams[previous];
+          devices[dev].mtx.lock();
+          devices[dev].previous = (devices[dev].previous + 1) % num_streams;
+          num = devices[dev].previous;
+          devices[dev].mtx.unlock();
+        } else {
+          num = num % num_streams;
         }
 
-        return streams[num % 16];
+        return devices[dev].streams[num];
       }
 
       // Private from-stream constructor
-      Cuda(cudaStream_t s, int dev = 0) : stream(s), device(dev) {}
+      Cuda(cudaStream_t s, int dev) : stream(s), device(dev) {}
 
       MemoryAccess get_access_type(void *p) {
         cudaPointerAttributes a;
@@ -129,20 +148,18 @@ namespace resources
         // related: https://stackoverflow.com/questions/64523302/cuda-missing-return-statement-at-end-of-non-void-function-in-constexpr-if-fun
         return MemoryAccess::Unknown;
       }
+
     public:
-      Cuda(int group = -1, int dev = 0)
-          : stream(get_a_stream(group)), device(dev)
+      Cuda(int group = -1, int dev = get_current_device())
+          : stream(get_a_stream(group, dev)), device(dev)
       {
       }
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
       /// currently selected device is used.
-      static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
+      static Cuda CudaFromStream(cudaStream_t s, int dev = get_current_device())
       {
-        if (dev < 0) {
-          campCudaErrchk(cudaGetDevice(&dev));
-        }
         return Cuda(s, dev);
       }
 
@@ -158,7 +175,7 @@ namespace resources
           campCudaErrchk(cudaStreamCreate(&s));
 #endif
           return s;
-        }());
+        }(), get_current_device());
         return c;
       }
 
@@ -218,7 +235,7 @@ namespace resources
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
-        if(ma == MemoryAccess::Unknown) {
+        if (ma == MemoryAccess::Unknown) {
           ma = get_access_type(p);
         }
         switch (ma) {
@@ -235,6 +252,7 @@ namespace resources
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
+            break;
         }
       }
       void memcpy(void *dst, const void *src, size_t size)
