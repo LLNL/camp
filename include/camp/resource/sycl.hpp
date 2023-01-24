@@ -19,6 +19,7 @@ http://github.com/llnl/camp
 #include <CL/sycl.hpp>
 #include <map>
 #include <array>
+#include <mutex>
 using namespace cl;
 
 namespace camp
@@ -53,9 +54,11 @@ namespace resources
         static sycl::context *contextInUse = NULL;
         static std::map<sycl::context *, std::array<sycl::queue, 16>> queueMap;
 
+        static int previous = 0;
 
         static std::mutex m_mtx;
-        m_mtx.lock();
+
+        std::lock_guard<std::mutex> guard(m_mtx);
 
         // User passed a context, use it
         if (useContext) {
@@ -102,19 +105,15 @@ namespace resources
                 sycl::queue(*contextInUse, gpuSelector, propertyList)};
           }
         }
-        m_mtx.unlock();
 
-        static int previous = 0;
-
-        static std::once_flag m_onceFlag;
         if (num < 0) {
-          m_mtx.lock();
           previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return &queueMap[contextInUse][previous];
+          num = previous;
+        } else {
+          num = num % 16;
         }
 
-        return &queueMap[contextInUse][num % 16];
+        return &queueMap[contextInUse][num];
       }
 
     public:
