@@ -11,11 +11,14 @@ http://github.com/llnl/camp
 #ifndef __CAMP_HIP_HPP
 #define __CAMP_HIP_HPP
 
+#include "camp/defines.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_ENABLE_HIP
+
 #include <hip/hip_runtime.h>
+#include <mutex>
 
 namespace camp
 {
@@ -109,10 +112,9 @@ namespace resources
         });
 
         if (num < 0) {
-          devices[dev].mtx.lock();
+          std::lock_guard<std::mutex> guard(devices[dev].mtx);
           devices[dev].previous = (devices[dev].previous + 1) % num_streams;
           num = devices[dev].previous;
-          devices[dev].mtx.unlock();
         } else {
           num = num % num_streams;
         }

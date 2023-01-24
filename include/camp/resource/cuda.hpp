@@ -18,6 +18,7 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_CUDA
 
 #include <cuda_runtime.h>
+#include <mutex>
 
 namespace camp
 {
@@ -113,10 +114,9 @@ namespace resources
         });
 
         if (num < 0) {
-          devices[dev].mtx.lock();
+          std::lock_guard<std::mutex> guard(devices[dev].mtx);
           devices[dev].previous = (devices[dev].previous + 1) % num_streams;
           num = devices[dev].previous;
-          devices[dev].mtx.unlock();
         } else {
           num = num % num_streams;
         }
