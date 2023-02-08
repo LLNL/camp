@@ -87,6 +87,17 @@ namespace resources
         return dev;
       }
 
+      static int get_device_from_stream(cudaStream_t stream)
+      {
+        int dev = -1;
+        CUcontext stream_ctx;
+        campCuErrchk(cuStreamGetCtx(stream, &stream_ctx));
+        campCuErrchk(cuCtxPushCurrent(stream_ctx));
+        campCuErrchk(cuCtxGetDevice(&dev));
+        campCuErrchk(cuCtxPopCurrent(stream_ctx));
+        return dev;
+      }
+
       static cudaStream_t get_a_stream(int num, int dev)
       {
         static constexpr int num_streams = 16;
@@ -155,12 +166,10 @@ namespace resources
       {
       }
 
-      /// Create a resource from a custom stream
-      /// The device specified must match the stream, if none is specified the
-      /// currently selected device is used.
-      static Cuda CudaFromStream(cudaStream_t s, int dev = get_current_device())
+      /// Create a resource from a custom stream.
+      static Cuda CudaFromStream(cudaStream_t s)
       {
-        return Cuda(s, dev);
+        return Cuda(s, get_device_from_stream(s));
       }
 
       // Methods

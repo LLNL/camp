@@ -181,6 +181,13 @@ CAMP_DLL_EXPORT void throw_re(const char *s);
 
 #ifdef CAMP_ENABLE_CUDA
 
+#define campCuErrchk(ans) ::camp::cuAssert((ans), #ans, __FILE__, __LINE__)
+
+CAMP_DLL_EXPORT CUresult cuAssert(CUresult code,
+                              const char *call,
+                              const char *file,
+                              int line);
+
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
 CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
