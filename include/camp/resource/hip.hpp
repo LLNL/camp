@@ -85,6 +85,11 @@ namespace resources
         return dev;
       }
 
+      static int get_device_from_stream(hipStream_t stream)
+      {
+        return hipGetStreamDeviceId(stream);
+      }
+
       static hipStream_t get_a_stream(int num, int dev)
       {
         static constexpr int num_streams = 16;
@@ -155,9 +160,9 @@ namespace resources
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
       /// currently selected device is used.
-      static Hip HipFromStream(hipStream_t s, int dev = get_current_device())
+      static Hip HipFromStream(hipStream_t s)
       {
-        return Hip(s, dev);
+        return Hip(s, get_device_from_stream(s));
       }
 
       // Methods
