@@ -115,6 +115,10 @@ namespace resources
           return count;
         }());
 
+        if (dev < 0) {
+          dev = get_current_device();
+        }
+
         std::call_once(devices[dev].onceFlag, [&] {
           auto d{device_guard(dev)};
           if (devices[dev].streams[0] == nullptr) {
