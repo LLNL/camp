@@ -116,6 +116,8 @@ namespace resources
         return &queueMap[contextInUse][num];
       }
 
+      Sycl(sycl::queue* queue) : qu(queue) {}
+
     public:
       Sycl(int group = -1)
       {
@@ -126,6 +128,12 @@ namespace resources
       Sycl(sycl::context &syclContext, int group = -1)
           : qu(get_a_queue(syclContext, group, true))
       {
+      }
+
+      /// Create a resource from a custom queue.
+      static Sycl SyclFromQueue(sycl::queue* queue)
+      {
+        return Sycl(queue);
       }
 
       // Methods
