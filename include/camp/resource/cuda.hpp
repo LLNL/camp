@@ -172,10 +172,10 @@ namespace resources
       { }
 
       /// Create a resource from a custom stream.
-      /// The device specified must match the stream, if none is specified the
-      /// device is found from the stream.
-      /// Note that if dev is specified then no runtime calls are made allowing
-      /// this to be called before entering main.
+      /// If device is specified it must match the stream. If device is
+      /// unspecified, we will get it from the stream.
+      /// This may be called before main if device is specified as no calls to
+      /// the runtime are made in this case.
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
         return Cuda(s, dev);
