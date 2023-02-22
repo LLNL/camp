@@ -128,7 +128,9 @@ namespace resources
       }
 
       // Private from-stream constructor
-      Hip(hipStream_t s, int dev) : stream(s), device(dev) {}
+      Hip(hipStream_t s, int dev)
+        : stream(s), device((dev >= 0) ? dev : get_device_from_stream(s))
+      { }
 
       MemoryAccess get_access_type(void *p)
       {
@@ -154,8 +156,7 @@ namespace resources
     public:
       Hip(int group = -1, int dev = get_current_device())
           : stream(get_a_stream(group, dev)), device(dev)
-      {
-      }
+      { }
 
       /// Create a resource from a custom stream
       /// The device specified must match the stream, if none is specified the
@@ -164,7 +165,7 @@ namespace resources
       /// this to be called before entering main.
       static Hip HipFromStream(hipStream_t s, int dev = -1)
       {
-        return Hip(s, (dev >= 0) ? dev : get_device_from_stream(s));
+        return Hip(s, dev);
       }
 
       // Methods

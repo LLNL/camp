@@ -136,7 +136,9 @@ namespace resources
       }
 
       // Private from-stream constructor
-      Cuda(cudaStream_t s, int dev) : stream(s), device(dev) {}
+      Cuda(cudaStream_t s, int dev)
+        : stream(s), device((dev >= 0) ? dev : get_device_from_stream(s))
+      { }
 
       MemoryAccess get_access_type(void *p) {
         cudaPointerAttributes a;
@@ -163,8 +165,7 @@ namespace resources
     public:
       Cuda(int group = -1, int dev = get_current_device())
           : stream(get_a_stream(group, dev)), device(dev)
-      {
-      }
+      { }
 
       /// Create a resource from a custom stream.
       /// The device specified must match the stream, if none is specified the
@@ -173,7 +174,7 @@ namespace resources
       /// this to be called before entering main.
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
-        return Cuda(s, (dev >= 0) ? dev : get_device_from_stream(s));
+        return Cuda(s, dev);
       }
 
       // Methods
