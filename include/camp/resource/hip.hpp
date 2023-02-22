@@ -158,7 +158,7 @@ namespace resources
       }
 
     public:
-      Hip(int group = -1, int dev = get_current_device())
+      explicit Hip(int group = -1, int dev = get_current_device())
           : stream(get_a_stream(group, dev)), device(dev)
       { }
 

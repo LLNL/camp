@@ -116,16 +116,16 @@ namespace resources
         return &queueMap[contextInUse][num];
       }
 
-      Sycl(sycl::queue* queue) : qu(queue) {}
+      explicit Sycl(sycl::queue* queue) : qu(queue) {}
 
     public:
-      Sycl(int group = -1)
+      explicit Sycl(int group = -1)
       {
         sycl::context temp;
         qu = get_a_queue(temp, group, false);
       }
 
-      Sycl(sycl::context &syclContext, int group = -1)
+      explicit Sycl(sycl::context &syclContext, int group = -1)
           : qu(get_a_queue(syclContext, group, true))
       {
       }
