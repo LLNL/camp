@@ -10,7 +10,6 @@ set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 include(CheckCXXCompilerFlag)
 include(FindPackageHandleStandardArgs)
-include(AddCXXCompilerFlag)
 if(NOT DEFINED BLT_CXX_STD)
   set(CXX_VERSIONS 17 14)
   foreach(cxxver ${CXX_VERSIONS})
