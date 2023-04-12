@@ -47,6 +47,9 @@ TEST(CampResource, GetPlatform)
 #ifdef CAMP_HAVE_HIP
   ASSERT_EQ(Resource(Hip()).get_platform(), Platform::hip);
 #endif
+#ifdef CAMP_HAVE_SYCL
+  ASSERT_EQ(Resource(Sycl()).get_platform(), Platform::sycl);
+#endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   ASSERT_EQ(Resource(Omp()).get_platform(), Platform::omp_target);
 #endif
@@ -121,6 +124,7 @@ TEST(CampResource, GetEvent)
   cudaStreamCreate(&s);
   Event evc{CudaEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
+  cudaStreamDestroy(s);
 }
 
 TEST(CampEvent, Get)
@@ -141,6 +145,7 @@ TEST(CampEvent, Get)
 
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
   ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
+  cudaStreamDestroy(s);
 }
 #endif
 #if defined(CAMP_HAVE_HIP)
@@ -181,15 +186,15 @@ TEST(CampResource, StreamSelect)
 TEST(CampResource, Get)
 {
   Resource dev_host{Host()};
-  Resource dev_cuda{Hip()};
+  Resource dev_hip{Hip()};
 
   auto erased_host = dev_host.get<Host>();
   Host pure_host;
   ASSERT_EQ(typeid(erased_host), typeid(pure_host));
 
-  auto erased_cuda = dev_cuda.get<Hip>();
-  Hip pure_cuda;
-  ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
+  auto erased_hip = dev_hip.get<Hip>();
+  Hip pure_hip;
+  ASSERT_EQ(typeid(erased_hip), typeid(pure_hip));
 }
 
 TEST(CampResource, GetEvent)
@@ -206,6 +211,7 @@ TEST(CampResource, GetEvent)
   hipStreamCreate(&s);
   Event evc{HipEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
+  hipStreamDestroy(s);
 }
 
 TEST(CampEvent, Get)
@@ -214,20 +220,102 @@ TEST(CampEvent, Get)
   Resource c1{Hip()};
 
   Event erased_host_event = h1.get_event();
-  Event erased_cuda_event = c1.get_event();
+  Event erased_hip_event = c1.get_event();
 
   auto pure_host_event = erased_host_event.get<HostEvent>();
-  auto pure_cuda_event = erased_cuda_event.get<HipEvent>();
+  auto pure_hip_event = erased_hip_event.get<HipEvent>();
 
   HostEvent host_event;
   hipStream_t s;
   hipStreamCreate(&s);
-  HipEvent cuda_event(s);
+  HipEvent hip_event(s);
 
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
-  ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
+  ASSERT_EQ(typeid(hip_event), typeid(pure_hip_event));
+  hipStreamDestroy(s);
 }
 #endif
+#if defined(CAMP_HAVE_SYCL)
+TEST(CampResource, Reassignment)
+{
+  Resource h1{Host()};
+  Resource c1{Sycl()};
+  h1 = Sycl();
+  ASSERT_EQ(typeid(c1), typeid(h1));
+
+  Resource h2{Host()};
+  Resource c2{Sycl()};
+  c2 = Host();
+  ASSERT_EQ(typeid(c2), typeid(h2));
+}
+
+TEST(CampResource, StreamSelect)
+{
+  sycl::device dev(sycl::gpu_selector_v);
+  sycl::context ctxt(dev);
+  sycl::property_list propertyList =
+    sycl::property_list(sycl::property::queue::in_order());
+  sycl::queue stream1(ctxt, dev, propertyList), stream2(ctxt, dev, propertyList);
+
+  Resource c1{Sycl(stream1.get_context())};
+  Resource c2{Sycl(stream2.get_context())};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
+
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
+}
+
+TEST(CampResource, Get)
+{
+  Resource dev_host{Host()};
+  Resource dev_sycl{Sycl()};
+
+  auto erased_host = dev_host.get<Host>();
+  Host pure_host;
+  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
+
+  auto erased_sycl = dev_sycl.get<Sycl>();
+  Sycl pure_sycl;
+  ASSERT_EQ(typeid(erased_sycl), typeid(pure_sycl));
+}
+
+TEST(CampResource, GetEvent)
+{
+  Resource h1{Host()};
+  Resource c1{Sycl()};
+
+  auto ev1 = h1.get_event();
+  Event evh{HostEvent()};
+  ASSERT_EQ(typeid(evh), typeid(ev1));
+
+  auto ev2 = c1.get_event();
+  sycl::queue s(sycl::gpu_selector_v)
+  Event evc{SyclEvent(&s)};
+  ASSERT_EQ(typeid(evc), typeid(ev2));
+}
+
+TEST(CampEvent, Get)
+{
+  Resource h1{Host()};
+  Resource c1{Sycl()};
+
+  Event erased_host_event = h1.get_event();
+  Event erased_sycl_event = c1.get_event();
+
+  auto pure_host_event = erased_host_event.get<HostEvent>();
+  auto pure_sycl_event = erased_sycl_event.get<SyclEvent>();
+
+  HostEvent host_event;
+  sycl::queue s(sycl::gpu_selector_v)
+  SyclEvent sycl_event(&s);
+
+  ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
+  ASSERT_EQ(typeid(sycl_event), typeid(pure_sycl_event));
+}
+#endif // CAMP_HAVE_SYCL
 
 template<typename Res>
 static EventProxy<Res> do_stuff(Res r)

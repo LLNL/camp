@@ -24,6 +24,10 @@ function(camp_add_test TESTNAME)
     list(APPEND _depends blt::hip)
   endif()
 
+  if(ENABLE_SYCL)
+    list(APPEND _depends sycl)
+  endif()
+
   if(ABT_DEPENDS_ON)
     list(APPEND _depends ${ABT_DEPENDS_ON})
   endif()

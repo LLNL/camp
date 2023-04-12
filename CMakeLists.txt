@@ -9,6 +9,8 @@ set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 include(CheckCXXCompilerFlag)
+include(FindPackageHandleStandardArgs)
+include(AddCXXCompilerFlag)
 if(NOT DEFINED BLT_CXX_STD)
   set(CXX_VERSIONS 17 14)
   foreach(cxxver ${CXX_VERSIONS})
@@ -113,6 +115,14 @@ if (ENABLE_HIP)
   endif()
 endif ()
 
+if (ENABLE_SYCL)
+  check_cxx_compiler_flag("-fsycl" CXX_HAS_FSYCL)
+  find_package_handle_standard_args( SYCL
+    REQUIRED_VARS CXX_HAS_FSYCL
+  )
+  add_compile_options("-fsycl")
+endif ()
+
 # end backends
 
 # Configure the config header file to allow config time options
@@ -189,4 +199,3 @@ if(CAMP_ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
-

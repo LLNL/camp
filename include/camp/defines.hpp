@@ -25,6 +25,10 @@ http://github.com/llnl/camp
 #include <hip/hip_runtime.h>
 #endif
 
+#ifdef CAMP_ENABLE_SYCL
+#include <sycl/sycl.hpp>
+#endif
+
 namespace camp
 {
 

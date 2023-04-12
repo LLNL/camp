@@ -16,10 +16,9 @@ http://github.com/llnl/camp
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_ENABLE_SYCL
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <map>
 #include <array>
-using namespace cl;
 
 namespace camp
 {
@@ -32,7 +31,9 @@ namespace resources
     {
     public:
       SyclEvent(sycl::queue *qu) { m_event = sycl::event(); }
-      bool check() const { return true; }
+      bool check() const {
+        return (m_event.get_info<sycl::info::event::command_execution_status>() == sycl::info::event_command_status::complete);
+      }
       void wait() const { getSyclEvent_t().wait(); }
       sycl::event getSyclEvent_t() const { return m_event; }
 
@@ -42,15 +43,13 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue *get_a_queue(sycl::context &syclContext,
+      static sycl::queue *get_a_queue(sycl::context *syclContext,
                                       int num,
                                       bool useContext)
       {
-        static sycl::gpu_selector gpuSelector;
+        static sycl::device gpuSelector { sycl::gpu_selector_v };
         static sycl::property_list propertyList =
             sycl::property_list(sycl::property::queue::in_order());
-        static sycl::context privateContext;
-        static sycl::context *contextInUse = NULL;
         static std::map<sycl::context *, std::array<sycl::queue, 16>> queueMap;
 
 
@@ -59,47 +58,45 @@ namespace resources
 
         // User passed a context, use it
         if (useContext) {
-          contextInUse = &syclContext;
-
           if (queueMap.find(contextInUse) == queueMap.end()) {
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+            queueMap[syclContext] = {
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList),
+                sycl::queue(*syclContext, gpuSelector, propertyList)};
           }
         } else {  // User did not pass context, use last used or private one
-          if (contextInUse == NULL) {
-            contextInUse = &privateContext;
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+          if (syclContext == nullptr) {
+            sycl::context* privateContext = new sycl::context(gpuSelector);
+            queueMap[privateContext] = {
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList),
+                sycl::queue(*privateContext, gpuSelector, propertyList)};
           }
         }
         m_mtx.unlock();
@@ -116,16 +113,14 @@ namespace resources
 
         return &queueMap[contextInUse][num % 16];
       }
-
     public:
       Sycl(int group = -1)
       {
-        sycl::context temp;
-        qu = get_a_queue(temp, group, false);
+        qu = get_a_queue(nullptr, group, false);
       }
 
       Sycl(sycl::context &syclContext, int group = -1)
-          : qu(get_a_queue(syclContext, group, true))
+          : qu(get_a_queue(&syclContext, group, true))
       {
       }
 
@@ -138,12 +133,22 @@ namespace resources
       }
       SyclEvent get_event() { return SyclEvent(get_queue()); }
       Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
-      void wait() { qu->wait(); }
+      void wait() {
+        #if defined(SYCL_EXT_ONEAPI_ENQUEUE_BARRIER)
+        qu->ext_oneapi_submit_barrier();
+        #else
+        qu->wait();
+        #endif
+      }
       void wait_for(Event *e)
       {
         auto *sycl_event = e->try_get<SyclEvent>();
         if (sycl_event) {
+        #if defined(SYCL_EXT_ONEAPI_ENQUEUE_BARRIER)
+          qu->ext_oneapi_submit_barrier( {sycl_event->getSyclEvent_t()} );
+        #else
           (sycl_event->getSyclEvent_t()).wait();
+        #endif
         } else {
           e->wait();
         }
@@ -155,7 +160,6 @@ namespace resources
       {
         T *ret = nullptr;
         if (size > 0) {
-          ret = sycl::malloc_shared<T>(size, *qu);
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
@@ -181,13 +185,13 @@ namespace resources
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
-          qu->memcpy(dst, src, size).wait();
+          qu->memcpy(dst, src, size);
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
-          qu->memset(p, val, size).wait();
+          qu->memset(p, val, size);
         }
       }
 
