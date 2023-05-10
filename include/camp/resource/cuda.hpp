@@ -19,6 +19,7 @@ http://github.com/llnl/camp
 
 #include <cuda_runtime.h>
 #include <mutex>
+#include <vector>
 
 namespace camp
 {
@@ -89,12 +90,12 @@ namespace resources
 
       static int get_device_from_stream(cudaStream_t stream)
       {
-        int dev = -1;
         CUcontext stream_ctx;
         campCuErrchk(cuStreamGetCtx(stream, &stream_ctx));
         campCuErrchk(cuCtxPushCurrent(stream_ctx));
+        int dev = -1;
         campCuErrchk(cuCtxGetDevice(&dev));
-        campCuErrchk(cuCtxPopCurrent(stream_ctx));
+        campCuErrchk(cuCtxPopCurrent(&stream_ctx));
         return dev;
       }
 
@@ -111,7 +112,7 @@ namespace resources
 
         static std::vector<Streams> devices([] {
           int count = -1;
-          campcudaErrchk(cudaGetDeviceCount(&count));
+          campCudaErrchk(cudaGetDeviceCount(&count));
           return count;
         }());
 
@@ -123,7 +124,7 @@ namespace resources
           auto d{device_guard(dev)};
           if (devices[dev].streams[0] == nullptr) {
             for (auto &s : devices[dev].streams) {
-              campcudaErrchk(cudaStreamCreate(&s));
+              campCudaErrchk(cudaStreamCreate(&s));
             }
           }
         });
