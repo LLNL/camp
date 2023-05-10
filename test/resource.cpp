@@ -72,6 +72,27 @@ TEST(CampResource, Reassignment)
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
+TEST(CampResource, StreamSelect)
+{
+  cudaStream_t stream1, stream2;
+
+  cudaStreamCreate(&stream1);
+  cudaStreamCreate(&stream2);
+
+  Resource c1{Cuda::CudaFromStream(stream1)};
+  Resource c2{Cuda::CudaFromStream(stream2)};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
+
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
+
+  cudaStreamDestroy(stream1);
+  cudaStreamDestroy(stream2);
+}
+
 TEST(CampResource, MultipleDevices)
 {
   int cur_dev = 0;
@@ -133,27 +154,6 @@ TEST(CampResource, DifferentDevice)
   cudaGetDevice(&check_dev);
 
   EXPECT_EQ(check_dev, cur_dev);
-}
-
-TEST(CampResource, StreamSelect)
-{
-  cudaStream_t stream1, stream2;
-
-  cudaStreamCreate(&stream1);
-  cudaStreamCreate(&stream2);
-
-  Resource c1{Cuda::CudaFromStream(stream1)};
-  Resource c2{Cuda::CudaFromStream(stream2)};
-
-  const int N = 5;
-  int* d_array1 = c1.allocate<int>(N);
-  int* d_array2 = c2.allocate<int>(N);
-
-  c1.deallocate(d_array1);
-  c2.deallocate(d_array2);
-
-  cudaStreamDestroy(stream1);
-  cudaStreamDestroy(stream2);
 }
 
 TEST(CampResource, Get)
@@ -220,6 +220,27 @@ TEST(CampResource, Reassignment)
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
+TEST(CampResource, StreamSelect)
+{
+  hipStream_t stream1, stream2;
+
+  hipStreamCreate(&stream1);
+  hipStreamCreate(&stream2);
+
+  Resource c1{Hip::HipFromStream(stream1)};
+  Resource c2{Hip::HipFromStream(stream2)};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
+
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
+
+  hipStreamDestroy(stream1);
+  hipStreamDestroy(stream2);
+}
+
 TEST(CampResource, MultipleDevices)
 {
   int cur_dev = 0;
@@ -281,27 +302,6 @@ TEST(CampResource, DifferentDevice)
   hipGetDevice(&check_dev);
 
   EXPECT_EQ(check_dev, cur_dev);
-}
-
-TEST(CampResource, StreamSelect)
-{
-  hipStream_t stream1, stream2;
-
-  hipStreamCreate(&stream1);
-  hipStreamCreate(&stream2);
-
-  Resource c1{Hip::HipFromStream(stream1)};
-  Resource c2{Hip::HipFromStream(stream2)};
-
-  const int N = 5;
-  int* d_array1 = c1.allocate<int>(N);
-  int* d_array2 = c2.allocate<int>(N);
-
-  c1.deallocate(d_array1);
-  c2.deallocate(d_array2);
-
-  hipStreamDestroy(stream1);
-  hipStreamDestroy(stream2);
 }
 
 TEST(CampResource, Get)
