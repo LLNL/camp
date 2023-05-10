@@ -18,6 +18,7 @@ http://github.com/llnl/camp
 
 // include cuda header if configured, even if not in use
 #ifdef CAMP_ENABLE_CUDA
+#include <cuda.h>
 #include <cuda_runtime.h>
 #endif
 
