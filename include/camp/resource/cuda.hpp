@@ -88,8 +88,29 @@ namespace resources
         return dev;
       }
 
+      static void setup_current_device() {
+        static std::vector<std::once_flag> device_setup([] {
+          int count = -1;
+          campCudaErrchk(cudaGetDeviceCount(&count));
+          return count;
+        }());
+
+        int dev = get_current_device();
+
+        std::call_once(device_setup[dev], [&] {
+          size_t free = 0, total = 0;
+          campCudaErrchk(cudaMemGetInfo(&free, &total));
+        });
+      }
+
       static int get_device_from_stream(cudaStream_t stream)
       {
+        if (stream == 0) {
+          // If the current device has been set but not used cuCtx API
+          // functions will return CUDA_ERROR_CONTEXT_IS_DESTROYED
+          setup_current_device();
+        }
+
         CUcontext stream_ctx;
         campCuErrchk(cuStreamGetCtx(stream, &stream_ctx));
         campCuErrchk(cuCtxPushCurrent(stream_ctx));
