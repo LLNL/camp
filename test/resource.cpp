@@ -83,23 +83,21 @@ TEST(CampResource, MultipleDevices)
   for (int d = 0; d < num_devices; ++d) {
     cudaSetDevice(d);
 
-    Cuda c1{Cuda::get_default()};
-    Cuda c2{Cuda::CudaFromStream(0)};
-    Cuda c3{Cuda::CudaFromStream(0), d};
-    Cuda c4{};
-    Cuda c5{0};
-    Cuda c6{0, d};
+    Cuda c1{Cuda::CudaFromStream(0)};
+    Cuda c2{Cuda::CudaFromStream(0, d)};
+    Cuda c3{};
+    Cuda c4{0};
+    Cuda c5{0, d};
 
     EXPECT_EQ(c1.get_device(), d);
     EXPECT_EQ(c2.get_device(), d);
     EXPECT_EQ(c3.get_device(), d);
     EXPECT_EQ(c4.get_device(), d);
     EXPECT_EQ(c5.get_device(), d);
-    EXPECT_EQ(c6.get_device(), d);
 
+    EXPECT_EQ(c1.get_stream(), cudaStream_t{0});
     EXPECT_EQ(c2.get_stream(), cudaStream_t{0});
-    EXPECT_EQ(c3.get_stream(), cudaStream_t{0});
-    EXPECT_EQ(c5.get_stream(), c6.get_stream());
+    EXPECT_EQ(c4.get_stream(), c5.get_stream());
 
     const int N = 5;
     int* d_array1 = c1.allocate<int>(N);
@@ -120,7 +118,7 @@ TEST(CampResource, DifferentDevice)
   if (num_devices > 1) {
     int diff_dev = (cur_dev + 1) % num_devices;
 
-    Cuda c1{Cuda::CudaFromStream(0), diff_dev};
+    Cuda c1{Cuda::CudaFromStream(0, diff_dev)};
     Cuda c2{0, diff_dev};
 
     EXPECT_EQ(c1.get_device(), diff_dev);
@@ -132,7 +130,7 @@ TEST(CampResource, DifferentDevice)
   }
 
   int check_dev = -1;
-  cudaGetDevice(&cur_dev);
+  cudaGetDevice(&check_dev);
 
   EXPECT_EQ(check_dev, cur_dev);
 }
@@ -233,23 +231,21 @@ TEST(CampResource, MultipleDevices)
   for (int d = 0; d < num_devices; ++d) {
     hipSetDevice(d);
 
-    Hip c1{Hip::get_default()};
-    Hip c2{Hip::HipFromStream(0)};
-    Hip c3{Hip::HipFromStream(0), d};
-    Hip c4{};
-    Hip c5{0};
-    Hip c6{0, d};
+    Hip c1{Hip::HipFromStream(0)};
+    Hip c2{Hip::HipFromStream(0, d)};
+    Hip c3{};
+    Hip c4{0};
+    Hip c5{0, d};
 
     EXPECT_EQ(c1.get_device(), d);
     EXPECT_EQ(c2.get_device(), d);
     EXPECT_EQ(c3.get_device(), d);
     EXPECT_EQ(c4.get_device(), d);
     EXPECT_EQ(c5.get_device(), d);
-    EXPECT_EQ(c6.get_device(), d);
 
+    EXPECT_EQ(c1.get_stream(), hipStream_t{0});
     EXPECT_EQ(c2.get_stream(), hipStream_t{0});
-    EXPECT_EQ(c3.get_stream(), hipStream_t{0});
-    EXPECT_EQ(c5.get_stream(), c6.get_stream());
+    EXPECT_EQ(c4.get_stream(), c5.get_stream());
 
     const int N = 5;
     int* d_array1 = c1.allocate<int>(N);
@@ -270,7 +266,7 @@ TEST(CampResource, DifferentDevice)
   if (num_devices > 1) {
     int diff_dev = (cur_dev + 1) % num_devices;
 
-    Hip c1{Hip::HipFromStream(0), diff_dev};
+    Hip c1{Hip::HipFromStream(0, diff_dev)};
     Hip c2{0, diff_dev};
 
     EXPECT_EQ(c1.get_device(), diff_dev);
@@ -282,7 +278,7 @@ TEST(CampResource, DifferentDevice)
   }
 
   int check_dev = -1;
-  hipGetDevice(&cur_dev);
+  hipGetDevice(&check_dev);
 
   EXPECT_EQ(check_dev, cur_dev);
 }
