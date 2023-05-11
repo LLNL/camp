@@ -131,7 +131,7 @@ endif()
 
 if (COMPILER_FAMILY_IS_MSVC)
   if (NOT BUILD_SHARED_LIBS)
-    target_compile_definitions(camp PUBLIC CAMP_WIN_STATIC_BUILD)
+    target_compile_definitions(camp PRIVATE CAMP_WIN_STATIC_BUILD)
   else (NOT BUILD_SHARED_LIBS)
     target_compile_definitions(camp PRIVATE CAMP_DLL_EXPORTS)
   endif (NOT BUILD_SHARED_LIBS)
