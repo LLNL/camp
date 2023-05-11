@@ -79,11 +79,11 @@ namespace resources
 
       void check_ma(MemoryAccess ma) {
         if(ma != MemoryAccess::Device) {
-          throw std::runtime_error("OpenMP Target currently does not support allocating shared or managed memory");
+          ::camp::throw_re("OpenMP Target currently does not support allocating shared or managed memory");
         }
       }
     public:
-      Omp(int group = -1, int device = omp_get_default_device())
+      explicit Omp(int group = -1, int device = omp_get_default_device())
           : addr(get_addr(group)), dev(device)
       {
       }

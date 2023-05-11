@@ -18,6 +18,8 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_CUDA
 
 #include <cuda_runtime.h>
+#include <mutex>
+#include <vector>
 
 namespace camp
 {
@@ -79,34 +81,90 @@ namespace resources
 
     class Cuda
     {
-      static cudaStream_t get_a_stream(int num)
+      static int get_current_device()
       {
-        static cudaStream_t streams[16] = {};
-        static int previous = 0;
+        int dev = -1;
+        campCudaErrchk(cudaGetDevice(&dev));
+        return dev;
+      }
 
-        static std::once_flag m_onceFlag;
-        static std::mutex m_mtx;
+      static void setup_current_device() {
+        static std::vector<std::once_flag> device_setup([] {
+          int count = -1;
+          campCudaErrchk(cudaGetDeviceCount(&count));
+          return count;
+        }());
 
-        std::call_once(m_onceFlag, [] {
-          if (streams[0] == nullptr) {
-            for (auto &s : streams) {
+        int dev = get_current_device();
+
+        std::call_once(device_setup[dev], [&] {
+          size_t free = 0, total = 0;
+          campCudaErrchk(cudaMemGetInfo(&free, &total));
+        });
+      }
+
+      static int get_device_from_stream(cudaStream_t stream)
+      {
+        if (stream == 0) {
+          // If the current device has been set but not used cuCtx API
+          // functions will return CUDA_ERROR_CONTEXT_IS_DESTROYED
+          setup_current_device();
+        }
+
+        CUcontext stream_ctx;
+        campCuErrchk(cuStreamGetCtx(stream, &stream_ctx));
+        campCuErrchk(cuCtxPushCurrent(stream_ctx));
+        int dev = -1;
+        campCuErrchk(cuCtxGetDevice(&dev));
+        campCuErrchk(cuCtxPopCurrent(&stream_ctx));
+        return dev;
+      }
+
+      static cudaStream_t get_a_stream(int num, int dev)
+      {
+        static constexpr int num_streams = 16;
+        struct Streams {
+          cudaStream_t streams[num_streams] = {};
+          int previous = 0;
+
+          std::once_flag onceFlag;
+          std::mutex mtx;
+        };
+
+        static std::vector<Streams> devices([] {
+          int count = -1;
+          campCudaErrchk(cudaGetDeviceCount(&count));
+          return count;
+        }());
+
+        if (dev < 0) {
+          dev = get_current_device();
+        }
+
+        std::call_once(devices[dev].onceFlag, [&] {
+          auto d{device_guard(dev)};
+          if (devices[dev].streams[0] == nullptr) {
+            for (auto &s : devices[dev].streams) {
               campCudaErrchk(cudaStreamCreate(&s));
             }
           }
         });
 
         if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return streams[previous];
+          std::lock_guard<std::mutex> guard(devices[dev].mtx);
+          devices[dev].previous = (devices[dev].previous + 1) % num_streams;
+          num = devices[dev].previous;
+        } else {
+          num = num % num_streams;
         }
 
-        return streams[num % 16];
+        return devices[dev].streams[num];
       }
 
       // Private from-stream constructor
-      Cuda(cudaStream_t s, int dev = 0) : stream(s), device(dev) {}
+      Cuda(cudaStream_t s, int dev)
+        : stream(s), device((dev >= 0) ? dev : get_device_from_stream(s))
+      { }
 
       MemoryAccess get_access_type(void *p) {
         cudaPointerAttributes a;
@@ -129,20 +187,19 @@ namespace resources
         // related: https://stackoverflow.com/questions/64523302/cuda-missing-return-statement-at-end-of-non-void-function-in-constexpr-if-fun
         return MemoryAccess::Unknown;
       }
-    public:
-      Cuda(int group = -1, int dev = 0)
-          : stream(get_a_stream(group)), device(dev)
-      {
-      }
 
-      /// Create a resource from a custom stream
-      /// The device specified must match the stream, if none is specified the
-      /// currently selected device is used.
+    public:
+      explicit Cuda(int group = -1, int dev = get_current_device())
+          : stream(get_a_stream(group, dev)), device(dev)
+      { }
+
+      /// Create a resource from a custom stream.
+      /// If device is specified it must match the stream. If device is
+      /// unspecified, we will get it from the stream.
+      /// This may be called before main if device is specified as no calls to
+      /// the runtime are made in this case.
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
-        if (dev < 0) {
-          campCudaErrchk(cudaGetDevice(&dev));
-        }
         return Cuda(s, dev);
       }
 
@@ -158,7 +215,7 @@ namespace resources
           campCudaErrchk(cudaStreamCreate(&s));
 #endif
           return s;
-        }());
+        }(), get_current_device());
         return c;
       }
 
@@ -218,7 +275,7 @@ namespace resources
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
-        if(ma == MemoryAccess::Unknown) {
+        if (ma == MemoryAccess::Unknown) {
           ma = get_access_type(p);
         }
         switch (ma) {
@@ -235,6 +292,7 @@ namespace resources
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
+            break;
         }
       }
       void memcpy(void *dst, const void *src, size_t size)
