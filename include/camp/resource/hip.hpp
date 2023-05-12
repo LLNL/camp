@@ -11,6 +11,8 @@ http://github.com/llnl/camp
 #ifndef __CAMP_HIP_HPP
 #define __CAMP_HIP_HPP
 
+#include <vector>
+
 #include "camp/defines.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
