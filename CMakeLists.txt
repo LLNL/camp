@@ -100,6 +100,11 @@ if (ENABLE_CUDA)
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP requires CUDA version 10.1 or newer.")
   endif()
 
+  find_package(CUDAToolkit)
+  set(camp_depends
+    ${camp_depends}
+    CUDA::cuda_driver)
+
   if(ENABLE_NV_TOOLS_EXT)
     set(camp_depends
       ${camp_depends}
