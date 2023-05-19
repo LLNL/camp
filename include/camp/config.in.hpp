@@ -5,7 +5,6 @@
 #cmakedefine CAMP_ENABLE_CUDA
 #cmakedefine CAMP_ENABLE_HIP
 #cmakedefine CAMP_ENABLE_SYCL
-#cmakedefine CAMP_WIN_STATIC_BUILD
 #endif
 
 #define CAMP_VERSION_MAJOR @camp_VERSION_MAJOR@

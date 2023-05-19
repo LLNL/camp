@@ -11,14 +11,11 @@ http://github.com/llnl/camp
 #ifndef __CAMP_HIP_HPP
 #define __CAMP_HIP_HPP
 
-#include "camp/defines.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
 #ifdef CAMP_ENABLE_HIP
-
 #include <hip/hip_runtime.h>
-#include <mutex>
 
 namespace camp
 {
@@ -78,63 +75,34 @@ namespace resources
 
     class Hip
     {
-      static int get_current_device()
+      static hipStream_t get_a_stream(int num)
       {
-        int dev = -1;
-        campHipErrchk(hipGetDevice(&dev));
-        return dev;
-      }
+        static hipStream_t streams[16] = {};
+        static int previous = 0;
 
-      static int get_device_from_stream(hipStream_t stream)
-      {
-        return hipGetStreamDeviceId(stream);
-      }
+        static std::once_flag m_onceFlag;
+        static std::mutex m_mtx;
 
-      static hipStream_t get_a_stream(int num, int dev)
-      {
-        static constexpr int num_streams = 16;
-        struct Streams {
-          hipStream_t streams[num_streams] = {};
-          int previous = 0;
-
-          std::once_flag onceFlag;
-          std::mutex mtx;
-        };
-
-        static std::vector<Streams> devices([] {
-          int count = -1;
-          campHipErrchk(hipGetDeviceCount(&count));
-          return count;
-        }());
-
-        if (dev < 0) {
-          dev = get_current_device();
-        }
-
-        std::call_once(devices[dev].onceFlag, [=] {
-          auto d{device_guard(dev)};
-          if (devices[dev].streams[0] == nullptr) {
-            for (auto &s : devices[dev].streams) {
+        std::call_once(m_onceFlag, [] {
+          if (streams[0] == nullptr) {
+            for (auto &s : streams) {
               campHipErrchk(hipStreamCreate(&s));
             }
           }
         });
 
         if (num < 0) {
-          std::lock_guard<std::mutex> guard(devices[dev].mtx);
-          devices[dev].previous = (devices[dev].previous + 1) % num_streams;
-          num = devices[dev].previous;
-        } else {
-          num = num % num_streams;
+          m_mtx.lock();
+          previous = (previous + 1) % 16;
+          m_mtx.unlock();
+          return streams[previous];
         }
 
-        return devices[dev].streams[num];
+        return streams[num % 16];
       }
 
       // Private from-stream constructor
-      Hip(hipStream_t s, int dev)
-        : stream(s), device((dev >= 0) ? dev : get_device_from_stream(s))
-      { }
+      Hip(hipStream_t s, int dev = 0) : stream(s), device(dev) {}
 
       MemoryAccess get_access_type(void *p)
       {
@@ -158,17 +126,19 @@ namespace resources
       }
 
     public:
-      explicit Hip(int group = -1, int dev = get_current_device())
-          : stream(get_a_stream(group, dev)), device(dev)
-      { }
+      Hip(int group = -1, int dev = 0)
+          : stream(get_a_stream(group)), device(dev)
+      {
+      }
 
-      /// Create a resource from a custom stream.
-      /// If device is specified it must match the stream. If device is
-      /// unspecified, we will get it from the stream.
-      /// This may be called before main if device is specified as no calls to
-      /// the runtime are made in this case.
+      /// Create a resource from a custom stream
+      /// The device specified must match the stream, if none is specified the
+      /// currently selected device is used.
       static Hip HipFromStream(hipStream_t s, int dev = -1)
       {
+        if (dev < 0) {
+          campHipErrchk(hipGetDevice(&dev));
+        }
         return Hip(s, dev);
       }
 
@@ -184,7 +154,7 @@ namespace resources
           campHipErrchk(hipStreamCreate(&s));
 #endif
           return s;
-        }(), get_current_device());
+        }());
         return h;
       }
 

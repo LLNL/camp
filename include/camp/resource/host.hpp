@@ -14,9 +14,6 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#include <cstdlib>
-#include <cstring>
-
 namespace camp
 {
 namespace resources
@@ -35,7 +32,7 @@ namespace resources
     class Host
     {
     public:
-      explicit Host(int /* group */ = -1) {}
+      Host(int /* group */ = -1) {}
 
       // Methods
       Platform get_platform() { return Platform::host; }
@@ -57,7 +54,7 @@ namespace resources
       template <typename T>
       T *allocate(size_t n, MemoryAccess = MemoryAccess::Device)
       {
-        return (T *)std::malloc(sizeof(T) * n);
+        return (T *)malloc(sizeof(T) * n);
       }
       void *calloc(size_t size, MemoryAccess = MemoryAccess::Device)
       {
@@ -65,7 +62,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { std::free(p); }
+      void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { free(p); }
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
     };

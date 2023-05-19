@@ -22,30 +22,6 @@ void throw_re(const char *s) { throw std::runtime_error(s); }
 #ifdef CAMP_ENABLE_CUDA
 
 
-CUresult cuAssert(CUresult code,
-                              const char *call,
-                              const char *file,
-                              int line)
-{
-  if (code != CUDA_SUCCESS && code != CUDA_ERROR_NOT_READY) {
-    const char* error_string = nullptr;
-    if (cuGetErrorString(code, &error_string) != CUDA_SUCCESS) {
-      error_string = "Unknown Error code";
-    }
-    std::string msg;
-    msg += "campCuErrchk(";
-    msg += call;
-    msg += ") ";
-    msg += error_string;
-    msg += " ";
-    msg += file;
-    msg += ":";
-    msg += std::to_string(line);
-    throw std::runtime_error(msg);
-  }
-  return code;
-}
-
 cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
                               const char *file,

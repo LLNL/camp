@@ -69,7 +69,7 @@ namespace resources
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         if (result == nullptr) {
-          ::camp::throw_re("Incompatible Resource type get cast.");
+          throw std::runtime_error("Incompatible Resource type get cast.");
         }
         return *result->get();
       }
