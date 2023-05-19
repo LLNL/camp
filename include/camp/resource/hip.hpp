@@ -19,7 +19,6 @@ http://github.com/llnl/camp
 
 #include <hip/hip_runtime.h>
 #include <mutex>
-#include <vector>
 
 namespace camp
 {
