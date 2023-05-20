@@ -35,7 +35,7 @@ namespace resources
     class Host
     {
     public:
-      explicit Host(int /* group */ = -1) {}
+      Host(int /* group */ = -1) {}
 
       // Methods
       Platform get_platform() { return Platform::host; }

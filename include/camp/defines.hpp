@@ -18,7 +18,6 @@ http://github.com/llnl/camp
 
 // include cuda header if configured, even if not in use
 #ifdef CAMP_ENABLE_CUDA
-#include <cuda.h>
 #include <cuda_runtime.h>
 #endif
 
@@ -181,13 +180,6 @@ using nullptr_t = decltype(nullptr);
 CAMP_DLL_EXPORT void throw_re(const char *s);
 
 #ifdef CAMP_ENABLE_CUDA
-
-#define campCuErrchk(ans) ::camp::cuAssert((ans), #ans, __FILE__, __LINE__)
-
-CAMP_DLL_EXPORT CUresult cuAssert(CUresult code,
-                              const char *call,
-                              const char *file,
-                              int line);
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
