@@ -130,7 +130,7 @@ namespace resources
       }
 
       // Methods
-      Platform get_platform() { return Platform::sycl; }
+      Platform get_platform() const { return Platform::sycl; }
       static Sycl get_default()
       {
         static Sycl h;

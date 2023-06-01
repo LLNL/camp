@@ -38,7 +38,7 @@ namespace resources
       Host(int /* group */ = -1) {}
 
       // Methods
-      Platform get_platform() { return Platform::host; }
+      Platform get_platform() const { return Platform::host; }
       static Host get_default()
       {
         static Host h;

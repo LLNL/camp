@@ -147,7 +147,7 @@ namespace resources
       }
 
       // Methods
-      Platform get_platform() { return Platform::cuda; }
+      Platform get_platform() const { return Platform::cuda; }
       static Cuda get_default()
       {
         static Cuda c([] {
