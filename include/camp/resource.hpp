@@ -73,7 +73,7 @@ namespace resources
         }
         return *result->get();
       }
-      Platform get_platform() { return m_value->get_platform(); }
+      Platform get_platform() const { return m_value->get_platform(); }
       template <typename T>
       T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
@@ -99,7 +99,7 @@ namespace resources
       {
       public:
         virtual ~ContextInterface() {}
-        virtual Platform get_platform() = 0;
+        virtual Platform get_platform() const = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
@@ -115,7 +115,7 @@ namespace resources
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
-        Platform get_platform() override { return m_modelVal.get_platform(); }
+        Platform get_platform() const override { return m_modelVal.get_platform(); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
         void memcpy(void *dst, const void *src, size_t size) override

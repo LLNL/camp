@@ -89,7 +89,7 @@ namespace resources
       }
 
       // Methods
-      Platform get_platform() { return Platform::omp_target; }
+      Platform get_platform() const { return Platform::omp_target; }
       static Omp get_default()
       {
         static Omp o;
