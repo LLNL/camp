@@ -76,16 +76,16 @@ jobs:
         compiler: clang++
         ver: 13.0.0
       # NVIDIA no longer supports "latest", must update manually
-      nvcc10:
-        base_img: nvcc
-        ver: 10.2
-      nvcc10-debug:
-        base_img: nvcc
-        ver: 10.2
-        build_type: Debug
       nvcc11:
         base_img: nvcc
-        ver: 11.4.1
+        ver: 11.1.1
+      nvcc11-debug:
+        base_img: nvcc
+        ver: 11.1.1
+        build_type: Debug
+      nvcc12:
+        base_img: nvcc
+        ver: 12.2.0
       rocm:
         base_img: rocm
         cmake_extra: -DROCM_PATH=/opt/rocm -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
