@@ -11,8 +11,8 @@ http://github.com/llnl/camp
 #ifndef __CAMP_EVENT_HPP
 #define __CAMP_EVENT_HPP
 
-#include<type_traits>
-#include<memory>
+#include <type_traits>
+#include <memory>
 
 namespace camp
 {
