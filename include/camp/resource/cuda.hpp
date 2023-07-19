@@ -12,12 +12,14 @@ http://github.com/llnl/camp
 #define __CAMP_CUDA_HPP
 
 #include "camp/defines.hpp"
-#include "camp/resource/event.hpp"
-#include "camp/resource/platform.hpp"
 
 #ifdef CAMP_ENABLE_CUDA
 
+#include "camp/resource/event.hpp"
+#include "camp/resource/platform.hpp"
+
 #include <cuda_runtime.h>
+#include <mutex>
 
 namespace camp
 {
