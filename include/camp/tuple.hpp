@@ -326,13 +326,17 @@ public:
   {
   }
 
-  template <typename... RTypes>
+  template <typename... RTypes,
+            typename std::enable_if<
+                sizeof...(RTypes) == sizeof...(Elements)>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr explicit tuple(const tuple<RTypes...>& rhs)
       : base(internal::expand_tag{}, rhs)
   {
   }
 
-  template <typename... RTypes>
+  template <typename... RTypes,
+            typename std::enable_if<
+                sizeof...(RTypes) == sizeof...(Elements)>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr explicit tuple(tuple<RTypes...>&& rhs)
       : base(internal::expand_tag{}, rhs)
   {

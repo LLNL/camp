@@ -197,6 +197,10 @@ static_assert(
     "can by trivially copy constructed");
 #endif
 
+// Test to ensure correct constructor is invoked when constructing from a single tuple argument
+static_assert(std::is_same<decltype(camp::make_tuple(camp::make_tuple(A{}, B{}))), camp::tuple<camp::tuple<A, B>>>::value,
+              "Avoids conversion constructor for a single tuple argument");
+
 // Execution tests
 
 TEST(CampTuple, AssignCompat)
