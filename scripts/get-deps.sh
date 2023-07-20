@@ -5,10 +5,10 @@ apt-get install -y --no-install-recommends curl unzip sudo
 apt-get clean
 rm -rf /var/lib/apt/lists/*
 
-CMAKE=3.14.7
+CMAKE=3.26.4
 mkdir installers
 pushd installers
-curl -s -L https://github.com/Kitware/CMake/releases/download/v$CMAKE/cmake-$CMAKE-linux-x86_64.sh > cmake.sh
+curl -s -L https://github.com/Kitware/CMake/releases/download/v$CMAKE/cmake-$CMAKE-linux-$(uname -m).sh > cmake.sh
 bash cmake.sh --prefix=/usr/local --skip-license
 
 curl -s -L https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip > ninja.zip
