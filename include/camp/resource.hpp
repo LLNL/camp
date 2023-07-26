@@ -69,15 +69,15 @@ namespace resources
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         if (result == nullptr) {
-          throw std::runtime_error("Incompatible Resource type get cast.");
+          ::camp::throw_re("Incompatible Resource type get cast.");
         }
         return *result->get();
       }
-      Platform get_platform() { return m_value->get_platform(); }
+      Platform get_platform() const { return m_value->get_platform(); }
       template <typename T>
       T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
-        return (T *)m_value->calloc(size * sizeof(T), ma);
+        return (T *)m_value->allocate(size * sizeof(T), ma);
       }
       void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) { return m_value->calloc(size, ma); }
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { m_value->deallocate(p, ma); }
@@ -99,7 +99,8 @@ namespace resources
       {
       public:
         virtual ~ContextInterface() {}
-        virtual Platform get_platform() = 0;
+        virtual Platform get_platform() const = 0;
+        virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
@@ -115,7 +116,8 @@ namespace resources
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
-        Platform get_platform() override { return m_modelVal.get_platform(); }
+        Platform get_platform() const override { return m_modelVal.get_platform(); }
+        void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
         void memcpy(void *dst, const void *src, size_t size) override

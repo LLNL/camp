@@ -8,15 +8,33 @@ set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
-# Default to C++11 if not set so GTest/GMock can build
-if (NOT BLT_CXX_STD)
-    set(BLT_CXX_STD "c++14" CACHE STRING "")
-else()
-    set(_unsupported_cxx "c++98" "c++11")
-    if (BLT_CXX_STD IN_LIST _unsupported_cxx)
-      message(FATAL_ERROR "CAMP and the RAJA framework no longer support c++11, select a c++ standard of 14 or higher")
+include(CheckCXXCompilerFlag)
+if(NOT DEFINED BLT_CXX_STD)
+  set(CXX_VERSIONS 17 14)
+  foreach(cxxver ${CXX_VERSIONS})
+    if("cxx_std_${cxxver}" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+      if (ENABLE_CUDA AND (NOT DEFINED CMAKE_CUDA_COMPILE_FEATURES OR (NOT "cuda_std_${cxxver}" IN_LIST CMAKE_CUDA_COMPILE_FEATURES)))
+        continue()
+      endif()
+      set(CAMP_CXX_STD ${cxxver})
+      break()
     endif()
-endif()
+  endforeach()
+  if(NOT DEFINED CAMP_CXX_STD)
+    set(CAMP_CXX_STD 14)
+  endif()
+  set(BLT_CXX_STD c++${CAMP_CXX_STD} CACHE STRING "Version of C++
+  standard")
+  message("Using C++ standard: ${BLT_CXX_STD}")
+else() #check BLT_CXX_STD is high enough by disallowing the only invalid option
+  set(_unsupported_cxx "c++98" "c++11")
+  if (BLT_CXX_STD IN_LIST _unsupported_cxx)
+    message(FATAL_ERROR "CAMP and the RAJA framework no
+    longer support ${_unsupported_cxx}, select a c++
+    standard of 14 or higher")
+  endif()
+endif(NOT DEFINED BLT_CXX_STD)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/load_blt.cmake)
 
@@ -56,12 +74,16 @@ set (camp_runtime_backends cuda hip)
 
 foreach (backend ${camp_backends})
   string(TOUPPER "${backend}" suffix)
+  # NOTE: can't do this because of the lack of sycl support and usage upstream
+  # in blt
+  # cmake_dependent_option("CAMP_ENABLE_${suffix}" "Enable ${backend}
+  #   backend" On "ENABLE_${suffix}" Off)
   if ("${ENABLE_${suffix}}")
     set ("CAMP_ENABLE_${suffix}" On)
   endif()
   if (${CAMP_ENABLE_${suffix}})
     if (backend IN_LIST camp_runtime_backends)
-      set (backend ${backend}_runtime)  
+      set (backend ${backend}_runtime)
     endif()
     if (TARGET blt::${backend})
       set (backend blt::${backend})
@@ -70,11 +92,8 @@ foreach (backend ${camp_backends})
   endif()
 endforeach()
 
-if (CAMP_ENABLE_TARGET_OPENMP)
-  if (NOT CAMP_ENABLE_OPENMP)
-    message(FATAL_ERROR "OpenMP must be enabled if TARGET_OPENMP is enabled")
-  endif ()
-endif ()
+cmake_dependent_option(CAMP_ENABLE_TARGET_OPENMP "Enable OpenMP offload as
+device runtime" Off "CAMP_ENABLE_OPENMP" Off)
 
 if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
@@ -98,7 +117,7 @@ endif ()
 
 # Configure the config header file to allow config time options
 configure_file(${PROJECT_SOURCE_DIR}/include/camp/config.in.hpp
-               ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
+  ${PROJECT_BINARY_DIR}/include/camp/config.hpp)
 
 blt_add_library (
   NAME camp
@@ -106,10 +125,13 @@ blt_add_library (
   SOURCES ./src/errors.cpp
   DEPENDS_ON ${camp_depends}
   )
+if(cxx_std_${CAMP_CXX_STD} IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  target_compile_features(camp PUBLIC cxx_std_${CAMP_CXX_STD})
+endif()
 
 if (COMPILER_FAMILY_IS_MSVC)
   if (NOT BUILD_SHARED_LIBS)
-    target_compile_definitions(camp PUBLIC WIN_STATIC_BUILD)
+    target_compile_definitions(camp PUBLIC CAMP_WIN_STATIC_BUILD)
   else (NOT BUILD_SHARED_LIBS)
     target_compile_definitions(camp PRIVATE CAMP_DLL_EXPORTS)
   endif (NOT BUILD_SHARED_LIBS)
@@ -164,7 +186,7 @@ install(FILES
   include/camp)
 
 if(CAMP_ENABLE_TESTS)
-enable_testing()
-add_subdirectory(test)
+  enable_testing()
+  add_subdirectory(test)
 endif()
 

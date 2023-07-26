@@ -17,7 +17,7 @@ ARG CMAKE_OPTIONS="-G Ninja -B build ${CMAKE_EXTRA} -DCMAKE_BUILD_TYPE=${BUILD_T
 ARG PARALLEL=4
 ARG BUILD_EXTRA=""
 ARG CMAKE_BUILD_OPTS="--build build --verbose --parallel ${PARALLEL} ${BUILD_EXTRA}"
-ARG CUDA_IMG_SUFFIX="-devel-ubuntu18.04"
+ARG CUDA_IMG_SUFFIX="-devel-ubuntu20.04"
 
 ### start compiler base images ###
 # there is no official container in the hub, but there is an official script

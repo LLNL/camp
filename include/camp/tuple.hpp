@@ -106,12 +106,23 @@ namespace internal
     {
     }
 
-    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
+    CAMP_HOST_DEVICE constexpr const Type& get_inner() const& noexcept
     {
       return val;
     }
+    CAMP_HOST_DEVICE constexpr const Type&& get_inner() const&& noexcept
+    {
+      return static_cast<const Type&&>(val);
+    }
 
-    CAMP_HOST_DEVICE constexpr Type& get_inner() noexcept { return val; }
+    CAMP_HOST_DEVICE constexpr Type& get_inner() & noexcept
+    {
+      return val;
+    }
+    CAMP_HOST_DEVICE constexpr Type&& get_inner() && noexcept
+    {
+      return static_cast<Type&&>(val);
+    }
 
   public:
     Type val;
@@ -130,14 +141,22 @@ namespace internal
     {
     }
 
-    CAMP_HOST_DEVICE constexpr const Type& get_inner() const noexcept
+    CAMP_HOST_DEVICE constexpr const Type& get_inner() const& noexcept
     {
       return ((Type const*)this)[0];
     }
+    CAMP_HOST_DEVICE constexpr const Type&& get_inner() const&& noexcept
+    {
+      return static_cast<const Type&&>(((Type const*)this)[0]);
+    }
 
-    CAMP_HOST_DEVICE constexpr Type& get_inner() noexcept
+    CAMP_HOST_DEVICE constexpr Type& get_inner() & noexcept
     {
       return ((Type*)this)[0];
+    }
+    CAMP_HOST_DEVICE constexpr Type&& get_inner() && noexcept
+    {
+      return static_cast<Type&&>(((Type*)this)[0]);
     }
   };
 
@@ -146,46 +165,46 @@ namespace internal
 }  // namespace internal
 
 // by index
-template <camp::idx_t index, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
-{
-  using internal::tpl_get_store;
-  static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index> const&>(t.base).get_inner();
-}
-
-template <camp::idx_t index, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
-{
-  using internal::tpl_get_store;
-  static_assert(tuple_size<Tuple>::value > index, "index out of range");
-  return static_cast<tpl_get_store<Tuple, index>&>(t.base).get_inner();
-}
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_element_t<index, tuple<Types...>> const&  get(const tuple<Types...>&  t) noexcept;
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_element_t<index, tuple<Types...>> const&& get(const tuple<Types...>&& t) noexcept;
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_element_t<index, tuple<Types...>>      &  get(      tuple<Types...>&  t) noexcept;
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_element_t<index, tuple<Types...>>      && get(      tuple<Types...>&& t) noexcept;
 
 // by type
-template <typename T, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(const Tuple& t) noexcept
-{
-  using internal::tpl_get_store;
-  using index_type = camp::at_key<typename Tuple::TMap, T>;
-  static_assert(!std::is_same<camp::nil, index_type>::value,
-                "invalid type index");
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tuple<Types...>> const&  get(const tuple<Types...>&  t) noexcept;
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tuple<Types...>> const&& get(const tuple<Types...>&& t) noexcept;
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tuple<Types...>>      &  get(      tuple<Types...>&  t) noexcept;
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tuple<Types...>>      && get(      tuple<Types...>&& t) noexcept;
 
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
-}
-
-template <typename T, class Tuple>
-CAMP_HOST_DEVICE constexpr auto& get(Tuple& t) noexcept
-{
-  using internal::tpl_get_store;
-  using index_type = camp::at_key<typename Tuple::TMap, T>;
-  static_assert(!std::is_same<camp::nil, index_type>::value,
-                "invalid type index");
-
-  return static_cast<tpl_get_store<Tuple, index_type::value>&>(t.base)
-      .get_inner();
-}
+// tagged_tuple by type
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tagged_tuple<TagList, Types...>> const&  get(const tagged_tuple<TagList, Types...>&  t) noexcept;
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tagged_tuple<TagList, Types...>> const&& get(const tagged_tuple<TagList, Types...>&& t) noexcept;
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tagged_tuple<TagList, Types...>>      &  get(      tagged_tuple<TagList, Types...>&  t) noexcept;
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr
+tuple_ebt_t<T, tagged_tuple<TagList, Types...>>      && get(      tagged_tuple<TagList, Types...>&& t) noexcept;
 
 namespace internal
 {
@@ -267,15 +286,31 @@ public:
 
 private:
 
-  template <camp::idx_t index, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple& t) noexcept;
-  template <camp::idx_t index, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(const Tuple& t) noexcept;
+  template <camp::idx_t index, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_element_t<index, tuple<Types...>> const&
+  get(const tuple<Types...>&  t) noexcept;
+  template <camp::idx_t index, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_element_t<index, tuple<Types...>> const&&
+  get(const tuple<Types...>&& t) noexcept;
+  template <camp::idx_t index, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_element_t<index, tuple<Types...>> &
+  get(      tuple<Types...>&  t) noexcept;
+  template <camp::idx_t index, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_element_t<index, tuple<Types...>> &&
+  get(      tuple<Types...>&& t) noexcept;
 
-  template <typename T, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(const Tuple& t) noexcept;
-  template <typename T, class Tuple>
-  CAMP_HOST_DEVICE constexpr friend auto& get(Tuple& t) noexcept;
+  template <typename T, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tuple<Types...>> const&
+  get(const tuple<Types...>&  t) noexcept;
+  template <typename T, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tuple<Types...>> const&&
+  get(const tuple<Types...>&& t) noexcept;
+  template <typename T, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tuple<Types...>> &
+  get(      tuple<Types...>&  t) noexcept;
+  template <typename T, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tuple<Types...>> &&
+  get(      tuple<Types...>&& t) noexcept;
 
 public:
   CAMP_HOST_DEVICE constexpr explicit tuple(const Elements&... rest)
@@ -291,13 +326,17 @@ public:
   {
   }
 
-  template <typename... RTypes>
+  template <typename... RTypes,
+            typename std::enable_if<
+                sizeof...(RTypes) == sizeof...(Elements)>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr explicit tuple(const tuple<RTypes...>& rhs)
       : base(internal::expand_tag{}, rhs)
   {
   }
 
-  template <typename... RTypes>
+  template <typename... RTypes,
+            typename std::enable_if<
+                sizeof...(RTypes) == sizeof...(Elements)>::type* = nullptr>
   CAMP_HOST_DEVICE constexpr explicit tuple(tuple<RTypes...>&& rhs)
       : base(internal::expand_tag{}, rhs)
   {
@@ -323,6 +362,21 @@ public:
   using type = tagged_tuple;
   using Base::Base;
 
+private:
+  template <typename T, typename TagList_, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tagged_tuple<TagList_, Types...>> const&
+  get(const tagged_tuple<TagList_, Types...>&  t) noexcept;
+  template <typename T, typename TagList_, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tagged_tuple<TagList_, Types...>> const&&
+  get(const tagged_tuple<TagList_, Types...>&& t) noexcept;
+  template <typename T, typename TagList_, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tagged_tuple<TagList_, Types...>> &
+  get(      tagged_tuple<TagList_, Types...>&  t) noexcept;
+  template <typename T, typename TagList_, class... Types>
+  CAMP_HOST_DEVICE constexpr friend tuple_ebt_t<T, tagged_tuple<TagList_, Types...>> &&
+  get(      tagged_tuple<TagList_, Types...>&& t) noexcept;
+
+public:
   constexpr tagged_tuple() = default;
 
   constexpr tagged_tuple(tagged_tuple const& o) = default;
@@ -379,6 +433,151 @@ struct as_list_s<tagged_tuple<camp::list<Tags...>, Args...>> {
   using type = list<Args...>;
 };
 
+
+// by index
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_element_t<index, tuple<Types...>> const&
+get(const tuple<Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  static_assert(tuple_size<tuple<Types...>>::value > index, "index out of range");
+  return static_cast<const tpl_get_store<tuple<Types...>, index>&>(t.base).get_inner();
+}
+
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_element_t<index, tuple<Types...>> const&&
+get(const tuple<Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  static_assert(tuple_size<tuple<Types...>>::value > index, "index out of range");
+  return static_cast<const tpl_get_store<tuple<Types...>, index>&&>(t.base).get_inner();
+}
+
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_element_t<index, tuple<Types...>> &
+get(      tuple<Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  static_assert(tuple_size<tuple<Types...>>::value > index, "index out of range");
+  return static_cast<tpl_get_store<tuple<Types...>, index>&>(t.base).get_inner();
+}
+
+template <camp::idx_t index, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_element_t<index, tuple<Types...>> &&
+get(      tuple<Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  static_assert(tuple_size<tuple<Types...>>::value > index, "index out of range");
+  return static_cast<tpl_get_store<tuple<Types...>, index>&&>(t.base).get_inner();
+}
+
+// by type
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tuple<Types...>> const&
+get(const tuple<Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tuple<Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<const tpl_get_store<tuple<Types...>, index_type::value>&>(t.base)
+      .get_inner();
+}
+
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tuple<Types...>> const&&
+get(const tuple<Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tuple<Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<const tpl_get_store<tuple<Types...>, index_type::value>&&>(t.base)
+      .get_inner();
+}
+
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tuple<Types...>> &
+get(      tuple<Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tuple<Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<tpl_get_store<tuple<Types...>, index_type::value>&>(t.base)
+      .get_inner();
+}
+
+template <typename T, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tuple<Types...>> &&
+get(      tuple<Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tuple<Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<tpl_get_store<tuple<Types...>, index_type::value>&&>(t.base)
+      .get_inner();
+}
+
+// tagged_tuple by type
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tagged_tuple<TagList, Types...>> const&
+get(const tagged_tuple<TagList, Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tagged_tuple<TagList, Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<const tpl_get_store<tagged_tuple<TagList, Types...>, index_type::value>&>(t.base)
+      .get_inner();
+}
+
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tagged_tuple<TagList, Types...>> const&&
+get(const tagged_tuple<TagList, Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tagged_tuple<TagList, Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<const tpl_get_store<tagged_tuple<TagList, Types...>, index_type::value>&&>(t.base)
+      .get_inner();
+}
+
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tagged_tuple<TagList, Types...>> &
+get(      tagged_tuple<TagList, Types...>&  t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tagged_tuple<TagList, Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<tpl_get_store<tagged_tuple<TagList, Types...>, index_type::value>&>(t.base)
+      .get_inner();
+}
+
+template <typename T, typename TagList, class... Types>
+CAMP_HOST_DEVICE constexpr tuple_ebt_t<T, tagged_tuple<TagList, Types...>> &&
+get(      tagged_tuple<TagList, Types...>&& t) noexcept
+{
+  using internal::tpl_get_store;
+  using index_type = camp::at_key<typename tagged_tuple<TagList, Types...>::TMap, T>;
+  static_assert(!std::is_same<camp::nil, index_type>::value,
+                "invalid type index");
+
+  return static_cast<tpl_get_store<tagged_tuple<TagList, Types...>, index_type::value>&&>(t.base)
+      .get_inner();
+}
+
+
 template <typename... Args>
 CAMP_HOST_DEVICE constexpr auto make_tuple(Args&&... args)
 {
@@ -404,26 +603,27 @@ CAMP_HOST_DEVICE constexpr tuple<Types&...> tie(Types&... args) noexcept
   return tuple<Types&...>{args...};
 }
 
-template <typename... Lelem,
-          typename... Relem,
+template <typename L,
+          typename R,
           camp::idx_t... Lidx,
           camp::idx_t... Ridx>
-CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(tuple<Lelem...> const& l,
+CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L&& l,
                                                camp::idx_seq<Lidx...>,
-                                               tuple<Relem...> const& r,
+                                               R&& r,
                                                camp::idx_seq<Ridx...>) noexcept
 {
-  return ::camp::tuple<camp::at_v<camp::list<Lelem...>, Lidx>...,
-                       camp::at_v<camp::list<Relem...>, Ridx>...>(
-      ::camp::get<Lidx>(l)..., ::camp::get<Ridx>(r)...);
+  return ::camp::tuple<camp::at_v<typename std::decay_t<L>::TList, Lidx>...,
+                       camp::at_v<typename std::decay_t<R>::TList, Ridx>...>(
+      ::camp::get<Lidx>(std::forward<L>(l))...,
+      ::camp::get<Ridx>(std::forward<R>(r))...);
 }
 
 template <typename L, typename R>
-CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L const& l, R const& r) noexcept
+CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L&& l, R&& r) noexcept
 {
-  return tuple_cat_pair(l,
+  return tuple_cat_pair(std::forward<L>(l),
                         camp::idx_seq_from_t<L>{},
-                        r,
+                        std::forward<R>(r),
                         camp::idx_seq_from_t<R>{});
 }
 
