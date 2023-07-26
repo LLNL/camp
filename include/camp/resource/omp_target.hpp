@@ -11,14 +11,18 @@ http://github.com/llnl/camp
 #ifndef __CAMP_OMP_TARGET_HPP
 #define __CAMP_OMP_TARGET_HPP
 
+#include "camp/config.hpp"
+
+#ifdef CAMP_ENABLE_TARGET_OPENMP
+
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_ENABLE_TARGET_OPENMP
 #include <omp.h>
 
 #include <map>
 #include <memory>
+#include <mutex>
 
 namespace camp
 {

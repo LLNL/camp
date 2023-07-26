@@ -11,11 +11,15 @@ http://github.com/llnl/camp
 #ifndef __CAMP_HIP_HPP
 #define __CAMP_HIP_HPP
 
+#include "camp/config.hpp"
+
+#ifdef CAMP_ENABLE_HIP
+
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#ifdef CAMP_ENABLE_HIP
 #include <hip/hip_runtime.h>
+#include <mutex>
 
 namespace camp
 {
