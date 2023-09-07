@@ -18,10 +18,4 @@ if (NOT BLT_LOADED)
   include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 endif()
 
-if (NOT BLT_EXPORT_THIRDPARTY)
-  blt_import_library(NAME          blt_stub EXPORTABLE On)
-  set_target_properties(blt_stub PROPERTIES EXPORT_NAME blt::blt_stub)
-  install(TARGETS blt_stub
-          EXPORT               bltTargets)
-  blt_install_tpl_setups(DESTINATION lib/cmake/camp)
-endif()
+blt_install_tpl_setups(DESTINATION lib/cmake/camp)
