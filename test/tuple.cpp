@@ -382,7 +382,6 @@ TEST(CampTuple, StructuredBindingsRef)
   auto & [a, b] = t;
   static_assert(std::is_same< decltype(a), int >::value ); // Not an int &
   static_assert(std::is_same< decltype(b), double >::value ); // Not a double &
-  std::cout<<typeid(a).name()<<std::endl;
   ASSERT_EQ(a, 3);
   ASSERT_NEAR(b, 9.9, 1e-15);
 
@@ -398,15 +397,9 @@ TEST(CampTuple, StructuredBindingsRefConst)
   const auto & [a, b] = t;
   static_assert(std::is_same< decltype(a), const int >::value );  // Not an const int &
   static_assert(std::is_same< decltype(b), const double >::value ); // Not a const double &
-  std::cout<<typeid(a).name()<<std::endl;
   ASSERT_EQ(a, 3);
   ASSERT_NEAR(b, 9.9, 1e-15);
-
-  // these should fail to compile.
-  // a = 4;
-  // b = 10.1;
 }
-
 #endif
 
 struct s1;
