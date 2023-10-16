@@ -360,8 +360,8 @@ TEST(CampTuple, StructuredBindings)
 {
   auto t = camp::make_tuple(3, 9.9);
   auto [a, b] = t;
-  static_assert(std::is_same_v< decltype(a), int > );
-  static_assert(std::is_same_v< decltype(b), double > );
+  static_assert(std::is_same< decltype(a), int >::value );
+  static_assert(std::is_same< decltype(b), double >::value );
   ASSERT_EQ(a, 3);
   ASSERT_NEAR(b, 9.9, 1e-15);
 }
