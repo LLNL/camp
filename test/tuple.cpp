@@ -360,6 +360,43 @@ TEST(CampTuple, StructuredBindings)
 {
   auto t = camp::make_tuple(3, 9.9);
   auto [a, b] = t;
+  static_assert(std::is_same< decltype(a), int >::value );
+  static_assert(std::is_same< decltype(b), double >::value );
+  ASSERT_EQ(a, 3);
+  ASSERT_NEAR(b, 9.9, 1e-15);
+}
+
+TEST(CampTuple, StructuredBindingsConst)
+{
+  auto t = camp::make_tuple(3, 9.9);
+  const auto [a, b] = t;
+  static_assert(std::is_same< decltype(a), const int >::value );
+  static_assert(std::is_same< decltype(b), const double >::value );
+  ASSERT_EQ(a, 3);
+  ASSERT_NEAR(b, 9.9, 1e-15);
+}
+
+TEST(CampTuple, StructuredBindingsRef)
+{
+  auto t = camp::make_tuple(3, 9.9);
+  auto & [a, b] = t;
+  static_assert(std::is_same< decltype(a), int >::value ); // Not an int &
+  static_assert(std::is_same< decltype(b), double >::value ); // Not a double &
+  ASSERT_EQ(a, 3);
+  ASSERT_NEAR(b, 9.9, 1e-15);
+
+  a = 4; // Well...kind of an int &
+  b = 10.1; // also kind of a double &
+  ASSERT_EQ(camp::get<0>(t), 4);
+  ASSERT_NEAR(camp::get<1>(t), 10.1, 1e-15);
+}
+
+TEST(CampTuple, StructuredBindingsRefConst)
+{
+  auto t = camp::make_tuple(3, 9.9);
+  const auto & [a, b] = t;
+  static_assert(std::is_same< decltype(a), const int >::value );  // Not an const int &
+  static_assert(std::is_same< decltype(b), const double >::value ); // Not a const double &
   ASSERT_EQ(a, 3);
   ASSERT_NEAR(b, 9.9, 1e-15);
 }

@@ -703,7 +703,7 @@ namespace std {
 
   template <size_t i, typename ... T>
   struct tuple_element<i, camp::tuple<T...>> {
-    using type = decltype(camp::get<i>(camp::tuple<T...>{}));
+    using type = ::camp::tuple_element_t<i, camp::tuple<T...>>;
   };
 
   /// This allows structured bindings to be used with camp::tagged_tuple
@@ -718,7 +718,7 @@ namespace std {
 
   template <size_t i, typename TagList, typename... Elements>
   struct tuple_element<i, camp::tagged_tuple<TagList, Elements...>> {
-    using type = decltype(camp::get<i>(camp::tagged_tuple<TagList, Elements...>{}));
+    using type = ::camp::tuple_element_t<i, camp::tagged_tuple<TagList, Elements...>>;
   };
 } // namespace std
 #endif
