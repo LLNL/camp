@@ -34,17 +34,8 @@ FROM nvcr.io/nvidia/nvhpc:21.9-devel-cuda11.4-ubuntu20.04 AS nvhpc
 
 FROM rocm/dev-ubuntu-20.04:${VER} AS rocm
 
-# use the runtime container and then have it install the compiler,
-# save us a few gigabytes every time
-FROM intel/oneapi-runtime:${VER} AS oneapi
-ARG DEBIAN_FRONTEND=noninteractive
-ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-        intel-oneapi-compiler-dpcpp-cpp && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-# inject all setvars stuff into environment file
+# The intel-runtime container no longer works, use the fat one
+FROM intel/oneapi:${VER} AS oneapi
 RUN bash -c 'echo . /opt/intel/oneapi/setvars.sh >> ~/setup_env.sh'
 ### end compiler base images ###
 
