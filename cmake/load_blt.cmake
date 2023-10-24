@@ -15,8 +15,7 @@ if (NOT BLT_LOADED)
     endif ()
   endif ()
   include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
-else()
-  include(${BLT_SOURCE_DIR}/cmake/BLTMacros.cmake)
 endif()
-
+  
+include(${BLT_SOURCE_DIR}/cmake/BLTMacros.cmake)
 blt_install_tpl_setups(DESTINATION lib/cmake/camp)
