@@ -18,4 +18,7 @@ if (NOT BLT_LOADED)
 endif()
   
 include(${BLT_SOURCE_DIR}/cmake/BLTMacros.cmake)
+if (NOT EXISTS ${BLT_SOURCE_DIR}/cmake/BLTMacros.cmake)
+    message(FATAL_ERROR "COULDNT FIND BLT MACROS")
+endif()
 blt_install_tpl_setups(DESTINATION lib/cmake/camp)
