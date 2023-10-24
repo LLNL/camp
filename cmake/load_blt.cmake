@@ -14,8 +14,7 @@ if (NOT BLT_LOADED)
       git submodule update")
     endif ()
   endif ()
-
-  include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 endif()
 
+include(${BLT_SOURCE_DIR}/SetupBLT.cmake)
 blt_install_tpl_setups(DESTINATION lib/cmake/camp)
