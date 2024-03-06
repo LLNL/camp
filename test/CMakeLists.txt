@@ -47,6 +47,7 @@ function(camp_add_test TESTNAME)
     ${TEST})
 endfunction()
 
+camp_add_test(array GTEST)
 camp_add_test(resource GTEST OFFLOAD)
 camp_add_test(tuple GTEST)
 
