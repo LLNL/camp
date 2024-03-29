@@ -52,7 +52,7 @@ namespace resources
                                       int num,
                                       bool useContext)
       {
-        static sycl::gpu_selector gpuSelector;
+        constexpr auto gpuSelector = sycl::gpu_selector_v;
         static sycl::property_list propertyList =
             sycl::property_list(sycl::property::queue::in_order());
         static sycl::context privateContext;
