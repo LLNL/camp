@@ -71,7 +71,18 @@ TEST(CampResource, Reassignment)
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
+/*
+TEST(CampResource, Compare)
+{
+  Resource h1{Host()};
+  Resource c1{Cuda()};
+  Resource h2{Host()};
+  Resource c2{Cuda()};
 
+  ASSERT_TRUE(h1 == h1);
+  ASSERT_FALSE(c1 == c2);
+}
+*/
 TEST(CampResource, StreamSelect)
 {
   cudaStream_t stream1, stream2;

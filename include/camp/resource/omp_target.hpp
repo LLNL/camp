@@ -192,6 +192,13 @@ namespace resources
         }
         return ret;
       }
+      bool compare (camp::resources::Omp r)
+      {
+        //if(get_stream() == r.get_stream()) {
+        //  return true;
+        //}
+        return false;
+      }
 
     private:
       char *addr;

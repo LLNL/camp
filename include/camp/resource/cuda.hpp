@@ -259,6 +259,13 @@ namespace resources
       cudaStream_t get_stream() { return stream; }
       int get_device() { return device; }
 
+      bool compare (camp::resources::Cuda r)
+      {
+        if(get_stream() == r.get_stream()) {
+          return true;
+        }
+        return false;
+      }
     private:
       cudaStream_t stream;
       int device;

@@ -198,6 +198,13 @@ namespace resources
       }
 
       sycl::queue *get_queue() { return qu; }
+      bool compare (camp::resources::Sycl r)
+      {
+        if(get_queue() == r.get_queue()) {
+          return true;
+        }
+        return false;
+      }
 
     private:
       sycl::queue *qu;
