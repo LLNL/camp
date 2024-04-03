@@ -95,9 +95,10 @@ namespace resources
       void wait() { m_value->wait(); }
 
       template <typename T>
-      bool compare (const camp::resources::Resource& r) {
-        auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
-        return *result->compare(r);
+      bool compare (camp::resources::Resource& r) {
+        auto this_result = dynamic_cast<T>(m_value.get());
+        auto r_result = dynamic_cast<T>(r.get());
+        return this_result.compare(r_result);
       }
 
     private:
@@ -232,13 +233,13 @@ namespace resources
       Res resource_;
     };
 
-      bool operator== (const camp::resources::Resource& l, const camp::resources::Resource& r)
-      {
-        if(l.get_platform() == r.get_platform()) {
-          return l.compare(r);
-        }
-        return false;
+    bool operator== (camp::resources::Resource& l, camp::resources::Resource& r)
+    {
+      if(l.get_platform() == r.get_platform()) {
+        return l.compare(r);
       }
+      return false;
+    }
 
   }  // namespace v1
 }  // namespace resources
