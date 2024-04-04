@@ -192,7 +192,7 @@ namespace resources
         }
         return ret;
       }
-      bool compare (camp::resources::Omp r)
+      bool compare (camp::resources::Resource r)
       {
         //if(get_stream() == r.get_stream()) {
         //  return true;

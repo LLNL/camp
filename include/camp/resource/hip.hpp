@@ -260,13 +260,18 @@ namespace resources
       hipStream_t get_stream() { return stream; }
       int get_device() { return device; }
 
-      bool compare (camp::resources::Hip r)
+      bool compare (camp::resources::Resource r)
       {
-        if(get_stream() == r.get_stream()) {
-          return true;
+        Hip* other = r.try_get();
+        if (!other) return false;
+        else {
+          if(get_stream() == r.get_stream()) {
+            return true;
+          }
         }
         return false;
       }
+
 
     private:
       hipStream_t stream;

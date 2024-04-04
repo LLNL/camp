@@ -68,10 +68,15 @@ namespace resources
       void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { std::free(p); }
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
-      bool compare (camp::resources::Host r)
+
+      bool compare (camp::resources::Resource r)
       {
-        if(get_platform() == r.get_platform()) {
-          return true;
+        Host* other = r.try_get();
+        if(!other) return false;
+        else {
+          if(get_platform() == r.get_platform()) {
+            return true;
+          }
         }
         return false;
       }
