@@ -95,9 +95,10 @@ namespace resources
       void wait() { m_value->wait(); }
 
       bool compare (camp::resources::Resource& r) {
-        //auto this_result = dynamic_cast<T>(m_value.get());
-        //auto r_result = dynamic_cast<T>(r.get());
-        return m_value->compare(r);
+        if(l.get_platform() == r.get_platform()) {
+          return m_value->compare(r);
+        }
+        return false;
       }
 
     private:
@@ -240,10 +241,7 @@ namespace resources
 
     bool operator== (camp::resources::Resource& l, camp::resources::Resource& r)
     {
-      if(l.get_platform() == r.get_platform()) {
-        return l.compare(r);
-      }
-      return false;
+      return l.compare(r);
     }
 
   }  // namespace v1

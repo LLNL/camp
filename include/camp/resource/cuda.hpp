@@ -16,7 +16,6 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_CUDA
 
 #include "camp/defines.hpp"
-//#include "camp/resource.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 

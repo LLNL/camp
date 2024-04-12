@@ -72,12 +72,7 @@ namespace resources
       bool compare (Host* other)
       {
         if(!other) return false;
-        //else {
-        //  if(get_platform() == r.get_platform()) {
-            return true;
-        //  }
-        //}
-        //return false;
+        return true;
       }
     };
 
