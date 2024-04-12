@@ -94,11 +94,10 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
-      template <typename T>
-      bool compare (const camp::resources::Resource& r) {
-        auto this_result = dynamic_cast<T>(m_value.get());
-        auto r_result = dynamic_cast<T>(r.get());
-        return this_result.compare(r_result);
+      bool compare (camp::resources::Resource& r) {
+        //auto this_result = dynamic_cast<T>(m_value.get());
+        //auto r_result = dynamic_cast<T>(r.get());
+        return m_value->compare(r);
       }
 
     private:
@@ -107,6 +106,7 @@ namespace resources
       public:
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
+        virtual bool compare(Resource& r) = 0;
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -124,6 +124,11 @@ namespace resources
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
+        bool compare ( Resource& r) override { 
+          T* other = r.try_get<T>();
+          if (!other) return false;
+          return m_modelVal.compare(other); 
+        }
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
@@ -233,7 +238,7 @@ namespace resources
       Res resource_;
     };
 
-    bool operator== (const camp::resources::Resource& l, const camp::resources::Resource& r)
+    bool operator== (camp::resources::Resource& l, camp::resources::Resource& r)
     {
       if(l.get_platform() == r.get_platform()) {
         return l.compare(r);

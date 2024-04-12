@@ -192,12 +192,10 @@ namespace resources
         }
         return ret;
       }
-      bool compare (camp::resources::Resource r)
+      bool compare (Omp* o)
       {
-        //if(get_stream() == r.get_stream()) {
-        //  return true;
-        //}
-        return false;
+        return (dev == o->dev);
+        //TODO: do i need to compare addr???
       }
 
     private:

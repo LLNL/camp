@@ -199,12 +199,10 @@ namespace resources
 
       sycl::queue *get_queue() { return qu; }
 
-      bool compare (camp::resources::Resource r)
+      bool compare (Sycl* s)
       {
-        //if(get_queue() == r.get_queue()) {
-        //  return true;
-        //}
-        return false;
+        if (!s) return false;
+        return (get_queue() == s->get_queue());
       }
 
     private:

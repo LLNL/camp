@@ -16,7 +16,7 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_CUDA
 
 #include "camp/defines.hpp"
-#include "camp/resource.hpp"
+//#include "camp/resource.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
@@ -30,6 +30,7 @@ namespace resources
   inline namespace v1
   {
     class Cuda;
+    class Resource;
 
     namespace
     {
@@ -260,16 +261,10 @@ namespace resources
       cudaStream_t get_stream() { return stream; }
       int get_device() { return device; }
 
-      bool compare (camp::resources::Resource r)
+      bool compare (Cuda* c)
       {
-        Cuda* other = r.try_get();
-        if (!other) return false;
-        else {
-          if(get_stream() == r.get_stream()) {
-            return true;
-          }
-        }
-        return false;
+        if (!c) return false;
+        return (get_stream() == c->get_stream());
       }
 
     private:
