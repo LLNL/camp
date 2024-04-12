@@ -95,7 +95,7 @@ namespace resources
       void wait() { m_value->wait(); }
 
       bool compare (camp::resources::Resource& r) {
-        if(l.get_platform() == r.get_platform()) {
+        if(get_platform() == r.get_platform()) {
           return m_value->compare(r);
         }
         return false;

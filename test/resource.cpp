@@ -51,6 +51,48 @@ TEST(CampResource, GetPlatform)
   ASSERT_EQ(static_cast<const Resource>(Omp()).get_platform(), Platform::omp_target);
 #endif
 }
+TEST(CampResource, Compare)
+{
+  Resource h1{Host()};
+  Resource h2{Host()};
+
+  ASSERT_TRUE(h1 == h1);
+  ASSERT_TRUE(h1 == h2);
+
+#ifdef CAMP_HAVE_CUDA
+  Resource c1{Cuda()};
+  Resource c2{Cuda()};
+
+  ASSERT_TRUE(c1 == c1);
+  ASSERT_TRUE(c2 == c2);
+
+  ASSERT_FALSE(c1 == c2);
+  ASSERT_FALSE(c2 == c1);
+  ASSERT_FALSE(c1 == h1);
+#endif
+#ifdef CAMP_HAVE_HIP
+  Resource hi1{Hip()};
+  Resource hi2{Hip()};
+
+  ASSERT_TRUE(hi1 == hi1);
+  ASSERT_TRUE(hi2 == hi2);
+
+  ASSERT_FALSE(hi1 == hi2);
+  ASSERT_FALSE(hi2 == hi1);
+  ASSERT_FALSE(hi1 == h1);
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  Resource o1{Omp()};
+  Resource o2{Omp()};
+
+  ASSERT_TRUE(o1 == o1);
+  ASSERT_TRUE(o2 == o2);
+
+  ASSERT_FALSE(o1 == o2);
+  ASSERT_FALSE(o2 == o1);
+  ASSERT_FALSE(o2 == h2);
+#endif
+}
 TEST(CampResource, ConvertWorks)
 {
   Resource h1{Host()};
@@ -72,21 +114,6 @@ TEST(CampResource, Reassignment)
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
-TEST(CampResource, Compare)
-{
-  Resource h1{Host()};
-  Resource c1{Cuda()};
-  Resource h2{Host()};
-  Resource c2{Cuda()};
-
-  ASSERT_TRUE(h1 == h1);
-  ASSERT_TRUE(h1 == h2);
-  ASSERT_TRUE(c1 == c1);
-  ASSERT_TRUE(c2 == c2);
-
-  ASSERT_FALSE(c1 == c2);
-  ASSERT_FALSE(c2 == c1);
-}
 
 TEST(CampResource, StreamSelect)
 {
