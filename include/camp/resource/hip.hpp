@@ -257,7 +257,7 @@ namespace resources
         }
       }
 
-      hipStream_t get_stream() { return stream; }
+      hipStream_t get_stream() const { return stream; }
       int get_device() { return device; }
 
       /*
