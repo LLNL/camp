@@ -65,7 +65,7 @@ namespace resources
         return result ? result->get() : nullptr;
       }
       template <typename T>
-      T get()
+      T get() const
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         if (result == nullptr) {
@@ -94,9 +94,10 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
-      bool compare (camp::resources::Resource& r) {
+      bool operator==(camp::resources::Resource const& r)
+      {
         if(get_platform() == r.get_platform()) {
-          return m_value->compare(r);
+          return (*m_value == r);
         }
         return false;
       }
@@ -107,7 +108,7 @@ namespace resources
       public:
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
-        virtual bool compare(Resource& r) = 0;
+        virtual bool operator==(Resource const& r) = 0;
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -120,16 +121,12 @@ namespace resources
       };
 
       template <typename T>
-      class ContextModel : public ContextInterface
+      class ContextModel final : public ContextInterface
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
-        bool compare ( Resource& r) override { 
-          T* other = r.try_get<T>();
-          if (!other) return false;
-          return m_modelVal.compare(other); 
-        }
+        bool operator==( Resource const& r) override { return m_modelVal == r.get<T>(); }
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
@@ -239,10 +236,6 @@ namespace resources
       Res resource_;
     };
 
-    bool operator== (camp::resources::Resource& l, camp::resources::Resource& r)
-    {
-      return l.compare(r);
-    }
 
   }  // namespace v1
 }  // namespace resources

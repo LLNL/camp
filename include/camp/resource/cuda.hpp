@@ -257,13 +257,12 @@ namespace resources
         }
       }
 
-      cudaStream_t get_stream() { return stream; }
+      cudaStream_t get_stream() const { return stream; }
       int get_device() { return device; }
 
-      bool compare (Cuda* c)
+      bool operator==(Cuda const& c)
       {
-        if (!c) return false;
-        return (get_stream() == c->get_stream());
+        return (get_stream() == c.get_stream());
       }
 
     private:
