@@ -69,7 +69,7 @@ namespace resources
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
-      bool operator==(Host const& other)
+      bool operator==(Host const&)
       {
         return true;
       }
