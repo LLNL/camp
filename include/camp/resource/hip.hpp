@@ -265,7 +265,7 @@ namespace resources
        *
        * \return True or false depending on if this is the same stream.
        */
-      const bool operator==(Hip const& h)
+      bool operator==(Hip const& h) const
       {
         return (get_stream() == h.get_stream());
       }
@@ -274,7 +274,7 @@ namespace resources
        *
        * \return True or false depending on result of == operator.
        */
-      const bool operator!=(Hip const& h)
+      bool operator!=(Hip const& h) const
       {
         return !(*this == h);
       }

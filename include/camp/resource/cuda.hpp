@@ -265,7 +265,7 @@ namespace resources
        *
        * \return True or false depending on if it is the same stream.
        */
-      const bool operator==(Cuda const& c)
+      bool operator==(Cuda const& c) const
       {
         return (get_stream() == c.get_stream());
       }
@@ -274,7 +274,7 @@ namespace resources
        *
        * \return True or false depending on result of == operator.
        */
-      const bool operator!=(Cuda const& c)
+      bool operator!=(Cuda const& c) const
       {
         return !(*this == c);
       }
