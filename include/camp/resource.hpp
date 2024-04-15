@@ -94,6 +94,11 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
+      /*
+       * \brief Compares two Resources to see if they are equal.
+       *
+       * \return True or false depending on comparison with m_value if they are on the same platform.
+       */
       bool operator==(Resource const& r)
       {
         if(get_platform() == r.get_platform()) {
@@ -101,6 +106,11 @@ namespace resources
         }
         return false;
       }
+      /*
+       * \brief Compares two Resources to see if they are NOT equal.
+       *
+       * \return True or false depending on result of == operator.
+       */
       bool operator!=(Resource const& r)
       {
         return !(*this == r);

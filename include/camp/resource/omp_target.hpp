@@ -193,7 +193,7 @@ namespace resources
         return ret;
       }
       /*
-       * \brief Compares two (Omp) resources to see if they are the same or not.
+       * \brief Compares two (Omp) resources to see if they are equal.
        *
        * \return True or false depending on if this is the same dev int and addr ptr.
        */
@@ -201,7 +201,11 @@ namespace resources
       {
         return (dev == o.dev && addr == o.addr);
       }
-
+      /*
+       * \brief Compares two (Omp) resources to see if they are NOT equal.
+       *
+       * \return True or false depending on result of == operator.
+       */
       bool operator!=(Omp const& o)
       {
         return !(*this == o);

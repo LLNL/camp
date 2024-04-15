@@ -70,7 +70,7 @@ namespace resources
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
       /*
-       * \brief Compares two (Host) resources to see if they are the same or not.
+       * \brief Compares two (Host) resources to see if they are equal.
        *
        * \return Always return true since we are on the Host in this case.
        */
@@ -78,6 +78,11 @@ namespace resources
       {
         return true;
       }
+      /*
+       * \brief Compares two (Host) resources to see if they are NOT equal.
+       *
+       * \return Always return false. Host resources are always the same.
+       */
       bool operator!=(Host const&)
       {
         return true;
