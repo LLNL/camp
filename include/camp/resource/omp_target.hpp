@@ -192,10 +192,19 @@ namespace resources
         }
         return ret;
       }
-      bool compare (Omp* o)
+      /*
+       * \brief Compares two (Omp) resources to see if they are the same or not.
+       *
+       * \return True or false depending on if this is the same dev int and addr ptr.
+       */
+      bool operator==(Omp const& o)
       {
-        return (dev == o->dev);
-        //TODO: do i need to compare addr???
+        return (dev == o.dev && addr == o.addr);
+      }
+
+      bool operator!=(Omp const& o)
+      {
+        return !(*this == o);
       }
 
     private:

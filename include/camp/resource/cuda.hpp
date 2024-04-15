@@ -260,9 +260,23 @@ namespace resources
       cudaStream_t get_stream() const { return stream; }
       int get_device() { return device; }
 
+      /*
+       * \brief Compares two (Cuda) resources to see if they are equal.
+       *
+       * \return True or false depending on if it is the same stream.
+       */
       bool operator==(Cuda const& c)
       {
         return (get_stream() == c.get_stream());
+      }
+      /*
+       * \brief Compares two (Cuda) resources to see if they are NOT equal.
+       *
+       * \return True or false depending on result of == operator.
+       */
+      bool operator!=(Cuda const& c)
+      {
+        return !(*this == c);
       }
 
     private:

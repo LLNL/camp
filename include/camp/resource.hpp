@@ -94,12 +94,16 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
-      bool operator==(camp::resources::Resource const& r)
+      bool operator==(Resource const& r)
       {
         if(get_platform() == r.get_platform()) {
           return (*m_value == r);
         }
         return false;
+      }
+      bool operator!=(Resource const& r)
+      {
+        return !(*this == r);
       }
 
     private:
@@ -109,6 +113,7 @@ namespace resources
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
         virtual bool operator==(Resource const& r) = 0;
+        virtual bool operator!=(Resource const& r) = 0;
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -126,7 +131,8 @@ namespace resources
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
-        bool operator==( Resource const& r) override { return m_modelVal == r.get<T>(); }
+        bool operator==(Resource const& r) override { return m_modelVal == r.get<T>(); }
+        bool operator!=(Resource const& r) override { return m_modelVal != r.get<T>(); }
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
@@ -235,7 +241,6 @@ namespace resources
 
       Res resource_;
     };
-
 
   }  // namespace v1
 }  // namespace resources

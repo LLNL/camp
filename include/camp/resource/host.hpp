@@ -69,7 +69,16 @@ namespace resources
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
+      /*
+       * \brief Compares two (Host) resources to see if they are the same or not.
+       *
+       * \return Always return true since we are on the Host in this case.
+       */
       bool operator==(Host const&)
+      {
+        return true;
+      }
+      bool operator!=(Host const&)
       {
         return true;
       }
