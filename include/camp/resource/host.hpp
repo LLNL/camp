@@ -85,7 +85,7 @@ namespace resources
        */
       bool operator!=(Host const&)
       {
-        return true;
+        return false;
       }
     };
 
