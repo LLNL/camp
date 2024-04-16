@@ -78,6 +78,7 @@ namespace resources
       {
         return true;
       }
+      
       /*
        * \brief Compares two (Host) resources to see if they are NOT equal.
        *

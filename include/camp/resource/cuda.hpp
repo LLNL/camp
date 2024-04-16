@@ -269,10 +269,11 @@ namespace resources
       {
         return (get_stream() == c.get_stream());
       }
+      
       /*
        * \brief Compares two (Cuda) resources to see if they are NOT equal.
        *
-       * \return True or false depending on result of == operator.
+       * \return Negation of == operator
        */
       bool operator!=(Cuda const& c) const
       {

@@ -106,6 +106,7 @@ namespace resources
         }
         return false;
       }
+      
       /*
        * \brief Compares two Resources to see if they are NOT equal.
        *

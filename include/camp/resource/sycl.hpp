@@ -208,6 +208,7 @@ namespace resources
       {
         return (get_queue() == s.get_queue());
       }
+      
       /*
        * \brief Compares two (Sycl) resources to see if they are NOT equal.
        *

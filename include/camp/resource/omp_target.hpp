@@ -201,10 +201,11 @@ namespace resources
       {
         return (dev == o.dev && addr == o.addr);
       }
+      
       /*
        * \brief Compares two (Omp) resources to see if they are NOT equal.
        *
-       * \return True or false depending on result of == operator.
+       * \return Negation of == operator
        */
       bool operator!=(Omp const& o)
       {
