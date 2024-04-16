@@ -211,7 +211,7 @@ namespace resources
       /*
        * \brief Compares two (Sycl) resources to see if they are NOT equal.
        *
-       * \return True or false depending on the result of the == operator.
+       * \return Negation of == operator
        */
       bool operator!=(Sycl const& s)
       {
