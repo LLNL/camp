@@ -29,7 +29,6 @@ namespace resources
   inline namespace v1
   {
     class Cuda;
-    class Resource;
 
     namespace
     {
