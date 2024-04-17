@@ -95,7 +95,11 @@ namespace resources
       void wait() { m_value->wait(); }
 
       /*
-       * \brief Compares two Resources to see if they are equal.
+       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they are
+       * on the same platform and they describe the same stream (i.e. CUDA, HIP) or queue (i.e. SYCL).
+       * (Note: This operator overload is on the generic Resource. Using the ContextModel's operator
+       * overload, we can call the specific resource's (i.e. T) operator== to compare streams or
+       * queues.)
        *
        * \return True or false depending on comparison with m_value if they are on the same platform.
        */
@@ -106,11 +110,13 @@ namespace resources
         }
         return false;
       }
-      
       /*
-       * \brief Compares two Resources to see if they are NOT equal.
+       * \brief Compares two Resources to see if they are NOT equal. Two Resources are not equal
+       * if they are on separate platforms. Also, even if they are on the same platform, if they
+       * describe different streams (i.e. CUDA, HIP) or different queues (i.e. SYCL), then they 
+       * are not equal.
        *
-       * \return True or false depending on result of == operator.
+       * \return Negation of == operator. 
        */
       bool operator!=(Resource const& r)
       {
@@ -123,13 +129,16 @@ namespace resources
       public:
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
+
         virtual bool operator==(Resource const& r) = 0;
         virtual bool operator!=(Resource const& r) = 0;
+
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
+
         virtual Event get_event() = 0;
         virtual Event get_event_erased() = 0;
         virtual void wait_for(Event *e) = 0;
@@ -142,8 +151,10 @@ namespace resources
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
+
         bool operator==(Resource const& r) override { return m_modelVal == r.get<T>(); }
         bool operator!=(Resource const& r) override { return m_modelVal != r.get<T>(); }
+
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
@@ -155,6 +166,7 @@ namespace resources
         {
           m_modelVal.memset(p, val, size);
         }
+
         Event get_event() override { return m_modelVal.get_event_erased(); }
         Event get_event_erased() override
         {
@@ -162,6 +174,7 @@ namespace resources
         }
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
         void wait() override { m_modelVal.wait(); }
+
         T *get() { return &m_modelVal; }
 
       private:
