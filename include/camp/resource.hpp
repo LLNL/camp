@@ -106,7 +106,7 @@ namespace resources
       bool operator==(Resource const& r)
       {
         if(get_platform() == r.get_platform()) {
-          return (*m_value == r);
+          return (m_value->compare(r));
         }
         return false;
       }
@@ -130,8 +130,7 @@ namespace resources
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
 
-        virtual bool operator==(Resource const& r) = 0;
-        virtual bool operator!=(Resource const& r) = 0;
+        virtual bool compare(Resource const& r) = 0;
 
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -152,8 +151,7 @@ namespace resources
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
 
-        bool operator==(Resource const& r) override { return m_modelVal == r.get<T>(); }
-        bool operator!=(Resource const& r) override { return m_modelVal != r.get<T>(); }
+        bool compare(Resource const& r) override { return m_modelVal == r.get<T>(); }
 
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
