@@ -103,7 +103,7 @@ namespace resources
        *
        * \return True or false depending on comparison with m_value if they are on the same platform.
        */
-      bool operator==(Resource const& r)
+      bool operator==(Resource const& r) const
       {
         if(get_platform() == r.get_platform()) {
           return (m_value->compare(r));
