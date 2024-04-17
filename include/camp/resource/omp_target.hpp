@@ -197,7 +197,7 @@ namespace resources
        *
        * \return True or false depending on if this is the same dev int and addr ptr.
        */
-      bool operator==(Omp const& o)
+      bool operator==(Omp const& o) const
       {
         return (dev == o.dev && addr == o.addr);
       }
@@ -207,7 +207,7 @@ namespace resources
        *
        * \return Negation of == operator
        */
-      bool operator!=(Omp const& o)
+      bool operator!=(Omp const& o) const
       {
         return !(*this == o);
       }

@@ -74,7 +74,7 @@ namespace resources
        *
        * \return Always return true since we are on the Host in this case.
        */
-      bool operator==(Host const&)
+      bool operator==(Host const&) const
       {
         return true;
       }
@@ -84,7 +84,7 @@ namespace resources
        *
        * \return Always return false. Host resources are always the same.
        */
-      bool operator!=(Host const&)
+      bool operator!=(Host const&) const
       {
         return false;
       }
