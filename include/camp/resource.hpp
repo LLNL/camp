@@ -127,7 +127,7 @@ namespace resources
       bool operator==(T const& t) const
       {
         if(get_platform() == t.get_platform()) { 
-          return get<T>().compare(t);
+          return get<T>() == t;
         }
         return false;
       }

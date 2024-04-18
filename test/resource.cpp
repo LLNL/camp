@@ -55,18 +55,22 @@ TEST(CampResource, Compare)
 {
   Resource h1{Host()};
   Resource h2{Host()};
+  Host h; Resource h3{h};
 
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h1 == h2);
+  ASSERT_TRUE(h3 == h);
 
   ASSERT_FALSE(h1 != h2);
 
 #ifdef CAMP_HAVE_CUDA
   Resource c1{Cuda()};
   Resource c2{Cuda()};
+  Cuda c; Resource c3{c};
 
   ASSERT_TRUE(c1 == c1);
   ASSERT_TRUE(c2 == c2);
+  ASSERT_TRUE(c3 == c);
   ASSERT_TRUE(c1 != c2);
   ASSERT_TRUE(c1 != h1);
 
@@ -76,25 +80,29 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(c1 != c1);
 #endif
 #ifdef CAMP_HAVE_HIP
-  Resource hi1{Hip()};
-  Resource hi2{Hip()};
+  Resource hip1{Hip()};
+  Resource hip2{Hip()};
+  Hip hip; Resource hip3{hip};
 
-  ASSERT_TRUE(hi1 == hi1);
-  ASSERT_TRUE(hi2 == hi2);
-  ASSERT_TRUE(hi1 != hi2);
-  ASSERT_TRUE(hi1 != h1);
+  ASSERT_TRUE(hip1 == hip1);
+  ASSERT_TRUE(hip2 == hip2);
+  ASSERT_TRUE(hip3 == hip);
+  ASSERT_TRUE(hip1 != hip2);
+  ASSERT_TRUE(hip1 != h1);
 
-  ASSERT_FALSE(hi1 == hi2);
-  ASSERT_FALSE(hi2 == hi1);
-  ASSERT_FALSE(hi1 == h1);
-  ASSERT_FALSE(hi1 != hi1);
+  ASSERT_FALSE(hip1 == hip2);
+  ASSERT_FALSE(hip2 == hip1);
+  ASSERT_FALSE(hip1 == h2);
+  ASSERT_FALSE(hip1 != hip1);
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   Resource o1{Omp()};
   Resource o2{Omp()};
+  Omp o; Resource o3{o};
 
   ASSERT_TRUE(o1 == o1);
   ASSERT_TRUE(o2 == o2);
+  ASSERT_TRUE(o3 == o);
   ASSERT_TRUE(o1 != o2);
   ASSERT_TRUE(o1 != h1);
 
