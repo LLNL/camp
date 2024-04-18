@@ -123,6 +123,15 @@ namespace resources
         return !(*this == r);
       }
 
+      template <typename T>
+      bool operator==(T const& t) const
+      {
+        if(get_platform() == t.get_platform()) { 
+          return get<T>().compare(t);
+        }
+        return false;
+      }
+
     private:
       class ContextInterface
       {
