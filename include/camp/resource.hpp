@@ -123,7 +123,7 @@ namespace resources
         return !(*this == r);
       }
 
-      template <typename T>
+      template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
       bool operator==(T const& t) const
       {
         if(get_platform() == t.get_platform()) { 
