@@ -123,6 +123,13 @@ namespace resources
         return !(*this == r);
       }
 
+      /*
+       * \brief Compares a generic Resource and a concrete Resource to see if they are equal. To find out, we
+       * first check to see if they are on the same platform. Then we call the operator == to compare the 
+       * type of the generic Resource (T) and the concrete one.
+       *
+       * \return True or false depending on comparison with m_value and t, assuming they are on the same platform.
+       */
       template <typename T>
       bool operator==(T const& t) const
       {

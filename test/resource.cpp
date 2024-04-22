@@ -57,60 +57,38 @@ TEST(CampResource, Compare)
   Resource h2{Host()};
   Host h; Resource h3{h};
 
+#ifdef CAMP_HAVE_CUDA
+  Resource r1{Cuda()};
+  Resource r2{Cuda()};
+  Cuda s; Resource r3{s};
+#endif
+#ifdef CAMP_HAVE_HIP
+  Resource r1{Hip()};
+  Resource r2{Hip()};
+  Hip s; Resource r3{s};
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  Resource r1{Omp()};
+  Resource r2{Omp()};
+  Omp s; Resource r3{s};
+#endif
+
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h1 == h2);
   ASSERT_TRUE(h3 == h);
+  ASSERT_TRUE(r1 == r1);
+  ASSERT_TRUE(r2 == r2);
+  ASSERT_TRUE(r3 == s);
+  ASSERT_TRUE(r1 != r2);
+  ASSERT_TRUE(r2 != r1);
+  ASSERT_TRUE(r1 != h1);
 
+  ASSERT_FALSE(r1 == r2);
+  ASSERT_FALSE(r2 == r1);
+  ASSERT_FALSE(r2 == r3);
+  ASSERT_FALSE(r1 == h2);
   ASSERT_FALSE(h1 != h2);
-
-#ifdef CAMP_HAVE_CUDA
-  Resource c1{Cuda()};
-  Resource c2{Cuda()};
-  Cuda c; Resource c3{c};
-
-  ASSERT_TRUE(c1 == c1);
-  ASSERT_TRUE(c2 == c2);
-  ASSERT_TRUE(c3 == c);
-  ASSERT_TRUE(c1 != c2);
-  ASSERT_TRUE(c1 != h1);
-
-  ASSERT_FALSE(c1 == c2);
-  ASSERT_FALSE(c2 == c1);
-  ASSERT_FALSE(c1 == h1);
-  ASSERT_FALSE(c1 != c1);
-#endif
-#ifdef CAMP_HAVE_HIP
-  Resource hip1{Hip()};
-  Resource hip2{Hip()};
-  Hip hip; Resource hip3{hip};
-
-  ASSERT_TRUE(hip1 == hip1);
-  ASSERT_TRUE(hip2 == hip2);
-  ASSERT_TRUE(hip3 == hip);
-  ASSERT_TRUE(hip1 != hip2);
-  ASSERT_TRUE(hip1 != h1);
-
-  ASSERT_FALSE(hip1 == hip2);
-  ASSERT_FALSE(hip2 == hip1);
-  ASSERT_FALSE(hip1 == h2);
-  ASSERT_FALSE(hip1 != hip1);
-#endif
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-  Resource o1{Omp()};
-  Resource o2{Omp()};
-  Omp o; Resource o3{o};
-
-  ASSERT_TRUE(o1 == o1);
-  ASSERT_TRUE(o2 == o2);
-  ASSERT_TRUE(o3 == o);
-  ASSERT_TRUE(o1 != o2);
-  ASSERT_TRUE(o1 != h1);
-
-  ASSERT_FALSE(o1 == o2);
-  ASSERT_FALSE(o2 == o1);
-  ASSERT_FALSE(o2 == h2);
-  ASSERT_FALSE(o1 != o1);
-#endif
+  ASSERT_FALSE(r1 != r1);
 }
 TEST(CampResource, ConvertWorks)
 {
