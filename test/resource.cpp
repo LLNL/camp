@@ -75,7 +75,14 @@ TEST(CampResource, Compare)
 
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h1 == h2);
-  ASSERT_TRUE(h3 == h);
+  auto assert_resources_equal = [](auto const& r1, auto const& r2) {
+    ASSERT_TRUE(r1 == r2);
+    ASSERT_TRUE(r2 == r1);
+    ASSERT_FALSE(r1 != r2);
+    ASSERT_FALSE(r2 != r1);
+  };
+  assert_resources_equal(h1, h2);
+  assert_resources_equal(h3, h);
   ASSERT_TRUE(h == h3);
 
   ASSERT_TRUE(r1 == r1);
