@@ -78,6 +78,13 @@ TEST(CampResource, Compare)
   ASSERT_TRUE(h3 == h);
   ASSERT_TRUE(h == h3);
 
+  ASSERT_FALSE(h != h3);
+  ASSERT_FALSE(h3 != h);
+  ASSERT_FALSE(h1 != h2);
+
+#if defined(CAMP_HAVE_CUDA) || \
+    defined(CAMP_HAVE_HIP) || \
+    defined(CAMP_HAVE_OMP_OFFLOAD)
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
   ASSERT_TRUE(r3 == s);
@@ -92,12 +99,10 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(r2 == r3);
   ASSERT_FALSE(r1 == h2);
 
-  ASSERT_FALSE(h != h3);
-  ASSERT_FALSE(h3 != h);
   ASSERT_FALSE(s != r3);
   ASSERT_FALSE(r3 != s);
-  ASSERT_FALSE(h1 != h2);
   ASSERT_FALSE(r1 != r1);
+#endif
 }
 TEST(CampResource, ConvertWorks)
 {
