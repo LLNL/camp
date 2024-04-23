@@ -198,6 +198,21 @@ namespace resources
       std::shared_ptr<ContextInterface> m_value;
     };
 
+    template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
+    bool operator==(T const& t, Resource const& r)
+    {
+      if(t.get_platform() == r.get_platform()) { 
+        return t == r.get<T>();
+      }
+      return false;
+    }
+
+    template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
+    bool operator!=(T const& t, Resource const& r)
+    {
+      return !(t == r);
+    }
+
     template <Platform p>
     struct resource_from_platform;
     template <>
