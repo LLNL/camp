@@ -123,22 +123,6 @@ namespace resources
         return !(*this == r);
       }
 
-      /*
-       * \brief Compares a generic Resource and a concrete Resource to see if they are equal. To find out, we
-       * first check to see if they are on the same platform. Then we call the operator == to compare the 
-       * type of the generic Resource (T) and the concrete one.
-       *
-       * \return True or false depending on comparison with m_value and t, assuming they are on the same platform.
-       */
-      template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
-      bool operator==(T const& t) const
-      {
-        if(get_platform() == t.get_platform()) { 
-          return get<T>() == t;
-        }
-        return false;
-      }
-
     private:
       class ContextInterface
       {
@@ -197,6 +181,22 @@ namespace resources
 
       std::shared_ptr<ContextInterface> m_value;
     };
+
+    /*
+     * \brief Compares a generic Resource and a concrete Resource to see if they are equal. To find out, we
+     * first check to see if they are on the same platform. Then we call the operator == to compare the 
+     * type of the generic Resource (T) and the concrete one.
+     *
+     * \return True or false depending on comparison with m_value and t, assuming they are on the same platform.
+     */
+    template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
+    bool operator==(Resource const& r, T const& t)
+    {
+      if(r.get_platform() == t.get_platform()) { 
+        return r.get<T>() == t;
+      }
+      return false;
+    }
 
     template <typename T, std::enable_if_t<!std::is_same<T, Resource>::value>* = nullptr>
     bool operator==(T const& t, Resource const& r)
