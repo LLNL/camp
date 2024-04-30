@@ -189,8 +189,9 @@ CAMP_TEST_BEGIN(array, end)
 
    a_it = a.end();
    *(--a_it) = 4;
+
    a_it = a.end();
-   b_it = b.begin();
+   b_it = b.end();
 
    return passed &&
           *(--a_it) == 4 &&
