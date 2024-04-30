@@ -53,7 +53,7 @@ TEST(cuda_ ## CAMP_SUITE_NAME, CAMP_TEST_NAME) { \
       \
       if (error == cudaSuccess) { \
          passed = *buffer; \
-         error = cudaFreeHost(&buffer); \
+         error = cudaFreeHost(buffer); \
          \
          if (error != cudaSuccess) { \
             passed = false; \
