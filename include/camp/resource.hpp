@@ -53,7 +53,10 @@ namespace resources
       template <typename T,
                 typename = typename std::enable_if<
                     !std::is_same<typename std::decay<T>::type,
-                                  Resource>::value>::type>
+                                  Resource>::value>::type,
+                typename = typename std::enable_if<
+                    !std::is_same<typename std::decay<T>::type,
+                                  char*>::value>::type>
       Resource(T &&value)
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
