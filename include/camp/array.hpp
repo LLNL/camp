@@ -1,3 +1,22 @@
+/*
+Copyright (c) 2024, Lawrence Livermore National Security, LLC.
+Produced at the Lawrence Livermore National Laboratory
+Maintained by Tom Scogland <scogland1@llnl.gov>
+CODE-756261, All rights reserved.
+This file is part of camp.
+For details about use and distribution, please read LICENSE and NOTICE from
+http://github.com/llnl/camp
+*/
+
+/*
+The implementation of camp::array borrows from the implementation of
+std::array from the LLVM project at the following location:
+https://github.com/llvm/llvm-project/blob/main/libcxx/include/array
+The implementation of std::array falls under the Apache 2.0 license with
+LLVM exceptions, found at https://llvm.org/LICENSE.txt and in the
+LLVM_LICENSE file at http://github.com/llnl/camp.
+*/
+
 #ifndef camp_array_HPP__
 #define camp_array_HPP__
 
