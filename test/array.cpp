@@ -278,7 +278,8 @@ CAMP_TEST_BEGIN(array, less_than)
    camp::array<int, 2> a{1, 2};
    camp::array<int, 2> b{1, 3};
 
-   return a < b &&
+   return !(a < a) &&
+          a < b &&
           !(b < a);
 } CAMP_TEST_END(array, less_than)
 
