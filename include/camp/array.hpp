@@ -169,19 +169,7 @@ namespace camp {
    template <class T, std::size_t N>
    CAMP_HOST_DEVICE constexpr bool operator<=(const array<T, N>& lhs,
                                               const array<T, N>& rhs) {
-      for (std::size_t i = 0; i < N; ++i) {
-         if (lhs[i] < rhs[i]) {
-            return true;
-         }
-         else if (lhs[i] == rhs[i]) {
-            continue;
-         }
-         else {
-            return false;
-         }
-      }
-
-      return true;
+      return !(rhs < lhs);
    }
 
    template <class T, std::size_t N>
@@ -193,19 +181,7 @@ namespace camp {
    template <class T, std::size_t N>
    CAMP_HOST_DEVICE constexpr bool operator>=(const array<T, N>& lhs,
                                               const array<T, N>& rhs) {
-      for (std::size_t i = 0; i < N; ++i) {
-         if (lhs[i] > rhs[i]) {
-            return true;
-         }
-         else if (lhs[i] == rhs[i]) {
-            continue;
-         }
-         else {
-            return false;
-         }
-      }
-
-      return true;
+      return !(lhs < rhs);
    }
 
    template <std::size_t I, class T, std::size_t N>
