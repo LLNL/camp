@@ -93,7 +93,7 @@ TEST(hip_ ## CAMP_SUITE_NAME, CAMP_TEST_NAME) { \
       \
       if (error == hipSuccess) { \
          passed = *buffer; \
-         error = hipHostFree(&buffer); \
+         error = hipHostFree(buffer); \
          \
          if (error != hipSuccess) { \
             passed = false; \
