@@ -233,61 +233,35 @@ namespace camp {
       return move(a[I]);
    }
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
-   // The use of auto for non-type template parameters is not supported
-   // until C++17
    namespace detail {
-      template <class T, auto N, auto... I>
+      template <class T, std::size_t N, std::size_t... I>
       CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
-         to_array_impl(T (&a)[N], idx_seq<I...>)
+         to_array_impl(T (&a)[N], int_seq<std::size_t, I...>)
       {
          return {{a[I]...}};
       }
 
-      template <class T, auto N, auto... I>
+      template <class T, std::size_t N, std::size_t... I>
       CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
-         to_array_impl(T (&&a)[N], idx_seq<I...>)
+         to_array_impl(T (&&a)[N], int_seq<std::size_t, I...>)
       {
          return {{move(a[I])...}};
       }
    }
  
-   template <class T, auto N>
+   template <class T, std::size_t N>
    CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
       to_array(T (&a)[N])
    {
-      return detail::to_array_impl(a, make_idx_seq_t<N>{});
+      return detail::to_array_impl(a, make_int_seq_t<std::size_t, N>{});
    }
 
-   template <class T, auto N>
+   template <class T, std::size_t N>
    CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
       to_array(T (&&a)[N])
    {
-      return detail::to_array_impl(move(a), make_idx_seq_t<N>{});
+      return detail::to_array_impl(move(a), make_int_seq_t<std::size_t, N>{});
    }
-#else
-   template <class T, std::size_t N>
-   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N> to_array(T (&a)[N]) {
-      array<std::remove_cv_t<T>, N> result;
-
-      for (std::size_t i = 0; i < N; ++i) {
-         result[i] = a[i];
-      }
-
-      return result;
-   }
-
-   template <class T, std::size_t N>
-   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N> to_array(T (&&a)[N]) {
-      array<std::remove_cv_t<T>, N> result;
-
-      for (std::size_t i = 0; i < N; ++i) {
-         result[i] = move(a[i]);
-      }
-
-      return result;
-   }
-#endif
 
 #if defined(__cplusplus) && __cplusplus >= 201703L
    ///
