@@ -9,12 +9,21 @@ http://github.com/llnl/camp
 */
 
 /*
-The implementation of camp::array borrows from the implementation of
-std::array from the LLVM project at the following location:
+The implementation of camp::array follows the C++ standard but borrows from the
+implementation of std::array from the LLVM project at the following location:
 https://github.com/llvm/llvm-project/blob/main/libcxx/include/array
-The implementation of std::array falls under the Apache 2.0 license with
-LLVM exceptions, found at https://llvm.org/LICENSE.txt and in the
-LLVM_LICENSE file at http://github.com/llnl/camp.
+The license information from that file is included below.
+
+//===----------------------------------------------------------------------===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===----------------------------------------------------------------------===//
+
+See the LLVM_LICENSE file at http://github.com/llnl/camp for the full license
+text.
 */
 
 #ifndef camp_array_HPP__
