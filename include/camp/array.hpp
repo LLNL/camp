@@ -33,28 +33,28 @@ namespace camp {
       using const_iterator = const_pointer;
 
       // TODO: Investigate device trap
-      constexpr reference at(size_type pos) {
-         if (pos >= N) {
+      constexpr reference at(size_type i) {
+         if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
          }
 
-         return elements[pos];
+         return elements[i];
       }
 
-      constexpr const_reference at(size_type pos) const {
-         if (pos >= N) {
+      constexpr const_reference at(size_type i) const {
+         if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
          }
 
-         return elements[pos];
+         return elements[i];
       }
 
-      CAMP_HOST_DEVICE constexpr reference operator[](size_type pos) {
-         return elements[pos];
+      CAMP_HOST_DEVICE constexpr reference operator[](size_type i) {
+         return elements[i];
       }
 
-      CAMP_HOST_DEVICE constexpr const_reference operator[](size_type pos) const {
-         return elements[pos];
+      CAMP_HOST_DEVICE constexpr const_reference operator[](size_type i) const {
+         return elements[i];
       }
 
       CAMP_HOST_DEVICE constexpr reference front() {
