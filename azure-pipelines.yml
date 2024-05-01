@@ -8,7 +8,7 @@ variables:
   pre_cmd: true
   build_type: RelWithDebInfo
   # Disable cuda and hip tests since there are no GPUs on these platforms
-  ctest_extra: "-E '(.*offload|blt.*smoke|cuda_.*|hip_.*)'"
+  ctest_extra: "-E '(.*offload|blt.*smoke|cuda_.*|hip_.*|CampEvent|CampResource)'"
   cmake_extra: ""
   parallel: 4
   cmake_build_opts: "--build build --verbose --parallel $(parallel)"
