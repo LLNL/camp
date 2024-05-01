@@ -182,22 +182,26 @@ namespace camp {
    }
 
    template <std::size_t I, class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr T& get(array<T, N>& a) noexcept {
+   CAMP_HOST_DEVICE inline constexpr T& get(array<T, N>& a) noexcept {
+      static_assert(I < N, "Index out of bounds in camp::get<> (camp::array&)");
       return a[I];
    }
 
    template <std::size_t I, class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr T&& get(array<T, N>&& a) noexcept {
+   CAMP_HOST_DEVICE inline constexpr T&& get(array<T, N>&& a) noexcept {
+      static_assert(I < N, "Index out of bounds in camp::get<> (camp::array&&)");
       return move(a[I]);
    }
 
    template <std::size_t I, class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr const T& get(const array<T, N>& a) noexcept {
+   CAMP_HOST_DEVICE inline constexpr const T& get(const array<T, N>& a) noexcept {
+      static_assert(I < N, "Index out of bounds in camp::get<> (const camp::array&)");
       return a[I];
    }
 
    template <std::size_t I, class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr const T&& get(const array<T, N>&& a) noexcept {
+   CAMP_HOST_DEVICE inline constexpr const T&& get(const array<T, N>&& a) noexcept {
+      static_assert(I < N, "Index out of bounds in camp::get<> (const camp::array&&)");
       return move(a[I]);
    }
 
