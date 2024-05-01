@@ -34,7 +34,7 @@ namespace camp {
 
       // TODO: Investigate device trap
       constexpr reference at(size_type pos) {
-         if (pos >= size()) {
+         if (pos >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
          }
 
@@ -42,7 +42,7 @@ namespace camp {
       }
 
       constexpr const_reference at(size_type pos) const {
-         if (pos >= size()) {
+         if (pos >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
          }
 
@@ -69,12 +69,12 @@ namespace camp {
 
       CAMP_HOST_DEVICE constexpr reference back() {
          static_assert(N > 0, "Calling camp::array::back on an empty array is not allowed.");
-         return elements[size() - 1];
+         return elements[N - 1];
       }
 
       CAMP_HOST_DEVICE constexpr const_reference back() const {
          static_assert(N > 0, "Calling camp::array::back on an empty array is not allowed.");
-         return elements[size() - 1];
+         return elements[N - 1];
       }
 
       CAMP_HOST_DEVICE constexpr pointer data() noexcept {
@@ -98,19 +98,19 @@ namespace camp {
       }
 
       CAMP_HOST_DEVICE constexpr iterator end() noexcept {
-         return &elements[size()];
+         return elements + N;
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator end() const noexcept {
-         return &elements[size()];
+         return elements + N;
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator cend() const noexcept {
-         return &elements[size()];
+         return elements + N;
       }
 
       CAMP_HOST_DEVICE constexpr bool empty() const noexcept {
-         return size() == 0;
+         return N == 0;
       }
 
       CAMP_HOST_DEVICE constexpr size_type size() const noexcept {
@@ -118,11 +118,11 @@ namespace camp {
       }
 
       CAMP_HOST_DEVICE constexpr size_type max_size() const noexcept {
-         return size();
+         return N;
       }
 
       CAMP_HOST_DEVICE constexpr void fill(const T& value) {
-         for (std::size_t i = 0; i < size(); ++i) {
+         for (std::size_t i = 0; i < N; ++i) {
             elements[i] = value;
          }
       }
@@ -131,8 +131,8 @@ namespace camp {
    };
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator==(const array<T, N>& lhs,
-                                              const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator==(const array<T, N>& lhs,
+                                                     const array<T, N>& rhs) {
       for (std::size_t i = 0; i < N; ++i) {
          if (!(lhs[i] == rhs[i])) {
             return false;
@@ -143,14 +143,14 @@ namespace camp {
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator!=(const array<T, N>& lhs,
-                                              const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator!=(const array<T, N>& lhs,
+                                                     const array<T, N>& rhs) {
       return !(lhs == rhs);
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator<(const array<T, N>& lhs,
-                                             const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator<(const array<T, N>& lhs,
+                                                    const array<T, N>& rhs) {
       for (std::size_t i = 0; i < N; ++i) {
          if (lhs[i] < rhs[i]) {
             return true;
@@ -164,20 +164,20 @@ namespace camp {
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator<=(const array<T, N>& lhs,
-                                              const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator<=(const array<T, N>& lhs,
+                                                     const array<T, N>& rhs) {
       return !(rhs < lhs);
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator>(const array<T, N>& lhs,
-                                             const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator>(const array<T, N>& lhs,
+                                                    const array<T, N>& rhs) {
       return rhs < lhs;
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr bool operator>=(const array<T, N>& lhs,
-                                              const array<T, N>& rhs) {
+   CAMP_HOST_DEVICE inline constexpr bool operator>=(const array<T, N>& lhs,
+                                                     const array<T, N>& rhs) {
       return !(lhs < rhs);
    }
 
