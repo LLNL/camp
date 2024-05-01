@@ -300,6 +300,8 @@ namespace camp {
    ///
    /// Deduction guide
    ///
+   /// TODO: Find a way to make sure all U's are the same:
+   ///       https://github.com/llvm/llvm-project/blob/main/libcxx/include/array#L383
    template <class T, class... U>
    CAMP_HOST_DEVICE array(T, U...) -> array<T, 1 + sizeof...(U)>;
 #endif
