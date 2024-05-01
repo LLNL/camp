@@ -114,27 +114,27 @@ namespace camp {
       }
 
       CAMP_HOST_DEVICE constexpr iterator begin() noexcept {
-         return elements;
+         return iterator(elements);
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator begin() const noexcept {
-         return elements;
+         return const_iterator(elements);
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator cbegin() const noexcept {
-         return elements;
+         return const_iterator(elements);
       }
 
       CAMP_HOST_DEVICE constexpr iterator end() noexcept {
-         return elements + N;
+         return iterator(elements + N);
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator end() const noexcept {
-         return elements + N;
+         return const_iterator(elements + N);
       }
 
       CAMP_HOST_DEVICE constexpr const_iterator cend() const noexcept {
-         return elements + N;
+         return const_iterator(elements + N);
       }
 
       CAMP_HOST_DEVICE constexpr bool empty() const noexcept {
