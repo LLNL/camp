@@ -155,10 +155,7 @@ namespace camp {
          if (lhs[i] < rhs[i]) {
             return true;
          }
-         else if (lhs[i] == rhs[i]) {
-            continue;
-         }
-         else {
+         else if (rhs[i] < lhs[i]) {
             return false;
          }
       }
