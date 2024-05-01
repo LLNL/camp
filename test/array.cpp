@@ -298,7 +298,8 @@ CAMP_TEST_BEGIN(array, greater_than)
    camp::array<int, 2> a{1, 2};
    camp::array<int, 2> b{1, 3};
 
-   return b > a &&
+   return !(a > a) &&
+          b > a &&
           !(a > b);
 } CAMP_TEST_END(array, greater_than)
 
