@@ -16,6 +16,7 @@
 # build directories
 build/
 build-*/
+build_*/
 cmake-build-*/
 docker-*-build/
 /Debug/
