@@ -210,14 +210,14 @@ namespace camp {
    // until C++17
    namespace detail {
       template <class T, auto N, auto... I>
-      CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N>
+      CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
          to_array_impl(T (&a)[N], idx_seq<I...>)
       {
          return {{a[I]...}};
       }
 
       template <class T, auto N, auto... I>
-      CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N>
+      CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
          to_array_impl(T (&&a)[N], idx_seq<I...>)
       {
          return {{move(a[I])...}};
@@ -225,21 +225,21 @@ namespace camp {
    }
  
    template <class T, auto N>
-   CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N>
+   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
       to_array(T (&a)[N])
    {
       return detail::to_array_impl(a, make_idx_seq_t<N>{});
    }
 
    template <class T, auto N>
-   CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N>
+   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N>
       to_array(T (&&a)[N])
    {
       return detail::to_array_impl(move(a), make_idx_seq_t<N>{});
    }
 #else
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N> to_array(T (&a)[N]) {
+   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N> to_array(T (&a)[N]) {
       array<std::remove_cv_t<T>, N> result;
 
       for (std::size_t i = 0; i < N; ++i) {
@@ -250,7 +250,7 @@ namespace camp {
    }
 
    template <class T, std::size_t N>
-   CAMP_HOST_DEVICE constexpr array<std::remove_cv_t<T>, N> to_array(T (&&a)[N]) {
+   CAMP_HOST_DEVICE inline constexpr array<std::remove_cv_t<T>, N> to_array(T (&&a)[N]) {
       array<std::remove_cv_t<T>, N> result;
 
       for (std::size_t i = 0; i < N; ++i) {
@@ -277,11 +277,12 @@ namespace camp {
 namespace std {
    template <class T, std::size_t N>
    struct tuple_size<camp::array<T, N>> :
-      std::integral_constant<std::size_t, N>
+      public std::integral_constant<std::size_t, N>
    { };
 
    template <std::size_t I, class T, std::size_t N>
    struct tuple_element<I, camp::array<T, N>> {
+      static_assert(I < N, "Index out of bounds in std::tuple_element<> (camp::array)");
       using type = T;
    };
 }
