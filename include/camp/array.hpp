@@ -77,30 +77,30 @@ namespace camp {
          return elements[i];
       }
 
-      CAMP_HOST_DEVICE constexpr reference operator[](size_type i) {
+      CAMP_HOST_DEVICE constexpr reference operator[](size_type i) noexcept {
          return elements[i];
       }
 
-      CAMP_HOST_DEVICE constexpr const_reference operator[](size_type i) const {
+      CAMP_HOST_DEVICE constexpr const_reference operator[](size_type i) const noexcept {
          return elements[i];
       }
 
-      CAMP_HOST_DEVICE constexpr reference front() {
+      CAMP_HOST_DEVICE constexpr reference front() noexcept {
          static_assert(N > 0, "Calling camp::array::front on an empty array is not allowed.");
          return elements[0];
       }
 
-      CAMP_HOST_DEVICE constexpr const_reference front() const {
+      CAMP_HOST_DEVICE constexpr const_reference front() const noexcept {
          static_assert(N > 0, "Calling camp::array::front on an empty array is not allowed.");
          return elements[0];
       }
 
-      CAMP_HOST_DEVICE constexpr reference back() {
+      CAMP_HOST_DEVICE constexpr reference back() noexcept {
          static_assert(N > 0, "Calling camp::array::back on an empty array is not allowed.");
          return elements[N - 1];
       }
 
-      CAMP_HOST_DEVICE constexpr const_reference back() const {
+      CAMP_HOST_DEVICE constexpr const_reference back() const noexcept {
          static_assert(N > 0, "Calling camp::array::back on an empty array is not allowed.");
          return elements[N - 1];
       }
