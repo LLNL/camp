@@ -24,6 +24,7 @@ CAMP_TEST_BEGIN(array, copy_construct)
 {
    camp::array<int, 3> a{1, 2, 10};
    camp::array<int, 3> b{a};
+   a[1] = 1;
 
    return b[0] == 1 &&
           b[1] == 2 &&
@@ -33,7 +34,9 @@ CAMP_TEST_BEGIN(array, copy_construct)
 CAMP_TEST_BEGIN(array, copy_assignment)
 {
    camp::array<int, 3> a{1, 2, 10};
-   a = camp::array<int, 3>{3, 4, 6};
+   camp::array<int, 3> b{3, 4, 6};
+   a = b;
+   b[1] = 1;
 
    return a[0] == 3 &&
           a[1] == 4 &&
@@ -166,7 +169,7 @@ CAMP_TEST_BEGIN(array, cbegin)
    auto a_it = a.cbegin();
 
    const camp::array<int, 2>& b{a};
-   auto b_it = b.begin();
+   auto b_it = b.cbegin();
 
    return *(a_it++) == 1 &&
           *(a_it++) == 8 &&
