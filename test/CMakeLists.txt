@@ -1,3 +1,5 @@
+include(GoogleTest)
+
 function(camp_add_test TESTNAME)
   cmake_parse_arguments(ABT "GTEST;RUN;OFFLOAD" "" "BUILD;TEST;DEPENDS_ON" ${ARGN})
 
@@ -40,11 +42,10 @@ function(camp_add_test TESTNAME)
     DEPENDS_ON ${_depends}
     FOLDER test)
 
-  # The test itself
-  add_test(NAME ${TESTNAME}
-    COMMAND ${TESTNAME}
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test
-    ${TEST})
+  # This teaches ctest about each gtest so that ctest filtering can be used
+  # in azure-pipelines.yml
+  gtest_discover_tests(${TESTNAME}
+                       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test)
 endfunction()
 
 camp_add_test(array GTEST)
