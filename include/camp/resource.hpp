@@ -151,10 +151,7 @@ namespace resources
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
 
-        bool compare(Resource const& r) const override { 
-          T val = r.get<T>();
-          return m_modelVal == val; 
-        }
+        bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
 
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
