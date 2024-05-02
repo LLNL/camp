@@ -63,13 +63,13 @@ TEST(CampResource, Reassignment)
 {
   Resource h1{Host()};
   Resource c1{Cuda()};
-  //h1 = Cuda();
-  //ASSERT_EQ(typeid(c1), typeid(h1));
+  h1 = Resource{Cuda()};
+  ASSERT_EQ(typeid(c1), typeid(h1));
 
   Resource h2{Host()};
   Resource c2{Cuda()};
-  //c2 = Host();
-  //ASSERT_EQ(typeid(c2), typeid(h2));
+  c2 = Resource{Host()};
+  ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
 TEST(CampResource, StreamSelect)
@@ -148,12 +148,12 @@ TEST(CampResource, Reassignment)
 {
   Resource h1{Host()};
   Resource c1{Hip()};
-  h1 = Hip();
+  h1 = Resource{Hip()};
   ASSERT_EQ(typeid(c1), typeid(h1));
 
   Resource h2{Host()};
   Resource c2{Hip()};
-  c2 = Host();
+  c2 = Resource{Host()};
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
 
