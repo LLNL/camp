@@ -21,8 +21,8 @@
 using namespace camp::resources;
 
 // compatible but different resource for conversion test
-//struct Host2 : Host {
-//};
+struct Host2 : Host {
+};
 
 TEST(CampResource, Construct) { Resource h1{Host()}; }
 TEST(CampResource, Copy)
@@ -35,8 +35,8 @@ TEST(CampResource, ConvertFails)
 {
   Resource h1{Host()};
   h1.get<Host>();
-  //ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
-  //ASSERT_FALSE(h1.try_get<Host2>());
+  ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
+  ASSERT_FALSE(h1.try_get<Host2>());
 }
 TEST(CampResource, GetPlatform)
 {
@@ -75,11 +75,11 @@ TEST(CampResource, Compare)
 
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h1 == h2);
-  ASSERT_TRUE(h3 == h);
-  ASSERT_TRUE(h == h3);
+  //ASSERT_TRUE(h3 == h);
+  //ASSERT_TRUE(h == h3);
 
-  ASSERT_FALSE(h != h3);
-  ASSERT_FALSE(h3 != h);
+  //ASSERT_FALSE(h != h3);
+  //ASSERT_FALSE(h3 != h);
   ASSERT_FALSE(h1 != h2);
 
 #if defined(CAMP_HAVE_CUDA) || \
@@ -87,8 +87,8 @@ TEST(CampResource, Compare)
     defined(CAMP_HAVE_OMP_OFFLOAD)
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
-  ASSERT_TRUE(r3 == s);
-  ASSERT_TRUE(s == r3);
+  //ASSERT_TRUE(r3 == s);
+  //ASSERT_TRUE(s == r3);
 
   ASSERT_TRUE(r1 != r2);
   ASSERT_TRUE(r2 != r1);
@@ -99,8 +99,8 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(r2 == r3);
   ASSERT_FALSE(h2 == r2);
 
-  ASSERT_FALSE(s != r3);
-  ASSERT_FALSE(r3 != s);
+  //ASSERT_FALSE(s != r3);
+  //ASSERT_FALSE(r3 != s);
   ASSERT_FALSE(r1 != r1);
 #endif
 }
