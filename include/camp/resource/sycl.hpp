@@ -198,6 +198,27 @@ namespace resources
       }
 
       sycl::queue *get_queue() { return qu; }
+      sycl::queue const *get_queue() const { return qu; }
+
+      /*
+       * \brief Compares two (Sycl) resources to see if they are equal.
+       *
+       * \return True or false depending on if this is the same queue.
+       */
+      bool operator==(Sycl const& s) const
+      {
+        return (get_queue() == s.get_queue());
+      }
+      
+      /*
+       * \brief Compares two (Sycl) resources to see if they are NOT equal.
+       *
+       * \return Negation of == operator
+       */
+      bool operator!=(Sycl const& s) const
+      {
+        return !(*this == s);
+      }
 
     private:
       sycl::queue *qu;

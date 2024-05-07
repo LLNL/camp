@@ -192,6 +192,25 @@ namespace resources
         }
         return ret;
       }
+      /*
+       * \brief Compares two (Omp) resources to see if they are equal.
+       *
+       * \return True or false depending on if this is the same dev int and addr ptr.
+       */
+      bool operator==(Omp const& o) const
+      {
+        return (dev == o.dev && addr == o.addr);
+      }
+      
+      /*
+       * \brief Compares two (Omp) resources to see if they are NOT equal.
+       *
+       * \return Negation of == operator
+       */
+      bool operator!=(Omp const& o) const
+      {
+        return !(*this == o);
+      }
 
     private:
       char *addr;
