@@ -155,6 +155,12 @@ namespace camp {
          }
       }
 
+      CAMP_HOST_DEVICE constexpr void swap(array& a) noexcept(is_nothrow_swappable<T>::value) {
+         for (std::size_t i = 0; i < N; ++i) {
+            safe_swap(elements[i], a[i]);
+         }
+      }
+
       value_type elements[N];
    };
 
@@ -231,6 +237,11 @@ namespace camp {
    CAMP_HOST_DEVICE inline constexpr const T&& get(const array<T, N>&& a) noexcept {
       static_assert(I < N, "Index out of bounds in camp::get<> (const camp::array&&)");
       return move(a[I]);
+   }
+
+   template <class T, size_t N>
+   CAMP_HOST_DEVICE void swap(array<T, N>& a, array<T, N>& b) noexcept(noexcept(a.swap(b))) {
+      a.swap(b);
    }
 
    namespace detail {
