@@ -208,7 +208,12 @@ CAMP_HOST_DEVICE constexpr type::ref::rem<T>&& move(T&& t) noexcept
 }
 
 template <typename T>
-CAMP_HOST_DEVICE void safe_swap(T& t1, T& t2)
+CAMP_HOST_DEVICE
+typename std::enable_if<std::is_move_constructible<T>::value &&
+                        std::is_move_assignable<T>::value, void>::type
+safe_swap(T& t1, T& t2)
+noexcept(std::is_nothrow_move_constructible<T>::value &&
+         std::is_nothrow_move_assignable<T>::value)
 {
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   T temp{std::move(t1)};
