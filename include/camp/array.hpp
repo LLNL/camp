@@ -240,7 +240,7 @@ namespace camp {
    }
 
    template <class T, size_t N>
-   CAMP_HOST_DEVICE void swap(array<T, N>& a, array<T, N>& b) noexcept(noexcept(a.swap(b))) {
+   CAMP_HOST_DEVICE constexpr void swap(array<T, N>& a, array<T, N>& b) noexcept(noexcept(a.swap(b))) {
       a.swap(b);
    }
 
