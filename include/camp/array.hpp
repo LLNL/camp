@@ -155,7 +155,11 @@ namespace camp {
          }
       }
 
-      CAMP_HOST_DEVICE constexpr void swap(array& a) noexcept(std::is_nothrow_swappable<T>::value) {
+      // TODO: Revisit swap implementations to make them match the std library
+      CAMP_HOST_DEVICE constexpr
+      typename std::enable_if<std::is_nothrow_move_constructible<T>::value &&
+                              std::is_nothrow_move_assignable<T>::value, void>::type
+      swap(array& a) noexcept(std::is_nothrow_swappable<T>::value) {
          for (std::size_t i = 0; i < N; ++i) {
             safe_swap(elements[i], a[i]);
          }
