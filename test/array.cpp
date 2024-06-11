@@ -359,7 +359,6 @@ CAMP_TEST_BEGIN(array, to_array)
           b[2] == 10;
 } CAMP_TEST_END(array, to_array)
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 
 CAMP_TEST_BEGIN(array, tuple_size)
 {
@@ -378,6 +377,8 @@ CAMP_TEST_BEGIN(array, tuple_element)
    return element0 &&
           element4;
 } CAMP_TEST_END(array, tuple_element)
+
+#if defined(__cplusplus) && __cplusplus >= 201703L
 
 CAMP_TEST_BEGIN(array, structured_binding)
 {
