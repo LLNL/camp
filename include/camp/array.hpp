@@ -274,7 +274,6 @@ namespace camp {
 #endif
 } // namespace camp
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 // For structured bindings
 namespace std {
    template <class T, std::size_t N>
@@ -288,7 +287,6 @@ namespace std {
       using type = T;
    };
 }
-#endif
 
 #endif // !defined(CAMP_ARRAY_H)
 
