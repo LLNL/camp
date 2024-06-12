@@ -11,20 +11,14 @@ http://github.com/llnl/camp
 #ifndef CAMP_NUMBER_NUMBER_HPP
 #define CAMP_NUMBER_NUMBER_HPP
 
+#include <type_traits>
 #include "camp/defines.hpp"
 
 namespace camp
 {
 
-// TODO: document, consider making use/match std::integral_constant
-template <class NumT, NumT v>
-struct integral_constant {
-  static constexpr NumT value = v;
-  using value_type = NumT;
-  using type = integral_constant;
-  constexpr operator value_type() const noexcept { return value; }
-  constexpr value_type operator()() const noexcept { return value; }
-};
+/// re-export for backwards compatibility
+using std::integral_constant;
 
 /**
  * @brief Short-form for a whole number
@@ -34,8 +28,8 @@ struct integral_constant {
 template <idx_t N>
 using num = integral_constant<idx_t, N>;
 
-using true_type = num<true>;
-using false_type = num<false>;
+using true_type = std::true_type;
+using false_type = std::false_type;
 
 using t = num<true>;
 
