@@ -691,7 +691,6 @@ auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
   return os << ")";
 }
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 namespace std {
   /// This allows structured bindings to be used with camp::tuple
   /// e.g. auto t = make_tuple(1, 2.0);
@@ -721,6 +720,5 @@ namespace std {
     using type = ::camp::tuple_element_t<i, camp::tagged_tuple<TagList, Elements...>>;
   };
 } // namespace std
-#endif
 
 #endif /* camp_tuple_HPP__ */

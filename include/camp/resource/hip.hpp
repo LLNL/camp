@@ -257,8 +257,28 @@ namespace resources
         }
       }
 
-      hipStream_t get_stream() { return stream; }
-      int get_device() { return device; }
+      hipStream_t get_stream() const { return stream; }
+      int get_device() const { return device; }
+
+      /*
+       * \brief Compares two (Hip) resources to see if they are equal.
+       *
+       * \return True or false depending on if this is the same stream.
+       */
+      bool operator==(Hip const& h) const
+      {
+        return (get_stream() == h.get_stream());
+      }
+      
+      /*
+       * \brief Compares two (Hip) resources to see if they are NOT equal.
+       *
+       * \return Negation of == operator
+       */
+      bool operator!=(Hip const& h) const
+      {
+        return !(*this == h);
+      }
 
     private:
       hipStream_t stream;

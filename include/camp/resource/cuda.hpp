@@ -256,8 +256,28 @@ namespace resources
         }
       }
 
-      cudaStream_t get_stream() { return stream; }
-      int get_device() { return device; }
+      cudaStream_t get_stream() const { return stream; }
+      int get_device() const { return device; }
+
+      /*
+       * \brief Compares two (Cuda) resources to see if they are equal.
+       *
+       * \return True or false depending on if it is the same stream.
+       */
+      bool operator==(Cuda const& c) const
+      {
+        return (get_stream() == c.get_stream());
+      }
+      
+      /*
+       * \brief Compares two (Cuda) resources to see if they are NOT equal.
+       *
+       * \return Negation of == operator
+       */
+      bool operator!=(Cuda const& c) const
+      {
+        return !(*this == c);
+      }
 
     private:
       cudaStream_t stream;

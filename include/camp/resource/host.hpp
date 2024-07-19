@@ -68,6 +68,26 @@ namespace resources
       void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { std::free(p); }
       void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
+
+      /*
+       * \brief Compares two (Host) resources to see if they are equal.
+       *
+       * \return Always return true since we are on the Host in this case.
+       */
+      bool operator==(Host const&) const
+      {
+        return true;
+      }
+      
+      /*
+       * \brief Compares two (Host) resources to see if they are NOT equal.
+       *
+       * \return Always return false. Host resources are always the same.
+       */
+      bool operator!=(Host const&) const
+      {
+        return false;
+      }
     };
 
   }  // namespace v1
