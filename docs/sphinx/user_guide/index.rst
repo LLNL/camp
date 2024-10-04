@@ -11,3 +11,11 @@ CAMP User Guide
 ################
 
 CAMP tries to adhere to the principles of the C++ standard library, so if you have experiene using that, CAMP should prove to be pretty straigtforward. 
+
+
+.. toctree::
+  :maxdepth: 3
+
+  getting_started
+  using_camp
+  features
