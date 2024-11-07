@@ -1,8 +1,8 @@
 
 .. _tuple-label:
 
-==============
-Tuples in CAMP 
-==============
+======
+Tuples
+======
 
 CAMP has its own Tuple implementation

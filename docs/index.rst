@@ -39,4 +39,5 @@ Please see :ref:`camp-copyright`.
    :hidden: 
    :caption: Developer Documentation
 
+   sphinx/dev_guide/index
    sphinx/camp_license

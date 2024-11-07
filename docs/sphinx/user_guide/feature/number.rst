@@ -1,8 +1,8 @@
 
 .. _number-label:
 
-=====================
-Numeric types in CAMP 
-=====================
+=============
+Numeric types 
+=============
 
 CAMP has some interesting numerical impplementations

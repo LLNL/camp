@@ -5,4 +5,4 @@
 CAMP HIP Resource 
 =================
 
-HIP resource in camp
+.. WARNING:: This page is currently under construction

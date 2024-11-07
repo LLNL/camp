@@ -5,4 +5,4 @@
 CAMP Host Resource 
 ==================
 
-Host resource in camp
+.. WARNING:: This page is currently under construction

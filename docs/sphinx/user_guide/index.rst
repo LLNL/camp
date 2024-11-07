@@ -10,7 +10,10 @@
 CAMP User Guide
 ################
 
-CAMP tries to adhere to the principles of the C++ standard library, so if you have experiene using that, CAMP should prove to be pretty straigtforward. 
+This section has helpful information about using CAMP. For new users the 
+:ref:`getting_started-label` page will help you get up and running. For detailed 
+information about what CAMP can do, check out the :ref:`features-label` page 
+to learn more about CAMP's various features. 
 
 
 .. toctree::

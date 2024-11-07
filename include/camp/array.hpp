@@ -61,6 +61,12 @@ namespace camp {
       using const_iterator = const_pointer;
 
       // TODO: Investigate device trap
+      ///
+      /// Accesses the element at the specified index with bounds checking.
+      ///
+      /// @param i The index of the element to access.
+      /// @return A reference to the element at the specified index.
+      /// @throws std::out_of_range if the index is out of bounds.
       constexpr reference at(size_type i) {
          if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
@@ -69,6 +75,12 @@ namespace camp {
          return elements[i];
       }
 
+      ///
+      /// Accesses the element at the specified index with bounds checking (const version).
+      ///
+      /// @param i The index of the element to access.
+      /// @return A const reference to the element at the specified index.
+      /// @throws std::out_of_range if the index is out of bounds.
       constexpr const_reference at(size_type i) const {
          if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};

@@ -5,4 +5,4 @@
 CAMP OpenMP Target Resource 
 ===========================
 
-OpenMP Target resource in camp
+.. WARNING:: This page is currently under construction
