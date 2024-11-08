@@ -98,11 +98,27 @@ to a separate Camp resource.
    camp::resources::Cuda c1, c2; // Create two different Cuda resources
    ...  
    my_kernel<<<NUM_BLOCKS, THREADS_PER_BLOCK, 0, c1.get_stream()>>>(my_data);
-   if(c1 != c2) {   
-     c1.get_event().wait(); //Synchronize streams
+   if(c1 != c2) { // Compare device resources
+     c1.get_event().wait(); // Synchronize streams if resources are not the same
    }
    my_other_kernel<<<NUM_BLOCKS, THREADS_PER_BLOCK, 0, c2.get_stream()>>>(my_data);
    ...
+
+
+Comparison of resources must be of the same type. In other words, you can compare two generic resources
+for equality OR two specific (or typed) resources for equality. If you need to compare a generic resource
+with a specific resource, you have to convert the specific (typed) resource to a generic one. For example:
+
+.. code-block:: bash
+
+   camp::resources::Cuda c1; //This is a typed resource
+   camp::resources::Resource other_res = get_other_resource(...); //This is my generic resource
+   
+   if (other_res == Resource{c1}) {
+     std::cout << "They are equal!" << std::endl;
+   }
+
+The above code works because we converted the typed resource, ``c1``, to a generic resource with ``Resource{c1}``.
 
 While it is possible for two device resources to be different since each resource refers to a different
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
