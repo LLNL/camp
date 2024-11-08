@@ -12,6 +12,12 @@ Typically, we deal with multiple Camp resources. This includes a single resource
 the device, depending on how many (cuda, hip, etc.) streams we have in use. While we can have multiple camp resources 
 for the device (e.g. multiple cuda streams), we can only have one resource for the host because the host only has one stream of execution.
 
+In addition to the Host, Camp provides a resource for several device backends:
+* CUDA
+* Hip
+* OpenMP Target
+* Sycl
+
 Generic vs. Specific Camp Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
