@@ -10,21 +10,36 @@
 CAMP
 ################
 
-The CAMP (Concepts and MetaProgramming, or Compiler Agnostic MetaProgramming) Library is a C++ Library that provides standard-library-like structures and algorithms that can be portably used on a variety of backend architectures. CAMP is developed at Lawrence Livermore National Laboratory (LLNL). This project collects a variety of macros and metaprogramming facilities for C++ projects. It's in the direction of projects like metal (a major influence) but with a focus on wide compiler compatibility across HPC-oriented systems. 
+CAMP (Concepts and MetaProgramming, or Compiler Agnostic MetaProgramming) is a portable C++ Library
+that provides modern C++ structures and algorithms that can be used on a variety of 
+backend architectures. CAMP is developed at Lawrence Livermore National Laboratory (LLNL). This project 
+collects a variety of macros and metaprogramming facilities for C++ projects.  
+Camp focuses on wide compiler compatibility across HPC systems. 
 
 Camp aims to be primarily header-only, with only one small implementation file. 
 
 =================================
-Git Repository and Issue Tracking
+Contributions
 =================================
 
-The main interaction hub for CAMP is on `GitHub <https://github.com/LLNL/camp>`_
-There you will find the Git source code repository, issue tracker, release 
+To contribute, go to Camp's `GitHub <https://github.com/LLNL/camp>`_.
+There you can find the Git source code repository, issue tracker, release 
 history, and other information about the project.
 
-========================================
-CAMP Copyright and License Information
-========================================
+Make a `pull request <https://github.com/LLNL/camp/compare>`_ with ``main`` as the destination branch. 
+We have several Docker tests that must all passed in order for your branch to be merged.
+
+=======
+Authors
+=======
+
+Thanks to all of Camp's `contributors <https://github.com/LLNL/camp/graphs/contributors>`_.
+
+=========
+Questions
+=========
+
+If you have a question, file an `issue <https://github.com/LLNL/camp/issues/new/choose>`_ or send an email to raja-dev@llnl.gov.
 
 Please see :ref:`camp-copyright`.
 
