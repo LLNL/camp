@@ -9,6 +9,42 @@ CAMP Developer Guide
 
 The camp developer guide is here to help new CAMP developers develop for camp. 
 
+Contributing to Camp
+====================
+
+Camp is a collaborative open-source software project and we encourage contributions from anyone 
+who wants to add features or improve its capabilities. Camp is developed in conjunction with the
+RAJA and Umpire code libraries since Camp is a part of the RAJA Portability Suite.
+
+We assume contributors are familiar with 
+`Git <https://git-scm.com/>`_, which we use for source code version control,
+and `GitHub <https://github.com/>`_, which is where our project is hosted. 
+
+GitHub Project Access
+---------------------
+
+Camp maintains levels of project access on it GitHub project:
+
+  * **Core team members.** Individuals on the core Camp and RAJA team are frequent
+    Camp contributors and participate regularly in project meetings, 
+    discussions, and other project activities. Their
+    project privileges include the ability to create branches in the repository,
+    push code changes to the Camp repo, make PRs, and merge them when they are 
+    approved and all checks have passed.
+  * **Everyone else.** Anyone with a GitHub account is welcome to contribute
+    to Camp. Individuals outside of the two groups described above can make PRs
+    in the Camp project, but must do so from a branch on a *fork* of 
+    the Camp repo. 
+
+If you need access to the Camp repo, email raja-dev@llnl.gov
+
+Before a PR can be merged into Camp, all test checks must pass and the PR must be approved 
+by at least one member of the core Camp team.
+
+Each Camp contribution (feature, bugfix, etc.) must include adequate tests, documentation, 
+and code examples. The adequacy of PR content, in this respect, is determined by PR reviewers 
+applying their professional judgment considering the perspective of RAJA users and developers.
+
 Release Process
 ===============
 
