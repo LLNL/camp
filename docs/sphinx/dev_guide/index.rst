@@ -14,7 +14,7 @@ Contributing to Camp
 
 Camp is a collaborative open-source software project and we encourage contributions from anyone 
 who wants to add features or improve its capabilities. Camp is developed in conjunction with the
-RAJA and Umpire code libraries since Camp is a part of the RAJA Portability Suite.
+`RAJA<https://github.com/LLNL/RAJA>`_ and `Umpire<https://github.com/LLNL/Umpire>`_ code libraries since Camp is a part of the RAJA Portability Suite.
 
 We assume contributors are familiar with 
 `Git <https://git-scm.com/>`_, which we use for source code version control,
@@ -43,7 +43,7 @@ by at least one member of the core Camp team.
 
 Each Camp contribution (feature, bugfix, etc.) must include adequate tests, documentation, 
 and code examples. The adequacy of PR content, in this respect, is determined by PR reviewers 
-applying their professional judgment considering the perspective of RAJA users and developers.
+applying their professional judgment considering the perspective of RAJA, Camp, and Umpire users and developers.
 
 Release Process
 ===============
@@ -61,8 +61,12 @@ Here are the steps to follow when creating a CAMP release.
 Create a release candidate branch off of the develop branch to initiate a
 release. The name of a release branch must contain the associated release version
 number. Typically, we use a name like v2024.07 where 2024 corresponds to the year
-and 07 corresponds to the month in which the release was made. Releases are
-coordinated with the RAJA and Umpire teams.
+and 07 corresponds to the month in which the release was made. 
+
+.. important:: 
+   Releases are coordinated with the RAJA and Umpire teams as part of timely
+   RAJA Portability Suite releases. The release names will correspond to the release
+   names of RAJA and Umpire as part of this process.
 
 .. code:: bash
 
@@ -124,3 +128,5 @@ if applicable.
 
 2. Create a pull request to merge into ``main``. When approved, merge it.
 
+If you have questions regarding this process, reach out to Camp developers or
+send an email to raja-dev@llnl.gov

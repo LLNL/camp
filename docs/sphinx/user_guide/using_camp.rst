@@ -64,7 +64,7 @@ is being used in the ``RAJA::Launch``.
        }
    #endif
 
-See the full example `here<https://github.com/LLNL/RAJA/blob/develop/include/RAJA/pattern/launch/launch_core.hpp>`_.
+See the full example `here <https://github.com/LLNL/RAJA/blob/develop/include/RAJA/pattern/launch/launch_core.hpp>`_.
 
 Camp Used in CHAI
 =================
@@ -98,7 +98,7 @@ is an example of Camp used in Chai's ``ArrayManager``:
      }
    }
 
-See the full example `here<https://github.com/LLNL/CHAI/blob/7ba2ba89071bf836071079929af7419da475ba27/src/chai/ArrayManager.cpp#L246>`_.
+See the full example `here <https://github.com/LLNL/CHAI/blob/7ba2ba89071bf836071079929af7419da475ba27/src/chai/ArrayManager.cpp#L246>`_.
 
 Many codes at LLNL use the different libraries within the RAJA Portability Suite. Camp plays a vital role
 in the compiler abstractions that make the RAJA Portability Suite possible.
