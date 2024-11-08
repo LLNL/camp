@@ -34,7 +34,7 @@ resource is created with:
 This way of creating a generic resource uses the specific resource created above, ``h1`` or ``c1``, to constuct it.
 We can also create a generic resource with:
 
-.. code-blcok:: bash
+.. code-block:: bash
 
    camp::resources::Resource h{camp::resources::Host()};
    camp::resources::Resource r{camp::resources::Cuda()};
