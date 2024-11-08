@@ -27,6 +27,7 @@ For more information about specific CAMP features, visit the pages below.
 
   feature/array
   feature/list
-  feature/number
   feature/resource
-  feature/tuple
+
+.. ## feature/number
+.. ## feature/tuple
