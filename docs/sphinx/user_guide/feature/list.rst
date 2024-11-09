@@ -86,7 +86,7 @@ To access a specific type in the list, use the ``at`` template:
     using ThirdType = camp::at_v<MyList, 2>; 
     // thirdType is char
 
-The ``at`` functionality also contains two convenience functions for accessing the first and second elements of a list (in a tuple-like manner):
+The ``at`` functionality also contains two convenience templates for accessing the first and second elements of a list (in a tuple-like manner):
 
 .. code-block:: cpp 
 
@@ -115,7 +115,7 @@ Combining Lists with ``extend`` , ``prepend``, and ``append``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can combine two lists into one using either the ``extend`` method, ``prepend`` method, or ``append`` method. Like in python, ``extend`` 
-will add the elements of one list into the back of the other list. ``Prepend`` and ``append`` will both add the entire list to either 
+will add the elements of one list into the back of the other list. ``Prepend`` and ``append`` will both add the extra parameters to either 
 the front or back of an existing list, respectively. Let's look at some examples:
 
 .. code-block:: cpp 
@@ -125,7 +125,7 @@ the front or back of an existing list, respectively. Let's look at some examples
     using list2 = camp::list<int, int, char>;
 
     using list3 = camp::extend<list1, list2>::type; 
-    // list3 is type camp::list<float,, double, double, int, int, char>
+    // list3 is type camp::list<float, double, double, int, int, char>
 
     // append
     using list4 = camp::append<list1, list2>::type; 
@@ -180,10 +180,10 @@ the initial value.
     using myNewList = accumulate<append, list<>, list<int, float, double>>; 
     // myNewList is of type list<int, float, double>;
 
-Cartesian producs of lists (an application of accumulate)
+Cartesian products of lists (an application of accumulate)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Camp provides a method to evaluate the cartesian product of two lists. The accumulate method is simply an 
+Camp provides a method to evaluate the cartesian product of two lists. The ``cartesian_product`` method is simply an 
 application of the accumulate method. 
 
 .. code-block:: cpp 
