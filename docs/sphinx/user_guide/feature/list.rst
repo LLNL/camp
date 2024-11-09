@@ -181,7 +181,7 @@ the initial value.
     // myNewList is of type list<int, float, double>;
 
 Cartesian products of lists (an application of accumulate)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Camp provides a method to evaluate the cartesian product of two lists. The ``cartesian_product`` method is simply an 
 application of the accumulate method. 
