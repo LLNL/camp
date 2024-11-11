@@ -22,7 +22,11 @@ In addition to the Host, Camp provides a resource for several device backends:
 Generic vs. Specific Camp Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Camp has two different types of Resources: generic and specific. A specific resource is created with:
+Camp has two different types of Resources: generic (aka. type-erased) and specific (aka. typed). 
+The generic (type-erased) resources work by holding a shared pointer to the base implementation of a resource 
+with virtual methods that call the same methods on the specific (typed) resource.
+
+A specific resource is created with:
 
 .. code-block:: cpp
 
@@ -45,6 +49,9 @@ We can also create a generic resource with:
 
    camp::resources::Resource h{camp::resources::Host()};
    camp::resources::Resource r{camp::resources::Cuda()};
+
+Having the ability to use both a typed and a typed-erased resource allows users more flexibility as they utilize Camp resources.
+The compiler can implicitly convert between the Generic and Specific resources for ease of use.
 
 Using Resources
 ~~~~~~~~~~~~~~~
