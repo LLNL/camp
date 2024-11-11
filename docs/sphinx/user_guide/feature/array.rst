@@ -50,14 +50,13 @@ iterators, size information, and automatic memory management!
     std::array<double, N> arr;
 
 The only drawback from the STL array implementation is that it can only be used on the ``host``, not any ``device``. 
-That's where Camp comes in. The ``camp::array`` retains all of the features from the STL array, but can also be run on 
-GPU's!
+That's where Camp comes in. The ``camp::array`` retains all of the features from the STL array, but can also be used in GPU device code.
 
 -----------------------
 The camp::array methods
 -----------------------
 
-The camp array syntax is exactly the same as the C++ standard library syntax, the only 
+The Camp array syntax is exactly the same as the C++ standard library syntax, the only 
 difference being that we use the ``camp`` namespace instead of ``std``.
 
 .. code-block:: cpp
@@ -69,19 +68,19 @@ difference being that we use the ``camp`` namespace instead of ``std``.
 It's that simple!
 
 .. important:: 
-  While the Camp Array tries to emulate the STL array as closely as it can, there are some key differences 
+  While the Camp ``Array`` tries to emulate the STL array as closely as it can, there are some key differences 
   that users should be aware of: 
   
   * no ``__device__ "at"`` method. The ``at`` method has the potential to throw exceptions, which is not GPU friendly.
   * Calling ``front()`` or ``back()`` is a compile time error when ``size() == 0``, 
     as opposed to undefined  behaviour set by the C++ standard.
-  * camp arrays do not have reverse iterators implemented. 
-  * camp arrays do not have the ``swap`` method implemented.   
+  * Camp arrays do not have reverse iterators implemented. 
+  * Camp arrays do not have the ``swap`` method implemented.   
 
 Constructors
 ^^^^^^^^^^^^
 
-Camp arrays, like their STL counterparts, require the size and the type to be known at compile time. The array constructor is as follows:
+Camp arrays, like their STL counterparts, require the size and data type to be known at compile time. The array constructor is as follows:
   
 .. code-block:: cpp
 
@@ -104,7 +103,7 @@ We can also initialize our array at compile time, if we know the values:
 Element Access
 ^^^^^^^^^^^^^^
 
-To access an element of the array, we can either use the ``operator[]``, or the ``at`` methods. The only real difference between these 
+To access an element of an array, we can either use the ``operator[]``, or the ``at`` methods. The only real difference between these 
 two methods is that the ``at`` method performs bounds checking on the input, and will throw an exception if the index requested is out of 
 the bounds of the array.
 
@@ -127,7 +126,7 @@ The ``front()`` and ``back()`` methods can be used to obtain a reference (const 
     arr.front() = 4;
     // arr is now {4, 2, 3}
 
-A pointer to the underlying data can be obtained using the ``data()`` method. Camp::array implements ``begin(), end(), cbegin(),`` and ``cend()`` iterator functions, which allow it to be used interchangeably in many c++ algorithms in the standard library, and beyond:
+A pointer to the underlying data can be obtained using the ``data()`` method. camp::array implements ``begin(), end(), cbegin(),`` and ``cend()`` iterator functions, which allow it to be used interchangeably in many C++ algorithms in the standard library, and beyond:
 
 .. code-block:: cpp
   
@@ -148,11 +147,11 @@ Camp provides multiple ``get`` methods that can be used for constexpr element ac
 Size methods
 ^^^^^^^^^^^^
 
-The Camp array contains a ``size()`` method which can be used to find the number of elements that was allocated for the array. 
+The Camp array contains a ``size()`` method which can be used to find the number of elements contained in the array. 
 This is the same number that is passed into the array when it is constructed. The ``max_size()`` method does the same thing, as the 
-size of an array is necessarily the maximum size, since arrays have constant size. The ``empty()`` method returns a bool indicating 
+size of an array is necessarily the maximum size, since an array has constant size. The ``empty()`` method returns a bool indicating 
 whether the array has any elements. Since the array's  size is determined at compile time, the value of ``empty()`` will be true, unless 
-an array is constructed with ``size  == 0``, which would be kind of pointless if you ask me. 
+an array is constructed with ``size  == 0``, which would not be very useful. 
 
 The Camp array contains a ``fill`` method, which can be used to set all of the values of the array to one value:
 .. code-block:: cpp
