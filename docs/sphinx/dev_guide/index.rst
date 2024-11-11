@@ -16,7 +16,7 @@ Contributing to Camp
 
 Camp is a collaborative open-source software project and we encourage contributions from anyone 
 who wants to add features or improve its capabilities. Camp is developed in conjunction with the
-`RAJA<https://github.com/LLNL/RAJA>`_ and `Umpire<https://github.com/LLNL/Umpire>`_ code libraries since Camp is a part of the RAJA Portability Suite.
+`RAJA <https://github.com/LLNL/RAJA>`_ and `Umpire <https://github.com/LLNL/Umpire>`_ code libraries since Camp is a part of the RAJA Portability Suite.
 
 We assume contributors are familiar with 
 `Git <https://git-scm.com/>`_, which we use for source code version control,
