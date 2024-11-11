@@ -1,15 +1,15 @@
 .. # Copyright (c) 2017-2024, Lawrence Livermore National Security, LLC and
-.. # other BLT Project Developers. See the top-level LICENSE file for details
+.. # other Camp Project Developers. See the top-level LICENSE file for details
 .. # 
 .. # SPDX-License-Identifier: (BSD-3-Clause)
 
 .. _camp-dev-guide-label:
 
 ####################
-CAMP Developer Guide
+Camp Developer Guide
 ####################
 
-The camp developer guide is here to help new CAMP developers develop for camp. 
+The camp developer guide is here to help new Camp developers develop for camp. 
 
 Contributing to Camp
 ====================
@@ -55,7 +55,7 @@ Release Process
           only code changes that should be done are bug fixes identified
           during release preparations
 
-Here are the steps to follow when creating a CAMP release.
+Here are the steps to follow when creating a Camp release.
 
 1: Start Release Candidate Branch
 ---------------------------------

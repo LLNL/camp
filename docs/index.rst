@@ -1,18 +1,18 @@
 .. ##
 .. ## Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
-.. ## and RAJA project contributors. See the CAMP/LICENSE file
+.. ## and RAJA project contributors. See the Camp/LICENSE file
 .. ## for details.
 .. ##
 .. ## SPDX-License-Identifier: (BSD-3-Clause)
 .. ##
 
 ################
-CAMP
+Camp
 ################
 
-CAMP (Compiler Agnostic MetaProgramming) is a portable C++ Library
+Camp (Compiler Agnostic MetaProgramming) is a portable C++ Library
 that provides modern C++ structures and algorithms that can be used on a variety of 
-backend architectures. CAMP is part of the RAJA Portability Suite and is developed 
+backend architectures. Camp is part of the RAJA Portability Suite and is developed 
 at Lawrence Livermore National Laboratory (LLNL). This project 
 collects a variety of macros and metaprogramming facilities for C++ projects.  
 Camp focuses on wide compiler compatibility across HPC systems. 

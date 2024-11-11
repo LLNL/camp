@@ -1,6 +1,6 @@
 .. ##
 .. ## Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
-.. ## and CAMP project contributors. See the CAMP/LICENSE file
+.. ## and Camp project contributors. See the Camp/LICENSE file
 .. ## for details.
 .. ##
 .. ## SPDX-License-Identifier: (BSD-3-Clause)
@@ -9,7 +9,7 @@
 .. _camp-copyright:
 
 ======================================
-CAMP Copyright and License Information
+Camp Copyright and License Information
 ======================================
 
 Copyright (c) 2018-24, Lawrence Livermore National Security, LLC.
@@ -23,7 +23,7 @@ Unlimited Open Source - BSD Distribution
 LLNL-CODE-756261
 
 
-CAMP License
+Camp License
 ------------
 
 .. include:: ../../LICENSE 

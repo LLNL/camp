@@ -5,7 +5,7 @@
 Lists
 =====
 
-The ``list`` type in the CAMP library is a powerful tool for type manipulation and 
+The ``list`` type in the Camp library is a powerful tool for type manipulation and 
 metaprogramming in C++. It allows you to create and operate on sequences of types 
 at compile time, enabling various operations such as accessing, filtering, and 
 transforming types.

@@ -9,7 +9,7 @@ Numeric types
 The ``num<>`` type
 ------------------
 
-CAMP includes constructs for compile time numerical `types` which can be used in almost any other camp construct. 
+Camp includes constructs for compile time numerical `types` which can be used in almost any other camp construct. 
 The ``num<>`` type is an integral constant `type`, rather than a constant value. Let's look at the difference: 
 
 .. code-block:: cpp 

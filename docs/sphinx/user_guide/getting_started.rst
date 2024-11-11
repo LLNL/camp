@@ -1,7 +1,7 @@
 .. _getting_started-label:
 
 *************************
-Getting Started with CAMP
+Getting Started with Camp
 *************************
 
 This page provides information on how to quickly get up and running with Camp

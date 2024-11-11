@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
-# and other CAMP project contributors. See the CAMP/LICENSE file for details.
+# and other Camp project contributors. See the Camp/LICENSE file for details.
 #
 # SPDX-License-Identifier: (BSD-3-Clause)
 ###############################################################################
@@ -18,7 +18,7 @@
 
 DOXYFILE_ENCODING      = UTF-8
 
-PROJECT_NAME           = CAMP (Compiler Agnostic Meta-Programming Library)
+PROJECT_NAME           = Camp (Compiler Agnostic Meta-Programming Library)
 PROJECT_NUMBER         = 
 PROJECT_BRIEF          = "This project collects a variety of macros and metaprogramming facilities for C++ projects. It's in the direction of projects like metal (a major influence) but with a focus on wide compiler compatibility across HPC-oriented systems."
 PROJECT_LOGO           =

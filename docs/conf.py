@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# CAMP documentation build configuration file, created by
+# Camp documentation build configuration file, created by
 # sphinx-quickstart on Fri Apr 29 15:12:14 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -247,7 +247,7 @@ html_static_path = [os.path.join(conf_directory, 'sphinx/_static')]
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'CAMPdoc'
+htmlhelp_basename = 'Campdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
