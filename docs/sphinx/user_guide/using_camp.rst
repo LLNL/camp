@@ -11,9 +11,9 @@ shows several real application examples of how Camp is being used currently.
 Camp Used in Umpire
 ===================
 
-Umpire is a resource management library that allows the discovery, provision, and management of memory on machines 
+`Umpire <https://github.com/LLNL/Umpire>`_ is a resource management library that allows the discovery, provision, and management of memory on machines 
 with multiple memory devices like NUMA and GPUs. Umpire is also part of the RAJA Portability Suite.
-Umpire's Operations provide an abstract interface to modifying and moving data between Umpire allocators.
+Umpire's Operations provide an abstract interface to modifying and moving data between Umpire Allocators.
 Camp makes these operations easy to port regardless of the underlying hardware. For example:
 
 .. code-block:: cpp
@@ -52,7 +52,7 @@ See the full example `here <https://github.com/LLNL/Umpire/blob/5bf5bc182f1e6ee3
 Camp Used in RAJA
 =================
 
-RAJA is a library of C++ software abstractions, primarily developed at Lawrence Livermore National Laboratory (LLNL), that enables 
+`RAJA <https://github.com/LLNL/RAJA>`_ is a library of C++ software abstractions that enables 
 architecture and programming model portability for HPC applications.
 One of many examples of using Camp in RAJA is the following code block which helps RAJA determine which backend
 is being used in the ``RAJA::Launch`` abstraction.
@@ -73,7 +73,7 @@ See the full example `here <https://github.com/LLNL/RAJA/blob/develop/include/RA
 Camp Used in RAJAPerf
 =====================
 
-RAJAPerf is RAJA's Performance Suite designed to explore the performance of loop-based computational kernels found in HPC applications.
+`RAJAPerf <https://github.com/LLNL/RAJAPerf>`_ is RAJA's Performance Suite designed to explore the performance of loop-based computational kernels found in HPC applications.
 Specifically, it is used to assess and monitor runtime performance of kernels implemented using RAJA and compare those to variants 
 implemented using common parallel programming models, such as OpenMP and CUDA, directly.
 Camp has also been included in RAJAPerf as a way to easily determine which stream to run a RAJA kernel:
@@ -95,7 +95,7 @@ See the full example `here <https://github.com/LLNL/RAJAPerf/blob/abb07792a899f7
 Camp Used in CHAI
 =================
 
-CHAI is a library that handles automatic data migration to different memory spaces behind an array-style interface. It was designed to 
+`CHAI <https://github.com/LLNL/CHAI>`_ is a library that handles automatic data migration to different memory spaces behind an array-style interface. It was designed to 
 work with RAJA and integrates well with it, though CHAI could be used with other C++ abstractions as well.
 Just like Camp and Umpire, CHAI is part of the RAJA Portability Suite and uses Camp for operations like move and copy. Below
 is an example of Camp used in CHAI's ``ArrayManager``:
@@ -128,5 +128,5 @@ is an example of Camp used in CHAI's ``ArrayManager``:
 
 See the full example `here <https://github.com/LLNL/CHAI/blob/7ba2ba89071bf836071079929af7419da475ba27/src/chai/ArrayManager.cpp#L246>`_.
 
-Many codes at LLNL use the different libraries within the RAJA Portability Suite. Camp plays a vital role
-in the compiler abstractions that make the RAJA Portability Suite possible.
+Many codes at LLNL and elsewhere use the different libraries within the RAJA Portability Suite. Camp plays a vital role
+in the software abstractions that make the RAJA Portability Suite possible.

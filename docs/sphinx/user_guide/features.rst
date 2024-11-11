@@ -14,7 +14,7 @@ CAMP Features
 
 The following sections describe the main CAMP features. These sections are designed
 to familiarize users with CAMP and it's capabilities, as well as provide syntactic
-examples of how to utilize CAMP. 
+examples of how to use CAMP. 
 
 CAMP has many features that mimic the C++ standard library. The benefit of using CAMP is 
 that containers and structures, and the operations performed on them, can be run on 
