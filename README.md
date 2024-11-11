@@ -1,4 +1,4 @@
-# <img src="/share/raja/logo/camp2-gradient.png" width="128" valign="middle" alt="Camp"/>
+# <img src="/share/camp/logo/camp2-gradient.png" width="128" valign="middle" alt="Camp"/>
 
 ## CAMP Concepts And Meta-Programming library
 
