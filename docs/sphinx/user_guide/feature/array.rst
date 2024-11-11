@@ -154,6 +154,7 @@ whether the array has any elements. Since the array's  size is determined at com
 an array is constructed with ``size  == 0``, which would not be very useful. 
 
 The Camp array contains a ``fill`` method, which can be used to set all of the values of the array to one value:
+
 .. code-block:: cpp
 
     camp::array<int, 3> arr  = {1, 2, 3};
@@ -164,6 +165,6 @@ The Camp array contains a ``fill`` method, which can be used to set all of the v
 Array Comparisons
 ^^^^^^^^^^^^^^^^^
 
-The Camp Array defines all of the standard comparison operators: ``==, !=, <, <=, >, >=``. Note that ``<, <=, >, >=`` use a 
+The Camp array defines all of the standard comparison operators: ``==, !=, <, <=, >, >=``. Note that ``<, <=, >, >=`` use a 
 lexographical check to determine which one is greater or less than. 
 
