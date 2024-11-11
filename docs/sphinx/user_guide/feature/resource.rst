@@ -13,6 +13,7 @@ the device, depending on how many (CUDA, Hip, etc.) streams we have in use. Whil
 for the device (e.g. multiple CUDA streams), we can only have one resource for the host because the host only has one `stream of execution`.
 
 In addition to the Host, Camp provides a resource for several device backends:
+
 * CUDA
 * Hip
 * OpenMP Target
