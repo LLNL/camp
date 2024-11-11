@@ -50,7 +50,7 @@ Thus, the ``list`` type is incredibly versatile as it can handle any number of t
 member ``type``, there are no methods that are directly part of ``list``; however, Camp provides many helper methods that act on lists. 
 Here are some examples demonstrating how to use the ``list`` type and its associated functions. 
 
-The base ``list`` structure, the list-specific ``at`` construct, and the ``find_if`` contstruct are 
+The base ``list`` structure, the list-specific ``at`` construct, and the ``find_if`` construct are 
 all included in ``/include/list.hpp``. All of the other helper methods described below are contained in  
 ``/include/camp.hpp``. 
 
@@ -84,7 +84,7 @@ To access a specific type in the list, use the ``at`` template:
     using SecondType = camp::at<MyList, camp::num<1>>::type; 
     // SecondType is double
     using ThirdType = camp::at_v<MyList, 2>; 
-    // thirdType is char
+    // ThirdType is char
 
 The ``at`` functionality also contains two convenience templates for accessing the first and second elements of a list (in a tuple-like manner):
 
@@ -238,7 +238,7 @@ Using Lists to make Maps
 ------------------------
 
 Camp provides a ``map.hpp`` header which can be combined with associative lists 
-to createa map-type structure. Consider the following: 
+to create a map-type structure. Consider the following: 
 
 .. code-block:: cpp 
 

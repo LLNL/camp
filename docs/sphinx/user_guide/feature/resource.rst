@@ -4,13 +4,13 @@
 Resources
 =========
 
-Camp Resources allow users to keep track of "streams of execution". A single "stream of execution" on the device 
-(e.g. a single cuda stream) corresponds to a single Camp device resource. Similarly, when we are executing on the 
-host, this corresponds to a separate "stream of execution" and therefore a separate Camp host resource.
+Camp Resources allow users to keep track of `streams of execution`. A single `stream of execution` on the device 
+(e.g. a single CUDA stream) corresponds to a single Camp device resource. Similarly, when we are executing on the 
+host, this corresponds to a separate `stream of execution` and therefore a separate Camp host resource.
 
 Typically, we deal with multiple Camp resources. This includes a single resource for the host and one or more for 
-the device, depending on how many (cuda, hip, etc.) streams we have in use. While we can have multiple camp resources 
-for the device (e.g. multiple cuda streams), we can only have one resource for the host because the host only has one stream of execution.
+the device, depending on how many (CUDA, Hip, etc.) streams we have in use. While we can have multiple camp resources 
+for the device (e.g. multiple CUDA streams), we can only have one resource for the host because the host only has one `stream of execution`.
 
 In addition to the Host, Camp provides a resource for several device backends:
 * CUDA
@@ -23,24 +23,24 @@ Generic vs. Specific Camp Resources
 
 Camp has two different types of Resources: generic and specific. A specific resource is created with:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Host h1;
    camp::resources::Cuda c1;
 
-This will create a Host (specific) resource and a Cuda (specific) resource. With either ``c1`` or ``h1`` we can call different methods 
+This will create a Host (specific) resource and a CUDA (specific) resource. With either ``c1`` or ``h1`` we can call different methods 
 like ``get_platform()`` or ``get_stream()``. See the Doxygen information for more details. On the other hand, a generic 
 resource is created with:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Resource h{h1};
    camp::resources::Resource r{c1};
 
-This way of creating a generic resource uses the specific resource created above, ``h1`` or ``c1``, to constuct it.
+This way of creating a generic resource uses the specific resource created above, ``h1`` or ``c1``, to construct it.
 We can also create a generic resource with:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Resource h{camp::resources::Host()};
    camp::resources::Resource r{camp::resources::Cuda()};
@@ -56,29 +56,29 @@ Using Events
 Camp Resources allow users a hardware-agnostic way of interacting with the underlying hardware. For example, using
 a Camp Resource, users can create an event with the resource with:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Cuda c1;
    c1.get_event();
 
-The ``get_event()`` method will create and record a Cuda event. From here, users can check the event:
+The ``get_event()`` method will create and record a CUDA event. From here, users can check the event:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    if(c1.get_event().check()) {
      // If we get here, the event has completed
    }
 
-Or expicitly wait on the event:
+Or explicitly wait on the event:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    c1.get_event().wait(); //Explicitly wait for the event to complete
    // Do some work
 
 Users can also use events to synchronize on the device:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    #if defined(ENABLE_CUDA)
      using resource_type = camp::resources::Cuda; // Create the (Specific) Camp resource
@@ -99,7 +99,7 @@ It may be handy to be able to compare two different resources to see if they are
 One common use case is when dealing with two different device streams where each stream corresponds
 to a separate Camp resource.
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Cuda c1, c2; // Create two different Cuda resources
    ...  
@@ -115,7 +115,7 @@ Comparison of resources must be of the same type. In other words, you can compar
 for equality OR two specific (or typed) resources for equality. If you need to compare a generic resource
 with a specific resource, you have to convert the specific (typed) resource to a generic one. For example:
 
-.. code-block:: bash
+.. code-block:: cpp
 
    camp::resources::Cuda c1; //This is a typed resource
    camp::resources::Resource other_res = get_other_resource(...); //This is my generic resource
@@ -130,8 +130,8 @@ While it is possible for two device resources to be different since each resourc
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
 for the Host.
 
-Whether users are using a CUDA or Hip backend, the Camp resource require no code changes and provide
-a hardware-agnostic interface. Becuase of the way Camp resources were built, the compiler can implicitly
+Whether users are using a CUDA or Hip backend, the Camp resources require no code changes and provide
+a hardware-agnostic interface. Because of the way Camp resources were built, the compiler can implicitly
 convert between the Generic and Specific resources for ease of use.
 
 Find more examples of using Camp resources in the Using Camp section :ref:`using_camp-label`.

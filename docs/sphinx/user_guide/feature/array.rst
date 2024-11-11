@@ -40,7 +40,7 @@ C++ introduces a `new` way to do the same thing, at the language level, using th
 This example is functionally equivalent to the C example in basically every way, the only difference 
 being that our call to ``new`` obfuscates the call to ``malloc``. 
 
-Finally, the C++ standard library (STL) implemeted an ``array`` class, which provides access functions, 
+Finally, the C++ standard library (STL) implemented an ``array`` class, which provides access functions, 
 iterators, size information, and automatic memory management!
 
 .. code-block:: cpp

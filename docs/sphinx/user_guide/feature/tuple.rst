@@ -13,7 +13,7 @@ A Tuple is a fixed-size collection of heterogeneous values. CAMP includes a ``tu
 structure that closely mimics the one present in the C++ Standard Template Library (STL), 
 with the added benefit of working on GPU ``__device__s``. 
 
-CAMP has two tuple impplementations, ``tuple`` and ``tagged_tuple``. ``Tuple`` is the base 
+CAMP has two tuple implementations, ``tuple`` and ``tagged_tuple``. ``Tuple`` is the base 
 class of ``tagged_tuple``. The biggest difference between the two is that ``tuple`` uses 
 an ordered integer sequence for its indexes, whereas a ``tagged_tuple`` uses a set of index 
 `tags` provided by the user. 
@@ -48,7 +48,7 @@ Constructing ``tagged_tuples``
 Assignment
 ^^^^^^^^^^
 
-Camp's tuple implementation allows for assignment of one tuple to another, provided the parameters are compatible (i.e. convertable). 
+Camp's tuple implementation allows for assignment of one tuple to another, provided the parameters are compatible (i.e. convertible). 
 
 .. code-block:: cpp 
 
