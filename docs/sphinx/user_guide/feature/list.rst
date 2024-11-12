@@ -37,7 +37,7 @@ Common use cases for ``list`` include:
 Usage and Example Code
 ----------------------
 
-The ``list`` structure is literally just a struct with a variadic template: 
+The ``list`` structure is literally just a variadic template struct: 
 
 .. code-block:: cpp
 
@@ -51,8 +51,7 @@ member ``type``, there are no methods that are directly part of ``list``; howeve
 Here are some examples demonstrating how to use the ``list`` type and its associated functions. 
 
 The base ``list`` structure, the list-specific ``at`` construct, and the ``find_if`` construct are 
-all included in ``/include/list.hpp``. All of the other helper methods described below are contained in  
-``/include/camp.hpp``. 
+all included in ``camp/include/camp/list.hpp`` as well as all of the other helper methods described below.  
 
 Creating a List
 ^^^^^^^^^^^^^^^
