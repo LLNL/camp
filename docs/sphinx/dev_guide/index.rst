@@ -9,7 +9,7 @@
 Camp Developer Guide
 ####################
 
-The camp developer guide is here to help new Camp developers develop for camp. 
+The Camp developer guide is here to help new Camp developers develop for Camp. 
 
 Contributing to Camp
 ====================

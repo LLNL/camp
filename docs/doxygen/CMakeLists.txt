@@ -3,7 +3,7 @@
 # Produced at the Lawrence Livermore National Laboratory
 # Maintained by Tom Scogland <scogland1@llnl.gov>
 # CODE-756261, All rights reserved.
-# This file is part of camp.
+# This file is part of Camp.
 # For details about use and distribution, please read LICENSE and NOTICE from
 # http://github.com/llnl/camp
 ###############################################################################

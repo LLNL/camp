@@ -25,7 +25,7 @@ Usage
 Constructing ``tuples``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Using a tuple in camp is very similar to the C++ standard template library (STL) version.
+Using a tuple in Camp is very similar to the C++ standard template library (STL) version.
 
 .. code-block:: cpp 
   

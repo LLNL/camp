@@ -9,7 +9,7 @@ Camp Resources allow users to keep track of `streams of execution`. A single `st
 host, this corresponds to a separate `stream of execution` and therefore a separate Camp host resource.
 
 Typically, we deal with multiple Camp resources. This includes a single resource for the host and one or more for 
-the device, depending on how many (CUDA, Hip, etc.) streams we have in use. While we can have multiple camp resources 
+the device, depending on how many (CUDA, Hip, etc.) streams we have in use. While we can have multiple Camp resources 
 for the device (e.g. multiple CUDA streams), we can only have one resource for the host because the host only has one `stream of execution`.
 
 In addition to the Host, Camp provides a resource for several device backends:

@@ -14,7 +14,9 @@ Camp Used in Umpire
 `Umpire <https://github.com/LLNL/Umpire>`_ is a resource management library that allows the discovery, provision, and management of memory on machines 
 with multiple memory devices like NUMA and GPUs. Umpire is also part of the RAJA Portability Suite.
 Umpire's Operations provide an abstract interface to modifying and moving data between Umpire Allocators.
-Camp makes these operations easy to port regardless of the underlying hardware. For example:
+Camp makes these operations easy to port regardless of the underlying hardware. For simplicity, the below example
+just shows Umpire's ``CudaMemsetOperation``, but the code for Umpire's Hip, OpenMP, etc. variations of the Memset
+operation have little to no code changes.
 
 .. code-block:: cpp
 
