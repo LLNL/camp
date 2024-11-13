@@ -114,15 +114,15 @@ Combining Lists with ``extend`` , ``prepend``, and ``append``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can combine two lists into one using either the ``extend`` method, ``prepend`` method, or ``append`` method. Like in python, ``extend`` 
-will add the elements of one list into the back of the other list. ``Prepend`` and ``append`` will both add the extra parameters to either 
+will add the elements of one list into the back of the other list. ``prepend`` and ``append`` will add the specified list type to either 
 the front or back of an existing list, respectively. Let's look at some examples:
 
 .. code-block:: cpp 
 
-    // Extend 
     using list1 = camp::list<float, double, double>;
     using list2 = camp::list<int, int, char>;
 
+    // extend
     using list3 = camp::extend<list1, list2>::type; 
     // list3 is type camp::list<float, double, double, int, int, char>
 
@@ -140,13 +140,13 @@ the front or back of an existing list, respectively. Let's look at some examples
 
     using list1 = camp::list<int, int, char>;
 
-    using list2 = camp::append<list2, double>::type; 
+    using list2 = camp::append<list1, double>::type; 
     // list2 is type camp::list<int, int, char, double>
 
 Flattening Nested Lists
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Nested/multi dimensional lists can be flattened into a single dimension using the ``flatten`` construct. 
+Nested lists can be flattened into a single dimension using the ``flatten`` construct. 
 
 .. code-block:: cpp 
 
@@ -167,10 +167,10 @@ Camp provides a ``transform`` construct to perform operations on the types conta
     using list2 = camp::transform<std::remove_reference, list1>;
     // list2 is of type camp::list<int, int>;
 
-Operating on lists with the ``Accumulate`` construct
+Operating on lists with the ``accumulate`` construct
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``accumulate`` construct can be used to apply a given operation to a list. ``Accumulate`` 
+The ``accumulate`` construct can be used to apply a given operation to a list. ``accumulate`` 
 takes an operation, an initial value, and a list. It applies the operation across the list, starting with 
 the initial value.
 

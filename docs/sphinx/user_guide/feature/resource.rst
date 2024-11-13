@@ -15,16 +15,16 @@ for the device (e.g. multiple CUDA streams), we can only have one resource for t
 In addition to the Host, Camp provides a resource for several device backends:
 
 * CUDA
-* Hip
+* HIP
 * OpenMP Target
-* Sycl
+* SYCL
 
 Generic vs. Specific Camp Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Camp has two different types of Resources: generic (aka. type-erased) and specific (aka. typed). 
+Camp has two different types of Resources: generic (aka. type-erased) and concrete (aka. typed). 
 The generic (type-erased) resources work by holding a shared pointer to the base implementation of a resource 
-with virtual methods that call the same methods on the specific (typed) resource.
+with virtual methods that call the same methods on the concrete (typed) resource.
 
 A specific resource is created with:
 
@@ -33,7 +33,7 @@ A specific resource is created with:
    camp::resources::Host h1;
    camp::resources::Cuda c1;
 
-This will create a Host (specific) resource and a CUDA (specific) resource. With either ``c1`` or ``h1`` we can call different methods 
+This will create a Host resource and a CUDA resource. With either ``c1`` or ``h1`` we can call different methods 
 like ``get_platform()`` or ``get_stream()``. See the Doxygen information for more details. On the other hand, a generic 
 resource is created with:
 
@@ -50,8 +50,8 @@ We can also create a generic resource with:
    camp::resources::Resource h{camp::resources::Host()};
    camp::resources::Resource r{camp::resources::Cuda()};
 
-Having the ability to use both a typed and a typed-erased resource allows users more flexibility as they utilize Camp resources.
-The compiler can implicitly convert between the Generic and Specific resources for ease of use.
+Having the ability to use both a typed and a typed-erased resource allows users more flexibility as they use Camp resources.
+The compiler can implicitly convert between the generic and concrete resources for ease of use.
 
 Using Resources
 ~~~~~~~~~~~~~~~
@@ -61,8 +61,8 @@ Below, a few key use cases for Camp resources are shown.
 Using Events
 ^^^^^^^^^^^^
 
-Camp Resources allow users a hardware-agnostic way of interacting with the underlying hardware. For example, using
-a Camp Resource, users can create an event with the resource with:
+Camp resources allow users a hardware-agnostic way of interacting with the underlying hardware. For example, using
+a Camp resource, users can create an event with the resource with:
 
 .. code-block:: cpp
 
@@ -138,8 +138,8 @@ While it is possible for two device resources to be different since each resourc
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
 for the Host.
 
-Whether users are using a CUDA or Hip backend, the Camp resources require no code changes and provide
+Whether users are using a CUDA or HIP backend, the Camp resources require no code changes and provide
 a hardware-agnostic interface. Because of the way Camp resources were built, the compiler can implicitly
-convert between the Generic and Specific resources for ease of use.
+convert between the generic and concrete resources for ease of use.
 
 Find more examples of using Camp resources in the Using Camp section :ref:`using_camp-label`.

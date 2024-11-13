@@ -11,9 +11,9 @@ Introduction
 
 A Tuple is a fixed-size collection of heterogeneous values. Camp includes a ``tuple`` 
 structure that closely mimics the one present in the C++ Standard Template Library (STL), 
-with the added benefit of working on GPU ``__device__s``. 
+with the added benefit of working on GPUs. 
 
-Camp has two tuple implementations, ``tuple`` and ``tagged_tuple``. ``Tuple`` is the base 
+Camp has two tuple implementations, ``tuple`` and ``tagged_tuple``. ``tuple`` is the base 
 class of ``tagged_tuple``. The biggest difference between the two is that ``tuple`` uses 
 an ordered integer sequence for its indexes, whereas a ``tagged_tuple`` uses a set of index 
 `tags` provided by the user. 
@@ -35,7 +35,7 @@ Using a tuple in Camp is very similar to the C++ standard template library (STL)
 
 As we can see from the above example, the construction method of each tuple is very similar. 
 Camp also contains a ``tagged_tuple`` where one must provide an index sequence, as well as values. 
-This index sequence must be a list of any type, including :ref:`number-label`. 
+This index sequence may be a list of any type, including :ref:`number-label`. 
 
 Constructing ``tagged_tuples``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,7 +71,7 @@ Camp provides some convenience functions for making tuples and tagged tuples fro
 Accessing Elements using ``get<>()``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The sequence provided to the ``tagged_tuple`` is what is used to access elements using the ``get<>`` method. 
+The sequence provided to the ``tagged_tuple`` constructor is what is used to access elements using the ``get<>`` method. 
 In a normal ``tuple``, we can use the ``get<>`` method to access elements by index, and by type. 
 The elements of a ``tagged_tuple`` can only be accessed via the values of the index sequence provided at the time the 
 ``tagged_tuple`` was created. 
@@ -104,7 +104,7 @@ Helper methods
 ``tuple_size``
 """"""""""""""
 
-The ``tuple_size`` method returns the number of elements in the tuple. 
+The ``tuple_size`` method returns the number of elements in the tuple. In the examples below, we assume the existence of the Camp tuple ``myTuple`` in the previous example.
 
 .. code-block:: cpp 
 
