@@ -62,11 +62,12 @@ You can create a list of types using the ``list`` template:
 
     using MyList = camp::list<int, double, char>;
 
-Alternatively, you can turn a different type into a list using the ``as_list`` construct: 
+Alternatively, you can turn a different type into a list using the ``as_list`` construct. In this example, we will use a :ref:`tuple-label`: 
 
 .. code-block:: cpp 
-
-    using MyList = camp::as_list</*listable construct*/>
+    camp::tuple<int, double> myTuple(5, 2.22);
+    using MyList = camp::as_list<decltype(myTuple)>
+    // MyList is list<int, double>;
 
 
 Accessing Types with ``at``
@@ -106,7 +107,7 @@ You can find the first type in the list that satisfies a condition using ``find_
 
     using myList = list<float, double, int*>;
     using FoundType = camp::find_if<is_double, MyList>::type; 
-    // FoundType is int*
+    // FoundType is double
 
 If the condition in ``find_if`` cannot be met, it will return ``nil``. 
 
@@ -237,14 +238,8 @@ Using Lists to make Maps
 ------------------------
 
 Camp provides a ``map.hpp`` header which can be combined with associative lists 
-to create a map-type structure. Consider the following: 
-
-.. code-block:: cpp 
-
-    using myMap = list<list<int, num<0>>, list<char, num<1>>>;
-
-Using the ``at_key`` method, we can do a lookup on the maps "keys" to access its "values". This works 
-because the lists  act as key value pairs. Here is an example of a lookup using the ``at_key`` method: 
+to create a map-type structure. Using the ``at_key`` method, we do a lookup on the maps "keys" to access its "values". This works 
+because the lists  act as key value pairs. 
 
 .. code-block:: cpp  
 

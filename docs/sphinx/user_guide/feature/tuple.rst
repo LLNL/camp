@@ -9,8 +9,8 @@ Tuples
 Introduction
 ------------
 
-A Tuple is a fixed-size collection of heterogeneous values. Camp includes a ``tuple`` 
-structure that closely mimics the one present in the C++ Standard Template Library (STL), 
+A tuple is a fixed-size collection of heterogeneous values (i.e., it may contain different types of values). 
+Camp includes a ``tuple`` structure that closely mimics the one present in the C++ Standard Template Library (STL), 
 with the added benefit of working on GPUs. 
 
 Camp has two tuple implementations, ``tuple`` and ``tagged_tuple``. ``tuple`` is the base 
