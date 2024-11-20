@@ -20,28 +20,15 @@ In C++, an array is a constant-sized, statically allocated slice of contiguous m
 While C++ arrays are conceptually equivalent to C-style arrays--in that their size must be known 
 at compile time--they have many quality-of-life features that make them easier and more convenient to use. 
 
-For example, in C, one might allocate memory in as follows:: 
+For example, in C and C++, one might create an array as follows:
+
+.. code-block:: cpp 
   
   #define N 100
-  double* arr = (double *)malloc(sizeof(double) * N);
+  double* arr[N];
 
-This is the super clunky and old-school way to do it, but in the end, we get a slice of 
-memory that can hold ``N`` double values. But alas, we must do all of our own memory management,
-implement our own operators to iterate over the values, everything. 
-
-C++ introduces a `new` way to do the same thing, at the language level, using the ``new`` keyword:
-
-.. code-block:: c
-
-    constexpr size_t N = 100;
-
-    double* arr = new double[N];
-
-This example is functionally equivalent to the C example in basically every way, the only difference 
-being that our call to ``new`` obfuscates the call to ``malloc``. 
-
-Finally, the C++ standard library (STL) implemented an ``array`` class, which provides access functions, 
-iterators, size information, and automatic memory management!
+The C++ standard library (STL) implemented an ``array`` class, which provides access functions, 
+iterators, size information that makes using an array much easier and more convenient.  
 
 .. code-block:: cpp
 
@@ -143,6 +130,41 @@ Camp provides multiple ``get`` methods that can be used for constexpr element ac
     return camp::get<1>(arr); // returns 2
 
 ``get`` can return const and non-const lvalue references, and rvalue references. 
+
+.. code-block:: cpp 
+
+    camp::array<int, 3> arr = {1, 2, 3}
+    const camp::array<int, 3> arr_const = {3, 2, 1};
+
+    // lvalue reference
+    camp::get<0>(arr) = 5;
+    // const lvalue reference
+    camp::get<1>(arr_const) = 4; // Error! Can't assign to const reference;
+
+    // arr is {5, 2, 3};
+    
+    // rvalue reference 
+    int&& val = camp::get<0>(camp::move(arr));
+    // val is 5, arr is in a moved-from state, using it further would incur undefined behaviour
+
+    const int&& val2 = camp::get<1>(camp::move(arr_const));
+    // val2 is 2, arr_const is in a moved-from state, using it further would incur undefined behaviour 
+
+
+Camp also provides access to the underlying data stored in the array using the ``data()`` method. This method returns a pointer to the internal memory of the array. 
+This pointer is functionally equivalent to the C/C++ default array pointer demonstrated earlier.
+
+.. code-block:: cpp 
+
+    camp::array<int, 3> arr;
+    int* data = arr.data();
+
+    data[0] = 2;
+    *(data + 1) = 4;
+    arr[3] = 5;
+
+    // arr = {2, 4, 5}
+
 
 Size methods
 ^^^^^^^^^^^^

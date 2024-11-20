@@ -65,6 +65,7 @@ You can create a list of types using the ``list`` template:
 Alternatively, you can turn a different type into a list using the ``as_list`` construct. In this example, we will use a :ref:`tuple-label`: 
 
 .. code-block:: cpp 
+
     camp::tuple<int, double> myTuple(5, 2.22);
     using MyList = camp::as_list<decltype(myTuple)>
     // MyList is list<int, double>;
@@ -96,6 +97,27 @@ The ``at`` functionality also contains two convenience templates for accessing t
     // firstType is int
     using secondType = camp::second<myList>; 
     // secondType is double 
+
+In special circumstances, the ``at_v`` method can be used to store and retrieve values from a list, as well as types. This requires a little 
+bit of prep work, and a special structure to actually hold the value within a type. 
+
+.. code-block:: cpp 
+
+    template<int VALUE>
+    struct Value {
+        static constexpr int value = VALUE;
+    };
+
+    using myList = camp::list< Value<8>, Value<4>, Value<2> >;
+
+    auto val = camp::at_v<myList, 1>::value;
+    // val is 4. 
+
+Since ``Value`` is a templated struct, the actual value that we want to retrieve is encoded into the type information for the struct. 
+So every ``Value`` we create is a unique type. The static ``value`` method of the ``Value`` struct allows us to retrieve the value 
+information with just the type being needed. So when we call ``camp::at_v<myList, 1>``, the type that is returned is our unique ``Value`` struct, 
+which has been templated with the value that we wish to store, and thus we can access the static ``value`` member of that struct to recieve the stored 
+value in such a way that we can use it in our code.  
 
 
 Finding a Type with ``find_if``
