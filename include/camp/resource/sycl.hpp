@@ -19,13 +19,11 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include <map>
 #include <array>
 #include <mutex>
-
-using namespace cl;
 
 namespace camp
 {
