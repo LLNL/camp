@@ -96,7 +96,7 @@ Users can also use events to synchronize on the device:
 
    ...
    auto resource = camp::resources::Resource{resource_type{}}; // Create a (Generic) Camp resource 
-   my_kernel<<<NUM_BLOCKS, THREADS_PER_BLOCK>>>(my_data); // Do some work on the device
+   my_kernel<<<NUM_BLOCKS, THREADS_PER_BLOCK, 0, resource.get_stream()>>>(my_data); // Do some work on the device
    resource.get_event().wait(); // Use the resource to synchronize the device after the kernel
    ...
 
