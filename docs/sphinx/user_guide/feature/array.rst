@@ -5,7 +5,7 @@
 Arrays
 ======
 
-Camp has its own Array implementation very similar to C++ std::array. Array functionality is
+Camp has its own array implementation very similar to C++ std::array. The array functionality is
 included in the ``array.hpp`` file within ``include/camp/``. 
 
 Some important notes: 
@@ -38,6 +38,8 @@ iterators, size information that makes using an array much easier and more conve
 
 The only drawback from the STL array implementation is that it can only be used on the ``host``, not any ``device``. 
 That's where Camp comes in. The ``camp::array`` retains all of the features from the STL array, but can also be used in GPU device code.
+In fact, the main difference is that the types are intentionally supported across host and device for both the ``array`` and ``tuple``
+Camp features. More information on Camp ``tuple`` can be found on the :ref:`tuple-label` page.
 
 -----------------------
 The camp::array methods
