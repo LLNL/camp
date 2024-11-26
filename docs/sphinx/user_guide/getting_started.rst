@@ -36,7 +36,7 @@ compiler loaded and the configuration is as simple as:
   $ cmake ../
 
 By default, Camp will only support the ``Host`` backend. Additional backends for
-device support can be enabled using the options such as ``-DENABLE_CUDA=On``
+device support can be enabled using the options such as ``-DENABLE_CUDA=On``.
 CMake will provide output about which compiler
 is being used and the values of other options. Once CMake has completed, Camp
 can be built with Make:
@@ -49,7 +49,7 @@ can be built with Make:
 Basic Usage
 -----------
 
-Most Camp usage revolves around Camp ``Resource`` types. A quick way to get started
+The most common Camp usage revolves around Camp ``Resource`` types. A quick way to get started
 using Camp resources is to do the following:
 
 .. code-block:: cpp

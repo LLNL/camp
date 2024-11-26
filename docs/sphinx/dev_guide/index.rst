@@ -25,7 +25,7 @@ and `GitHub <https://github.com/>`_, which is where our project is hosted.
 GitHub Project Access
 ---------------------
 
-Camp maintains levels of project access on it GitHub project:
+Camp maintains levels of project access on its GitHub project:
 
   * **Core team members.** Individuals on the core Camp and RAJA team are frequent
     Camp contributors and participate regularly in project meetings, 
@@ -34,14 +34,14 @@ Camp maintains levels of project access on it GitHub project:
     push code changes to the Camp repo, make PRs, and merge them when they are 
     approved and all checks have passed.
   * **Everyone else.** Anyone with a GitHub account is welcome to contribute
-    to Camp. Individuals outside of the two groups described above can make PRs
+    to Camp. Individuals outside of the group described above can make PRs
     in the Camp project, but must do so from a branch on a *fork* of 
     the Camp repo. 
 
 If you need access to the Camp repo, email raja-dev@llnl.gov
 
 Before a PR can be merged into Camp, all test checks must pass and the PR must be approved 
-by at least one member of the core Camp team.
+by at least one member of the core Camp or RAJA team.
 
 Each Camp contribution (feature, bugfix, etc.) must include adequate tests, documentation, 
 and code examples. The adequacy of PR content, in this respect, is determined by PR reviewers 
@@ -68,7 +68,10 @@ and 07 corresponds to the month in which the release was made.
 .. important:: 
    Releases are coordinated with the RAJA and Umpire teams as part of timely
    RAJA Portability Suite releases. The release names will correspond to the release
-   names of RAJA and Umpire as part of this process.
+   names of RAJA and Umpire as part of this process. Be sure to coordinate any Camp
+   releases and work with the RAJA and Umpire teams for a release schedule.
+
+For example:
 
 .. code:: bash
 
@@ -76,6 +79,9 @@ and 07 corresponds to the month in which the release was made.
 
 2: Update Versions in Code
 --------------------------
+
+Update the version of the code where ever it is documented (i.e. the README file, Doxygen, etc.)
+and make sure the new version numbers are consistent.
 
 **Update Release Notes**
 
@@ -104,10 +110,12 @@ if applicable.
 
 #. Enter a Release title with the same as the tag *v2024.07*
 
-#. Enter the information for the release into the release description (omit any sections if empty).
+#. Enter the information for the release into the release description.
 
 #. Publish the release. This will add a corresponding entry in the
    `Releases section <https://github.com/LLNL/camp/releases>`_
+
+#. Communicate with the RAJA team when this process is done to properly coordinate releases.
 
 .. note::
 
@@ -115,7 +123,7 @@ if applicable.
    source files for each release.
 
 
-5: Create Release Branch and Mergeback to develop
+5: Create Release Branch and Mergeback to main
 -------------------------------------------------
 
 1. Create a branch off main that is for the release branch.

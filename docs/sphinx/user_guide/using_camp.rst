@@ -8,6 +8,10 @@ Since Camp is a metaprogramming library that is primarily header-only, it is har
 to find isolated code examples that show Camp's capability. Instead, this page
 shows several real application examples of how Camp is being used currently.
 
+More information about Camp the ``Resource`` and ``EventProxy`` can be found on the :ref:`resources-label` page.
+
+There are additional, more basic examples of other Camp features on the :ref:`features-label` pages.
+
 Camp Used in Umpire
 ===================
 
@@ -43,6 +47,11 @@ operation have little to no code changes.
     return camp::resources::EventProxy<camp::resources::Resource>{ctx};
   }
 
+The above code snippet shows how Umpire uses Camp's ``EventProxy`` and ``Resource`` features. This function is passed
+the ``ctx`` parameter which is a Camp ``Resource``. It then uses the ``try_get`` method in an attempt to get the typed
+``Resource`` and if it can't, it throws an error. From there, we can call other method functions like ``get_stream()``
+on the typed ``Resource``.
+
 See the full example `here <https://github.com/LLNL/Umpire/blob/5bf5bc182f1e6ee3f6be1d953b68451d3ddc35f5/src/umpire/op/CudaMemsetOperation.cpp>`_.
 
 .. note::
@@ -70,6 +79,9 @@ is being used in the ``RAJA::Launch`` abstraction.
        }
    #endif
 
+In this example, RAJA is using a Camp ``Resource`` to determine where to execute the ``RAJA::Launch``. Depending on 
+the value of ``device`` it will return a Camp device or host ``Resource``.
+
 See the full example `here <https://github.com/LLNL/RAJA/blob/develop/include/RAJA/pattern/launch/launch_core.hpp>`_.
 
 Camp Used in RAJAPerf
@@ -91,6 +103,10 @@ Camp has also been included in RAJAPerf as a way to easily determine which strea
        return camp::resources::Cuda::get_default();
      }
    #endif
+
+This RAJAPerf example creates a typed Camp ``Resource`` and then returns either the default stream or a different stream depending on
+the value of ``run_params.getGPUStream()``. This example shows member functions of the typed resource such as ``get_default()``
+for getting the default stream and ``CudaFromStream()`` for selecting a specific stream.
 
 See the full example `here <https://github.com/LLNL/RAJAPerf/blob/abb07792a899f7417e77ea40015e7e1dfd52716e/src/common/KernelBase.hpp>`_.
 
@@ -127,6 +143,9 @@ is an example of Camp used in CHAI's ``ArrayManager``:
        device_resource.wait();
      }
    }
+
+This CHAI example shows how to construct a generic ``Resource`` from the default stream of a typed ``Resource``. Later, the
+example shows how to create a barrier with that ``Resource`` by calling the ``wait()`` method.
 
 See the full example `here <https://github.com/LLNL/CHAI/blob/7ba2ba89071bf836071079929af7419da475ba27/src/chai/ArrayManager.cpp#L246>`_.
 
