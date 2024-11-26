@@ -39,6 +39,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(cmake/load_blt.cmake)
 
 
+cmake_dependent_option(CAMP_ENABLE_DOCUMENTATION "Build Docs" Off "ENABLE_DOCS" Off)
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
 
 # if ENABLE_TESTS is defined by a parent project, and
@@ -188,5 +189,9 @@ install(FILES
 if(CAMP_ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
+endif()
+
+if(CAMP_ENABLE_DOCUMENTATION)
+  add_subdirectory(docs)
 endif()
 
