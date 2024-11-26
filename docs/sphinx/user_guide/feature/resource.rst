@@ -57,7 +57,12 @@ Using Resources
 ~~~~~~~~~~~~~~~
 
 Once you've created a resource, there are several useful things you can do with them including creating events and comparing
-resources. Below, a few examples of these key use cases for Camp resources are shown.
+resources. Whether users are using a CUDA or HIP backend, the Camp resources require no code changes and provide
+a hardware-agnostic interface. Because of the way Camp resources were built, the compiler can implicitly
+convert between the generic and concrete resources for ease of use.
+
+Find more examples of using Camp resources in the Using Camp section :ref:`using_camp-label`.
+Below, a few examples of these key use cases for Camp resources are shown.
 
 Using Events
 ^^^^^^^^^^^^
@@ -107,6 +112,22 @@ Users can also use events to synchronize on the device:
    resource.get_event().wait(); // Use the resource to synchronize the device after the kernel
    ...
 
+Using EventProxy
+""""""""""""""""
+
+Sometimes a user may want to avoid the overhead of creating an event unless absolutely necessary. In this case,
+Camp provides the ``EventProxy`` class. If a piece of code returns an ``EventProxy``, an event is only created if the
+user stores the return value as an event. For example:
+
+.. code-block:: cpp
+
+   EventProxy do_something();
+
+   do_something(); // return value ignored no event created
+
+   Event e = do_something(); // event created
+   e.wait();
+
 Comparing Resources
 ^^^^^^^^^^^^^^^^^^^
 
@@ -145,8 +166,3 @@ While it is possible for two device resources to be different since each resourc
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
 for the Host.
 
-Whether users are using a CUDA or HIP backend, the Camp resources require no code changes and provide
-a hardware-agnostic interface. Because of the way Camp resources were built, the compiler can implicitly
-convert between the generic and concrete resources for ease of use.
-
-Find more examples of using Camp resources in the Using Camp section :ref:`using_camp-label`.
