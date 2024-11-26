@@ -19,14 +19,14 @@ In addition to the Host, Camp provides a resource for several device backends:
 * OpenMP Target
 * SYCL
 
-Generic vs. Specific Camp Resources
+Generic vs. Concrete Camp Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Camp has two different types of Resources: generic (aka. type-erased) and concrete (aka. typed). 
 The generic (type-erased) resources work by holding a shared pointer to the base implementation of a resource 
 with virtual methods that call the same methods on the concrete (typed) resource.
 
-A specific resource is created with:
+A concrete resource is created with:
 
 .. code-block:: cpp
 
@@ -42,7 +42,7 @@ resource is created with:
    camp::resources::Resource h{h1};
    camp::resources::Resource r{c1};
 
-This way of creating a generic resource uses the specific resource created above, ``h1`` or ``c1``, to construct it.
+This way of creating a generic resource uses the concrete resource created above, ``h1`` or ``c1``, to construct it.
 We can also create a generic resource with:
 
 .. code-block:: cpp
@@ -56,13 +56,20 @@ The compiler can implicitly convert between the generic and concrete resources f
 Using Resources
 ~~~~~~~~~~~~~~~
 
-Below, a few key use cases for Camp resources are shown.
+Once you've created a resource, there are several useful things you can do with them including creating events and comparing
+resources. Below, a few examples of these key use cases for Camp resources are shown.
 
 Using Events
 ^^^^^^^^^^^^
 
-Camp resources allow users a hardware-agnostic way of interacting with the underlying hardware. For example, using
-a Camp resource, users can create an event with the resource with:
+Camp resources allow users a hardware-agnostic way of interacting with the underlying hardware with events. 
+
+.. note::
+
+  Camp events behave just like a normal CUDA/HIP/SYCL events "under the hood", so be sure to refer to the vendor documentation 
+  for implementation specific details.
+
+For example, using a Camp resource, users can create an event with:
 
 .. code-block:: cpp
 
@@ -74,7 +81,7 @@ The ``get_event()`` method will create and record a CUDA event. From here, users
 .. code-block:: cpp
 
    if(c1.get_event().check()) {
-     // If we get here, the event has completed
+     // If we get here, the event has completed and check() has returned cudaSuccess
    }
 
 Or explicitly wait on the event:
@@ -120,8 +127,8 @@ to a separate Camp resource.
 
 
 Comparison of resources must be of the same type. In other words, you can compare two generic resources
-for equality OR two specific (or typed) resources for equality. If you need to compare a generic resource
-with a specific resource, you have to convert the specific (typed) resource to a generic one. For example:
+for equality OR two concrete (or typed) resources for equality. If you need to compare a generic resource
+with a concrete resource, you have to convert the concrete (typed) resource to a generic one. For example:
 
 .. code-block:: cpp
 
