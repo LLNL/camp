@@ -72,7 +72,7 @@ Camp resources allow users a hardware-agnostic way of interacting with the under
 .. note::
 
   Camp events behave just like a normal CUDA/HIP/SYCL events "under the hood", so be sure to refer to the vendor documentation 
-  for implementation specific details.
+  for implementation-specific details.
 
 For example, using a Camp resource, users can create an event with:
 
@@ -101,9 +101,9 @@ Users can also use events to synchronize on the device:
 .. code-block:: cpp
 
    #if defined(ENABLE_CUDA)
-     using resource_type = camp::resources::Cuda; // Create the (Specific) Camp resource
+     using resource_type = camp::resources::Cuda; // Create the (Concrete) Camp resource
    #elif defined(ENABLE_HIP)
-     using resource_type = camp::resources::Hip; // Create the (Specific) Camp resource
+     using resource_type = camp::resources::Hip; // Create the (Concrete) Camp resource
    #endif
 
    ...

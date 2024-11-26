@@ -6,7 +6,10 @@ Using Camp
 
 Since Camp is a metaprogramming library that is primarily header-only, it is hard
 to find isolated code examples that show Camp's capability. Instead, this page
-shows several real application examples of how Camp is being used currently.
+shows several real application examples of how Camp is being used currently. Since Camp
+is a metaprogramming library and is very low-level, these examples show detailed implementation code that is not
+user-facing. However, these examples should be useful for understanding how Camp functionality can be
+properly utilized.
 
 More information about Camp the ``Resource`` and ``EventProxy`` can be found on the :ref:`resources-label` page.
 
@@ -20,7 +23,7 @@ with multiple memory devices like NUMA and GPUs. Umpire is also part of the RAJA
 Umpire's Operations provide an abstract interface to modifying and moving data between Umpire Allocators.
 Camp makes these operations easy to port regardless of the underlying hardware. For simplicity, the below example
 just shows Umpire's ``CudaMemsetOperation``, but the code for Umpire's Hip, OpenMP, etc. variations of the Memset
-operation have little to no code changes.
+operation have very few code changes.
 
 .. code-block:: cpp
 
