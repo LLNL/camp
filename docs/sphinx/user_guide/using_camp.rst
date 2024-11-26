@@ -84,6 +84,24 @@ the value of ``device`` it will return a Camp device or host ``Resource``.
 
 See the full example `here <https://github.com/LLNL/RAJA/blob/develop/include/RAJA/pattern/launch/launch_core.hpp>`_.
 
+RAJA also uses Camp ``tuple`` features to set up RAJA Views:
+
+.. code-block:: cpp
+
+   template<typename IdxLin, typename...DimTypes>
+   struct add_offset<RAJA::TypedLayout<IdxLin,camp::tuple<DimTypes...>>>
+   {
+     using type = RAJA::TypedOffsetLayout<IdxLin,camp::tuple<DimTypes...>>;
+   };
+
+Learn more about the Camp ``tuple`` feature on the :ref:`tuples-label` page.
+
+See the full example `here <https://github.com/LLNL/RAJA/blob/0aef7cc44348d82e94e73e12f77c27ea306e47b8/include/RAJA/util/View.hpp>`_.
+
+RAJA has many examples of using Camp. In fact, so many internal RAJA implementations use Camp that RAJA has a
+`camp alias page <https://github.com/LLNL/RAJA/blob/0aef7cc44348d82e94e73e12f77c27ea306e47b8/include/RAJA/util/camp_aliases.hpp>`_ which
+creates RAJA aliases for many Camp features.
+
 Camp Used in RAJAPerf
 =====================
 
