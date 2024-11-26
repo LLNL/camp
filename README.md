@@ -4,10 +4,10 @@
 
 CAMP is a C++ Meta-Programming library which provides HPC compiler compatability
 and portability abstractions. This project is a collection of various macros and 
-metaprogramming facilities and is part of the RAJA Portability Suite. 
+metaprogramming facilities and is part of the [RAJA Portability Suite](https://computing.llnl.gov/projects/raja-managing-application-portability-next-generation-platforms). 
 With projects like METAL as a major influence, CAMP focuses on wide compiler 
 compatibility across HPC-oriented systems.
 
-See Documentation on ReadTheDocs, including User and Contributor Guides.
+See Documentation on [ReadTheDocs](https://camp.readthedocs.io/en/latest/), including User and Contributor Guides.
 
 If you have questions, email raja-dev@llnl.gov.
