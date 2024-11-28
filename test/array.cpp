@@ -255,6 +255,20 @@ CAMP_TEST_BEGIN(array, fill)
           a[2] == 0;
 } CAMP_TEST_END(array, fill)
 
+CAMP_TEST_BEGIN(array, swap)
+{
+   camp::array<int, 3> a{1, 2, 3};
+   camp::array<int, 3> b{3, 2, 1};
+   camp::swap(a, b); // Calls a.swap(b), so covers that as well
+
+   return a[0] == 3 &&
+          a[1] == 2 &&
+          a[2] == 1 &&
+          b[0] == 1 &&
+          b[1] == 2 &&
+          b[2] == 3;
+} CAMP_TEST_END(array, swap)
+
 CAMP_TEST_BEGIN(array, equal)
 {
    camp::array<int, 2> a{1, 2};
