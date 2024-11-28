@@ -54,7 +54,7 @@ namespace resources
                 typename = typename std::enable_if<
                     !std::is_same<typename std::decay<T>::type,
                                   Resource>::value>::type>
-      Resource(T &&value)
+      explicit Resource(T &&value)
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
       }
