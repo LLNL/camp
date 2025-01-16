@@ -1,3 +1,17 @@
+[comment]: # (#################################################################)
+[comment]: # (Copyright 2018-25, Lawrence Livermore National Security, LLC)
+[comment]: # (and Camp project contributors. See the camp/LICENSE file)
+[comment]: # (for details.)
+[comment]: #
+[comment]: # (Part of the LLVM Project, under the Apache License v2.0 with LLVM)
+[comment]: # (exceptions.)
+[comment]: # (See https://llvm.org/LICENSE.txt for license information.)
+[comment]: # (SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception)
+[comment]: #
+[comment]: # (See the LLVM_LICENSE file at http://github.com/llnl/camp for the)
+[comment]: # (full license text.)
+[comment]: # (#################################################################)
+
 # <img src="/share/camp/logo/camp2-gradient.png" width="128" valign="middle" alt="Camp"/>
 
 ## CAMP Concepts And Meta-Programming library

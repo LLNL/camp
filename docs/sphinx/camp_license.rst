@@ -1,9 +1,14 @@
 .. ##
-.. ## Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
-.. ## and Camp project contributors. See the Camp/LICENSE file
-.. ## for details.
+.. ## Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+.. ## and Camp project contributors. See the camp/LICENSE file for details.
 .. ##
-.. ## SPDX-License-Identifier: (BSD-3-Clause)
+.. ## Part of the LLVM Project, under the Apache License v2.0 with LLVM
+.. ## exceptions.
+.. ## See https://llvm.org/LICENSE.txt for license information.
+.. ## SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+.. ##
+.. ## See the LLVM_LICENSE file at http://github.com/llnl/camp for the
+.. ## full license text.       
 .. ##
 
 .. _camp-copyright:
@@ -12,7 +17,7 @@
 Camp Copyright and License Information
 ======================================
 
-Copyright (c) 2018-24, Lawrence Livermore National Security, LLC.
+Copyright (c) 2018-25, Lawrence Livermore National Security, LLC.
 
 Produced at the Lawrence Livermore National Laboratory.
 
