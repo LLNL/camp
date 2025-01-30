@@ -1,10 +1,7 @@
-.. ##
-.. ## Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
-.. ## and RAJA project contributors. See the Camp/LICENSE file
-.. ## for details.
-.. ##
-.. ## SPDX-License-Identifier: (BSD-3-Clause)
-.. ##
+.. # Copyright (c) 2018-2025, Lawrence Livermore National Security, LLC and
+.. # other Camp project contributors. See the camp/LICENSE file for details.
+.. #
+.. # SPDX-License-Identifier: (BSD-3-Clause)
 
 .. _features-label:
 
