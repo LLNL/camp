@@ -1,15 +1,8 @@
 ###############################################################################
-# Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
-# and Camp project contributors. See the camp/LICENSE file for details.
+# Copyright (c) 2016-24, Lawrence Livermore National Security, LLC
+# and other RAJA project contributors. See the RAJA/LICENSE file for details.
 #
-###############################################################################
-#
-#  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-#  See https://llvm.org/LICENSE.txt for license information.
-#  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-#
-#  See the LLVM_LICENSE file at http://github.com/llnl/camp for the full license
-#  text.
+# SPDX-License-Identifier: (BSD-3-Clause)
 ###############################################################################
 
 find_program(SPHINX_EXECUTABLE
