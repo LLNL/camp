@@ -1,3 +1,10 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 /*
 Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
 Produced at the Lawrence Livermore National Laboratory

@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef __CAMP_RESOURCE_HPP
 #define __CAMP_RESOURCE_HPP

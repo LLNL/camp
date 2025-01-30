@@ -1,3 +1,11 @@
+[comment]: # (#################################################################)
+[comment]: # (Copyright 2018-25, Lawrence Livermore National Security, LLC)
+[comment]: # (and Camp project contributors. See the camp/LICENSE file)
+[comment]: # (for details.)
+[comment]: # 
+[comment]: # (# SPDX-License-Identifier: BSD-3-Clause)
+[comment]: # (#################################################################)
+
 # <img src="/share/camp/logo/camp2-gradient.png" width="128" valign="middle" alt="Camp"/>
 
 ## CAMP Concepts And Meta-Programming library
