@@ -108,6 +108,7 @@ namespace resources
         static int previous = 0;
 
         static std::once_flag m_onceFlag;
+        CAMP_ALLOW_UNUSED_LOCAL(m_onceFlag);
         if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
