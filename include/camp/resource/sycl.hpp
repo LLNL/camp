@@ -179,7 +179,11 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess CAMP_UNUSED_ARG(ma = MemoryAccess::Device)) { sycl::free(p, *qu); }
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
+      {
+        CAMP_ALLOW_UNUSED_LOCAL(ma);
+        sycl::free(p, *qu);
+      }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
