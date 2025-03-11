@@ -25,6 +25,8 @@
 namespace camp
 {
 
+#define CAMP_UNUSED_ARG(X)
+
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
 
 #if defined(__clang__)
