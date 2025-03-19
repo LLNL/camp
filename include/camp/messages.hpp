@@ -19,16 +19,16 @@ namespace camp
   template <typename... Args>
   using message = camp::tuple<std::decay_t<Args>...>;  
 
-  template <typename... Args>
+  template <typename T>
   class message_queue 
   {
   public:
-    using value_type     = message<Args...> ;
+    using value_type     = T;
     using size_type      = std::size_t;
     using pointer        = value_type*;
-    using const_pointer  = const pointer;
+    using const_pointer  = const value_type*;
     using iterator       = pointer;
-    using const_iterator = const iterator;
+    using const_iterator = const_pointer;
 
     message_queue() : m_capacity{0}, m_size{0}, m_buf{nullptr} 
     {}
@@ -37,50 +37,60 @@ namespace camp
     {}
 
     template <typename... Ts>
-    bool try_emplace(Ts&&... args)
-    {
+    bool try_emplace(Ts&&... args) {
       auto local_size = camp::atomic_fetch_inc(&m_size);
       if (m_buf != nullptr && local_size < m_capacity) {
-        m_buf[local_size] = camp::make_tuple<Ts...>(std::forward<Ts>(args)...);
+        m_buf[local_size] = T(std::forward<Ts>(args)...);
 	return true;
       }
 
       return false;
     }
 
-    pointer data() noexcept
-    {
+    constexpr pointer data() noexcept {
       return m_buf;
     }
 
-    pointer data() const noexcept
-    {
+    constexpr const_pointer data() const noexcept {
       return m_buf;
     }
 
-    size_type capacity() const noexcept
-    {
+    constexpr size_type capacity() const noexcept {
       return m_capacity;
     }
 
-    size_type size() const noexcept
-    {
+    constexpr size_type size() const noexcept {
       return std::min(m_capacity, m_size);
     }
 
-    bool empty() const noexcept
-    {
+    constexpr bool empty() const noexcept {
       return size() == 0;
     }
 
-    iterator begin() noexcept { return data(); }
-    iterator end() noexcept   { return data()+size(); }
+    constexpr iterator begin() noexcept { 
+      return data(); 
+    }
 
-    iterator begin() const noexcept { return data(); }
-    iterator end() const noexcept   { return data()+size(); }
+    constexpr const_iterator begin() const noexcept { 
+      return const_iterator(data()); 
+    }
 
-    iterator cbegin() const noexcept { return data(); }
-    iterator cend() const noexcept   { return data()+size(); }
+    constexpr const_iterator cbegin() const noexcept { 
+      return const_iterator(data()); 
+    }
+
+    constexpr iterator end() noexcept {
+      return data()+size(); 
+    }
+
+    constexpr const_iterator end() const noexcept { 
+      return const_iterator(data()+size()); 
+    }
+
+
+    constexpr const_iterator cend() const noexcept   { 
+      return const_iterator(data()+size()); 
+    }
 
     void clear() noexcept
     {
@@ -99,7 +109,7 @@ namespace camp
   class message_handler<R(Args...)>
   {
   public:
-    using msg_queue     = message_queue<Args...>;
+    using msg_queue     = message_queue<message<Args...>>;
     using callback_type = std::function<R(Args...)>;
 
   public:
@@ -137,7 +147,7 @@ namespace camp
     template <typename... Ts>
     bool try_post_message(Ts&&... args)
     {
-      return m_queue.try_emplace(std::forward<Ts>(args)...); 
+      return m_queue.try_emplace(camp::make_tuple(std::forward<Ts>(args)...)); 
     }
 
     void clear()
