@@ -201,8 +201,8 @@ TEST(CampResource, StreamSelect)
 {
   hipStream_t stream1, stream2;
 
-  hipStreamCreate(&stream1);
-  hipStreamCreate(&stream2);
+  (void)hipStreamCreate(&stream1);
+  (void)hipStreamCreate(&stream2);
 
   Resource c1{Hip::HipFromStream(stream1)};
   Resource c2{Hip::HipFromStream(stream2)};
@@ -214,8 +214,8 @@ TEST(CampResource, StreamSelect)
   c1.deallocate(d_array1);
   c2.deallocate(d_array2);
 
-  hipStreamDestroy(stream1);
-  hipStreamDestroy(stream2);
+  (void)hipStreamDestroy(stream1);
+  (void)hipStreamDestroy(stream2);
 }
 
 TEST(CampResource, Get)
@@ -243,7 +243,7 @@ TEST(CampResource, GetEvent)
 
   auto ev2 = c1.get_event();
   hipStream_t s;
-  hipStreamCreate(&s);
+  (void)hipStreamCreate(&s);
   Event evc{HipEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
 }
@@ -261,7 +261,7 @@ TEST(CampEvent, Get)
 
   HostEvent host_event;
   hipStream_t s;
-  hipStreamCreate(&s);
+  (void)hipStreamCreate(&s);
   HipEvent cuda_event(s);
 
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
