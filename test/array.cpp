@@ -401,7 +401,7 @@ CAMP_TEST_BEGIN(array, structured_binding)
 
 CAMP_TEST_BEGIN(array, deduction_guide)
 {
-   camp::array a{-1, 1};
+   camp::array<int, 2> a{-1, 1};
 
    return a[0] == -1 &&
           a[1] == 1;
