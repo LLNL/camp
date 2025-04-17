@@ -196,7 +196,7 @@ CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
-#define CampHipErrchkDiscardReturn(ans) (void)::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
+#define campHipErrchkDiscardReturn(ans) (void)::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
 CAMP_DLL_EXPORT hipError_t hipAssert(hipError_t code,
                             const char *call,
