@@ -81,18 +81,15 @@ jobs:
         base_img: nvcc
         ver: 11.8.0
         cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
-        compiler: clang++
       nvcc11-debug:
         base_img: nvcc
         ver: 11.8.0
         cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
-        compiler: clang++
         build_type: Debug
       nvcc12:
         base_img: nvcc
         ver: 12.2.2
         cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
-        compiler: clang++
       rocm:
         base_img: rocm
         cmake_extra: -DROCM_PATH=/opt/rocm -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
