@@ -399,9 +399,8 @@ CAMP_TEST_BEGIN(array, structured_binding)
           a[1] == 3;
 } CAMP_TEST_END(array, structured_binding)
 
-#if defined(CAMP_ENABLE_CUDA) && (CAMP_CXX_STD == 17)
-//If CUDA is enabled and building with c++17, skip test to avoid NVCC error
-#else
+//If CUDA is enabled and building with c++17, must use up-to-date CUDA version
+//Or this test will fail. Worked with cuda/11.8.0 and clang/18.1.8 
 CAMP_TEST_BEGIN(array, deduction_guide)
 {
    camp::array a{-1, 1};
@@ -409,6 +408,5 @@ CAMP_TEST_BEGIN(array, deduction_guide)
    return a[0] == -1 &&
           a[1] == 1;
 } CAMP_TEST_END(array, deduction_guide)
-#endif
 
 #endif
