@@ -116,8 +116,8 @@ TEST(CampResource, StreamSelect)
 {
   cudaStream_t stream1, stream2;
 
-  cudaStreamCreate(&stream1);
-  cudaStreamCreate(&stream2);
+  campCudaErrchkDiscardReturn(cudaStreamCreate(&stream1));
+  campCudaErrchkDiscardReturn(cudaStreamCreate(&stream2));
 
   Resource c1{Cuda::CudaFromStream(stream1)};
   Resource c2{Cuda::CudaFromStream(stream2)};
@@ -129,8 +129,8 @@ TEST(CampResource, StreamSelect)
   c1.deallocate(d_array1);
   c2.deallocate(d_array2);
 
-  cudaStreamDestroy(stream1);
-  cudaStreamDestroy(stream2);
+  campCudaErrchkDiscardReturn(cudaStreamDestroy(stream1));
+  campCudaErrchkDiscardReturn(cudaStreamDestroy(stream2));
 }
 
 TEST(CampResource, Get)
@@ -158,7 +158,7 @@ TEST(CampResource, GetEvent)
 
   auto ev2 = c1.get_event();
   cudaStream_t s;
-  cudaStreamCreate(&s);
+  campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
   Event evc{CudaEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
 }
@@ -176,7 +176,7 @@ TEST(CampEvent, Get)
 
   HostEvent host_event;
   cudaStream_t s;
-  cudaStreamCreate(&s);
+  campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
   CudaEvent cuda_event(s);
 
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
@@ -201,8 +201,8 @@ TEST(CampResource, StreamSelect)
 {
   hipStream_t stream1, stream2;
 
-  hipStreamCreate(&stream1);
-  hipStreamCreate(&stream2);
+  campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
+  campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
 
   Resource c1{Hip::HipFromStream(stream1)};
   Resource c2{Hip::HipFromStream(stream2)};
@@ -214,22 +214,22 @@ TEST(CampResource, StreamSelect)
   c1.deallocate(d_array1);
   c2.deallocate(d_array2);
 
-  hipStreamDestroy(stream1);
-  hipStreamDestroy(stream2);
+  campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
+  campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
 }
 
 TEST(CampResource, Get)
 {
   Resource dev_host{Host()};
-  Resource dev_cuda{Hip()};
+  Resource dev_hip{Hip()};
 
   auto erased_host = dev_host.get<Host>();
   Host pure_host;
   ASSERT_EQ(typeid(erased_host), typeid(pure_host));
 
-  auto erased_cuda = dev_cuda.get<Hip>();
-  Hip pure_cuda;
-  ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
+  auto erased_hip = dev_hip.get<Hip>();
+  Hip pure_hip;
+  ASSERT_EQ(typeid(erased_hip), typeid(pure_hip));
 }
 
 TEST(CampResource, GetEvent)
@@ -243,7 +243,7 @@ TEST(CampResource, GetEvent)
 
   auto ev2 = c1.get_event();
   hipStream_t s;
-  hipStreamCreate(&s);
+  campHipErrchkDiscardReturn(hipStreamCreate(&s));
   Event evc{HipEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
 }
@@ -251,21 +251,21 @@ TEST(CampResource, GetEvent)
 TEST(CampEvent, Get)
 {
   Resource h1{Host()};
-  Resource c1{Hip()};
+  Resource d1{Hip()};
 
   Event erased_host_event = h1.get_event();
-  Event erased_cuda_event = c1.get_event();
+  Event erased_hip_event = d1.get_event();
 
   auto pure_host_event = erased_host_event.get<HostEvent>();
-  auto pure_cuda_event = erased_cuda_event.get<HipEvent>();
+  auto pure_hip_event = erased_hip_event.get<HipEvent>();
 
   HostEvent host_event;
   hipStream_t s;
-  hipStreamCreate(&s);
-  HipEvent cuda_event(s);
+  campHipErrchkDiscardReturn(hipStreamCreate(&s));
+  HipEvent hip_event(s);
 
   ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
-  ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
+  ASSERT_EQ(typeid(hip_event), typeid(pure_hip_event));
 }
 #endif
 

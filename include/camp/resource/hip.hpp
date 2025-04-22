@@ -31,9 +31,9 @@ namespace resources
       struct device_guard {
         device_guard(int device)
         {
-          campHipErrchk(hipGetDevice(&prev_device));
+          campHipErrchkDiscardReturn(hipGetDevice(&prev_device));
           if (device != prev_device) {
-            campHipErrchk(hipSetDevice(device));
+            campHipErrchkDiscardReturn(hipSetDevice(device));
           } else {
             prev_device = -1;
           }
@@ -42,7 +42,7 @@ namespace resources
         ~device_guard()
         {
           if (prev_device != -1) {
-            campHipErrchk(hipSetDevice(prev_device));
+            campHipErrchkDiscardReturn(hipSetDevice(prev_device));
           }
         }
 
@@ -61,7 +61,7 @@ namespace resources
       {
         return (campHipErrchk(hipEventQuery(m_event)) == hipSuccess);
       }
-      void wait() const { campHipErrchk(hipEventSynchronize(m_event)); }
+      void wait() const { campHipErrchkDiscardReturn(hipEventSynchronize(m_event)); }
       hipEvent_t getHipEvent_t() const { return m_event; }
 
     private:
@@ -69,8 +69,8 @@ namespace resources
 
       void init(hipStream_t stream)
       {
-        campHipErrchk(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
-        campHipErrchk(hipEventRecord(m_event, stream));
+        campHipErrchkDiscardReturn(hipEventCreateWithFlags(&m_event, hipEventDisableTiming));
+        campHipErrchkDiscardReturn(hipEventRecord(m_event, stream));
       }
     };
 
@@ -87,7 +87,7 @@ namespace resources
         std::call_once(m_onceFlag, [] {
           if (streams[0] == nullptr) {
             for (auto &s : streams) {
-              campHipErrchk(hipStreamCreate(&s));
+              campHipErrchkDiscardReturn(hipStreamCreate(&s));
             }
           }
         });
@@ -142,7 +142,7 @@ namespace resources
       static Hip HipFromStream(hipStream_t s, int dev = -1)
       {
         if (dev < 0) {
-          campHipErrchk(hipGetDevice(&dev));
+          campHipErrchkDiscardReturn(hipGetDevice(&dev));
         }
         return Hip(s, dev);
       }
@@ -156,7 +156,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          campHipErrchk(hipStreamCreate(&s));
+          campHipErrchkDiscardReturn(hipStreamCreate(&s));
 #endif
           return s;
         }());
@@ -170,7 +170,7 @@ namespace resources
       void wait()
       {
         auto d{device_guard(device)};
-        campHipErrchk(hipStreamSynchronize(stream));
+        campHipErrchkDiscardReturn(hipStreamSynchronize(stream));
       }
 
       void wait_for(Event *e)
@@ -178,7 +178,7 @@ namespace resources
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
           auto d{device_guard(device)};
-          campHipErrchk(
+          campHipErrchkDiscardReturn(
               hipStreamWaitEvent(get_stream(), hip_event->getHipEvent_t(), 0));
         } else {
           e->wait();
@@ -195,15 +195,15 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              campHipErrchk(hipMalloc((void**)&ret, sizeof(T) * size));
+              campHipErrchkDiscardReturn(hipMalloc((void**)&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              campHipErrchk(hipHostMalloc((void**)&ret, sizeof(T) * size));
+              campHipErrchkDiscardReturn(hipHostMalloc((void**)&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Managed:
-              campHipErrchk(hipMallocManaged((void**)&ret, sizeof(T) * size));
+              campHipErrchkDiscardReturn(hipMallocManaged((void**)&ret, sizeof(T) * size));
               break;
           }
         }
@@ -223,15 +223,15 @@ namespace resources
         }
         switch (ma) {
           case MemoryAccess::Device:
-            campHipErrchk(hipFree(p));
+            campHipErrchkDiscardReturn(hipFree(p));
             break;
           case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
-            campHipErrchk(hipHostFree(p));
+            campHipErrchkDiscardReturn(hipHostFree(p));
             break;
           case MemoryAccess::Managed:
-            campHipErrchk(hipFree(p));
+            campHipErrchkDiscardReturn(hipFree(p));
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
@@ -242,7 +242,7 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(
+          campHipErrchkDiscardReturn(
               hipMemcpyAsync(dst, src, size, hipMemcpyDefault, stream));
         }
       }
@@ -250,7 +250,7 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campHipErrchk(hipMemsetAsync(p, val, size, stream));
+          campHipErrchkDiscardReturn(hipMemsetAsync(p, val, size, stream));
         }
       }
 
