@@ -416,6 +416,28 @@ TEST(CampTaggedTuple, MakeTagged)
   ASSERT_EQ(camp::get<s1>(t), 15);
 }
 
+template<typename Param>
+struct SearchType {};
+
+template<typename Param>
+struct OtherType {};
+
+template<typename T>
+struct IsSearchType : std::false_type {};
+
+template<typename Param>
+struct IsSearchType<SearchType<Param>> : std::true_type {};
+
+TEST(CampFilterByTypeTrait, MakeFilteredTuple)
+{
+  using BaseTupleType = camp::tuple<double, SearchType<int>, int, OtherType<int>, camp::tuple<double>, SearchType<int>>;
+  using ExpectedTupleType = camp::tuple<SearchType<int>&, SearchType<int>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
 #if defined(__cplusplus) && __cplusplus >= 201703L
 TEST(CampTaggedTuple, StructuredBindings)
 {
