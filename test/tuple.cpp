@@ -471,6 +471,26 @@ TEST(CampFilterByTypeTrait, EmptyTuple)
   ASSERT_EQ(is_expected, 1);
 }
 
+TEST(CampFilterByTypeTrait, SingletonTuple)
+{
+  using BaseTupleType = camp::tuple<int>;
+  using ExpectedTupleType = camp::tuple<>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, SingletonTupleTwo)
+{
+  using BaseTupleType = camp::tuple<SearchType<int>>;
+  using ExpectedTupleType = camp::tuple<SearchType<int>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
 TEST(CampFilterByTypeTrait, UndecayedSearchTypes)
 {
   using BaseTupleType = camp::tuple<SearchType<OtherType<double>>*, SearchType<SearchType<double>>,
