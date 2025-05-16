@@ -416,6 +416,92 @@ TEST(CampTaggedTuple, MakeTagged)
   ASSERT_EQ(camp::get<s1>(t), 15);
 }
 
+template<typename Param>
+struct SearchType {};
+
+template<typename Param>
+struct OtherType {};
+
+template<typename T>
+struct IsSearchType : std::false_type {};
+
+template<typename Param>
+struct IsSearchType<SearchType<Param>> : std::true_type {};
+
+TEST(CampFilterByTypeTrait, MakeFilteredTuple)
+{
+  using BaseTupleType = camp::tuple<double, SearchType<int>, int, OtherType<int>,
+                                    SearchType<int>, camp::tuple<double>>;
+  using ExpectedTupleType = camp::tuple<SearchType<int>&, SearchType<int>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, SearchTypeAtEnd)
+{
+  using BaseTupleType = camp::tuple<OtherType<camp::tuple<SearchType<int>>>, OtherType<int>,
+                                    camp::tuple<SearchType<int>>, SearchType<int>>;
+  using ExpectedTupleType = camp::tuple<SearchType<int>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, SearchTypeAtStart)
+{
+  using BaseTupleType = camp::tuple<SearchType<OtherType<double>>, OtherType<SearchType<int>>,
+                                    OtherType<int>, camp::tuple<SearchType<int>>>;
+  using ExpectedTupleType = camp::tuple<SearchType<OtherType<double>>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, EmptyTuple)
+{
+  using BaseTupleType = camp::tuple<>;
+  using ExpectedTupleType = camp::tuple<>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, SingletonTuple)
+{
+  using BaseTupleType = camp::tuple<int>;
+  using ExpectedTupleType = camp::tuple<>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, SingletonTupleTwo)
+{
+  using BaseTupleType = camp::tuple<SearchType<int>>;
+  using ExpectedTupleType = camp::tuple<SearchType<int>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
+TEST(CampFilterByTypeTrait, UndecayedSearchTypes)
+{
+  using BaseTupleType = camp::tuple<SearchType<OtherType<double>>*, SearchType<SearchType<double>>,
+                                    OtherType<int>>;
+  using ExpectedTupleType = camp::tuple< SearchType<SearchType<double>>&>;
+  auto base_tuple = BaseTupleType{};
+  auto filtered_tuple = camp::get_refs_to_elements_by_type_trait<IsSearchType>(base_tuple);
+  constexpr int is_expected = std::is_same<decltype(filtered_tuple), ExpectedTupleType>::value;
+  ASSERT_EQ(is_expected, 1);
+}
+
 #if defined(__cplusplus) && __cplusplus >= 201703L
 TEST(CampTaggedTuple, StructuredBindings)
 {

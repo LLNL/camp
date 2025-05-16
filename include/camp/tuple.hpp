@@ -279,7 +279,7 @@ public:
       camp::list<Elements...>,
       camp::make_idx_seq_t<sizeof...(Elements)>>::type;
   using type = tuple;
-  Base base;  // Place this back into private when XLC can handle this better. 
+  Base base;  // Place this back into private when XLC can handle this better.
 
 private:
 
@@ -622,6 +622,65 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L&& l, R&& r) noexcept
                         camp::idx_seq_from_t<L>{},
                         std::forward<R>(r),
                         camp::idx_seq_from_t<R>{});
+}
+
+namespace detail
+{
+  template<template <typename> typename TypeTrait,
+          typename LHS,
+          typename... Params>
+  CAMP_HOST_DEVICE constexpr
+  concepts::enable_if_t<camp::tuple<LHS&, Params...>, TypeTrait<LHS>>
+  get_refs_to_elements_by_type_trait_impl_helper(LHS& lhs,
+                              camp::tuple<Params...> RHS)
+  {
+    return camp::tuple_cat_pair(camp::tuple<LHS&>(lhs),
+                                RHS);
+  }
+
+  template<template <typename> typename TypeTrait,
+           typename LHS,
+           typename... Params>
+  CAMP_HOST_DEVICE constexpr
+  concepts::enable_if_t<camp::tuple<Params...>, concepts::negate<TypeTrait<LHS>>>
+  get_refs_to_elements_by_type_trait_impl_helper(
+      LHS&,
+      camp::tuple<Params...> RHS)
+  {
+    return RHS;
+  }
+
+  template<camp::idx_t param_size,
+           template <typename> typename TypeTrait,
+           typename TupleType>
+  CAMP_HOST_DEVICE constexpr camp::tuple<>
+  get_refs_to_elements_by_type_trait_impl(TupleType&,
+                                          camp::num<0>)
+  {
+    return camp::tuple<> {};
+  }
+
+  template<camp::idx_t param_size,
+           template <typename> typename TypeTrait,
+           typename TupleType,
+           camp::idx_t idx>
+  CAMP_HOST_DEVICE constexpr auto
+  get_refs_to_elements_by_type_trait_impl(TupleType& param,
+                                          camp::num<idx>)
+  {
+    return get_refs_to_elements_by_type_trait_impl_helper<TypeTrait>(
+        camp::get<param_size - idx>(param),
+        get_refs_to_elements_by_type_trait_impl<param_size, TypeTrait>(
+            param, camp::num<idx - 1> {}));
+  }
+} // namespace detail
+
+template <template <typename> typename TypeTrait, typename... Elements>
+CAMP_HOST_DEVICE constexpr auto
+get_refs_to_elements_by_type_trait(tuple<Elements...>& tup)
+{
+  return detail::get_refs_to_elements_by_type_trait_impl<
+            sizeof...(Elements), TypeTrait>(tup, camp::num<sizeof...(Elements)>{});
 }
 
 CAMP_SUPPRESS_HD_WARN
