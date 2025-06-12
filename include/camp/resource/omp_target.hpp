@@ -189,6 +189,10 @@ namespace resources
         }
         return ret;
       }
+
+      int get_device() const { return dev; }
+      char* get_depend_location() const { return addr; }
+
       /*
        * \brief Compares two (Omp) resources to see if they are equal.
        *
