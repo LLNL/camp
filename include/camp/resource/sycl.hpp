@@ -50,9 +50,7 @@ namespace resources
         static constexpr auto gpuSelector = sycl::gpu_selector_v;
         static const sycl::property_list propertyList =
             sycl::property_list(sycl::property::queue::in_order());
-
         static constexpr int num_queues = 16;
-        static sycl::context privateContext;
 
         static std::mutex s_mtx;
 
@@ -72,6 +70,7 @@ namespace resources
           }
         } else {
           if (prevContextIter == queueMap_end) {
+            static sycl::context privateContext;
             syclContext = &privateContext;
           }
         }
@@ -82,6 +81,7 @@ namespace resources
           if (prevContextIter == queueMap_end) {
             auto contextIter = queueMap.find(syclContext);
             if (contextIter == queueMap_end) {
+
               contextIter = queueMap.emplace(syclContext, { num_queues-1, {
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
