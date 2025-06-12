@@ -98,7 +98,7 @@ namespace resources
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList)}});
+                  sycl::queue(*syclContext, gpuSelector, propertyList)}}).first;
             }
             prevContextIter = contextIter;
           }
