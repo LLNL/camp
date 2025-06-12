@@ -16,13 +16,18 @@ using namespace camp::resources;
 struct Host2 : Host {
 };
 
-TEST(CampResource, Construct) { Resource h1{Host()}; }
+TEST(CampResource, Construct)
+{
+  Resource h1{Host()};
+}
+
 TEST(CampResource, Copy)
 {
   Resource h1{Host()};
   auto h2 = h1;
   Resource h3 = h1;
 }
+
 TEST(CampResource, ConvertFails)
 {
   Resource h1{Host()};
@@ -30,6 +35,7 @@ TEST(CampResource, ConvertFails)
   ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
   ASSERT_FALSE(h1.try_get<Host2>());
 }
+
 TEST(CampResource, GetPlatform)
 {
   ASSERT_EQ(static_cast<const Resource>(Host()).get_platform(), Platform::host);
