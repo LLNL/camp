@@ -44,80 +44,73 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue *get_a_queue(sycl::context &syclContext,
-                                      int num,
-                                      bool useContext)
+      static sycl::queue *get_a_queue(sycl::context *syclContext,
+                                      int num)
       {
-        constexpr auto gpuSelector = sycl::gpu_selector_v;
-        static sycl::property_list propertyList =
+        static constexpr auto gpuSelector = sycl::gpu_selector_v;
+        static const sycl::property_list propertyList =
             sycl::property_list(sycl::property::queue::in_order());
+
+        static constexpr int num_queues = 16;
         static sycl::context privateContext;
-        static sycl::context *contextInUse = NULL;
-        static std::map<sycl::context *, std::array<sycl::queue, 16>> queueMap;
 
+        static std::mutex s_mtx;
 
-        static std::mutex m_mtx;
-        m_mtx.lock();
+        // note that this type must not invalidate iterators when modified
+        using queueMap_type = std::map<sycl::context *, std::pair<int, std::array<sycl::queue, num_queues>>>;
+        static queueMap_type queueMap;
+        static const typename queueMap_type::iterator queueMap_end = queueMap.end();
 
-        // User passed a context, use it
-        if (useContext) {
-          contextInUse = &syclContext;
+        // Think about possibility of inconsistent behavior with prevContextIter
+        static thread_local typename queueMap_type::iterator prevContextIter = queueMap_end;
 
-          if (queueMap.find(contextInUse) == queueMap.end()) {
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+        if (syclContext) {
+          if (prevContextIter != queueMap_end) {
+            if (syclContext != prevContextIter->first) {
+              prevContextIter = queueMap_end;
+            }
           }
-        } else {  // User did not pass context, use last used or private one
-          if (contextInUse == NULL) {
-            contextInUse = &privateContext;
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+        } else {
+          if (prevContextIter == queueMap_end) {
+            syclContext = &privateContext;
           }
         }
-        m_mtx.unlock();
 
-        static int previous = 0;
+        if (prevContextIter == queueMap_end || num < 0) {
+          std::lock_guard<std::mutex> lock(s_mtx);
 
-        static std::once_flag m_onceFlag;
-        CAMP_ALLOW_UNUSED_LOCAL(m_onceFlag);
-        if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return &queueMap[contextInUse][previous];
+          if (prevContextIter == queueMap_end) {
+            auto contextIter = queueMap.find(syclContext);
+            if (contextIter == queueMap_end) {
+              contextIter = queueMap.emplace(syclContext, { num_queues-1, {
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList),
+                  sycl::queue(*syclContext, gpuSelector, propertyList)}});
+            }
+            prevContextIter = contextIter;
+          }
+
+          if (num < 0) {
+            int& previous = prevContextIter->second.first;
+            previous = (previous + 1) % num_queues;
+            return &prevContextIter->second.second[previous];
+          }
         }
 
-        return &queueMap[contextInUse][num % 16];
+        return &prevContextIter->second.second[num % num_queues];
       }
 
       // Private from-queue constructor
@@ -125,13 +118,12 @@ namespace resources
 
     public:
       Sycl(int group = -1)
+        : qu(get_a_queue(nullptr, group))
       {
-        sycl::context temp;
-        qu = get_a_queue(temp, group, false);
       }
 
       Sycl(sycl::context &syclContext, int group = -1)
-          : qu(get_a_queue(syclContext, group, true))
+          : qu(get_a_queue(&syclContext, group))
       {
       }
 
