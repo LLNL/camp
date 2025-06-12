@@ -52,46 +52,17 @@ TEST(CampResource, GetPlatform)
   ASSERT_EQ(static_cast<const Resource>(Sycl()).get_platform(), Platform::sycl);
 #endif
 }
-TEST(CampResource, Compare)
+
+template < typename Res >
+void test_compare(Resource& h1, Resource& h2, Resource& h3)
 {
-  Resource h1{Host()};
-  Resource h2{Host()};
-  Host h; Resource h3{h};
+  Resource r1{Res()};
+  Resource r2{Res()};
+  Res r; Resource r3{r};
 
-#ifdef CAMP_HAVE_CUDA
-  Resource r1{Cuda()};
-  Resource r2{Cuda()};
-  Cuda s; Resource r3{s};
-#endif
-#ifdef CAMP_HAVE_HIP
-  Resource r1{Hip()};
-  Resource r2{Hip()};
-  Hip s; Resource r3{s};
-#endif
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-  Resource r1{Omp()};
-  Resource r2{Omp()};
-  Omp s; Resource r3{s};
-#endif
-#ifdef CAMP_HAVE_SYCL
-  Resource r1{Sycl()};
-  Resource r2{Sycl()};
-  Sycl s; Resource r3{s};
-#endif
-
-  ASSERT_TRUE(h1 == h1);
-  ASSERT_TRUE(h1 == h2);
-  
-  ASSERT_FALSE(h1 != h2);
-
-#if defined(CAMP_HAVE_CUDA) || \
-    defined(CAMP_HAVE_HIP) || \
-    defined(CAMP_HAVE_OMP_OFFLOAD) || \
-    defined(CAMP_HAVE_SYCL)
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
-  ASSERT_TRUE(s == s);
-  ASSERT_TRUE(h == h);
+  ASSERT_TRUE(r == r);
   ASSERT_TRUE(r1 != r2);
   ASSERT_TRUE(r2 != r1);
   ASSERT_TRUE(r1 != h1);
@@ -103,8 +74,34 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(h2 == r2);
   ASSERT_FALSE(h3 == r3);
   ASSERT_FALSE(r1 != r1);
+}
+//
+TEST(CampResource, Compare)
+{
+  Resource h1{Host()};
+  Resource h2{Host()};
+  Host h; Resource h3{h};
+
+  ASSERT_TRUE(h1 == h1);
+  ASSERT_TRUE(h1 == h2);
+  ASSERT_TRUE(h == h);
+
+  ASSERT_FALSE(h1 != h2);
+
+#ifdef CAMP_HAVE_CUDA
+  test_compare<Cuda>(h1, h2, h3);
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_compare<Hip>(h1, h2, h3);
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_compare<Omp>(h1, h2, h3);
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_compare<Sycl>(h1, h2, h3);
 #endif
 }
+
 TEST(CampResource, ConvertWorks)
 {
   Resource h1{Host()};
