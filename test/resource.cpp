@@ -42,6 +42,9 @@ TEST(CampResource, GetPlatform)
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   ASSERT_EQ(static_cast<const Resource>(Omp()).get_platform(), Platform::omp_target);
 #endif
+#ifdef CAMP_HAVE_SYCL
+  ASSERT_EQ(static_cast<const Resource>(Sycl()).get_platform(), Platform::sycl);
+#endif
 }
 TEST(CampResource, Compare)
 {
@@ -64,6 +67,11 @@ TEST(CampResource, Compare)
   Resource r2{Omp()};
   Omp s; Resource r3{s};
 #endif
+#ifdef CAMP_HAVE_SYCL
+  Resource r1{Sycl()};
+  Resource r2{Sycl()};
+  Sycl s; Resource r3{s};
+#endif
 
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h1 == h2);
@@ -72,7 +80,8 @@ TEST(CampResource, Compare)
 
 #if defined(CAMP_HAVE_CUDA) || \
     defined(CAMP_HAVE_HIP) || \
-    defined(CAMP_HAVE_OMP_OFFLOAD)
+    defined(CAMP_HAVE_OMP_OFFLOAD) || \
+    defined(CAMP_HAVE_SYCL)
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
   ASSERT_TRUE(s == s);
