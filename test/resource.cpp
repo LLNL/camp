@@ -260,36 +260,31 @@ TEST(CampResource, StreamSelect)
 #endif
 }
 
-#if defined(CAMP_HAVE_CUDA)
+template < typename Res >
+void test_get()
+{
+  Resource dev_res{Res()};
+  auto erased_res = dev_res.get<Res>();
+  Res pure_res;
+  ASSERT_EQ(typeid(erased_res), typeid(pure_res));
+}
+//
 TEST(CampResource, Get)
 {
-  Resource dev_host{Host()};
-  Resource dev_cuda{Cuda()};
-
-  auto erased_host = dev_host.get<Host>();
-  Host pure_host;
-  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
-
-  auto erased_cuda = dev_cuda.get<Cuda>();
-  Cuda pure_cuda;
-  ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
-}
+  test_get<Host>();
+#ifdef CAMP_HAVE_CUDA
+  test_get<Cuda>();
 #endif
-#if defined(CAMP_HAVE_HIP)
-TEST(CampResource, Get)
-{
-  Resource dev_host{Host()};
-  Resource dev_hip{Hip()};
-
-  auto erased_host = dev_host.get<Host>();
-  Host pure_host;
-  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
-
-  auto erased_hip = dev_hip.get<Hip>();
-  Hip pure_hip;
-  ASSERT_EQ(typeid(erased_hip), typeid(pure_hip));
-}
+#ifdef CAMP_HAVE_HIP
+  test_get<Hip>();
 #endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_get<Omp>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_get<Sycl>();
+#endif
+}
 
 #if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, GetEvent)
