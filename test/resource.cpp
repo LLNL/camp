@@ -192,34 +192,36 @@ TEST(CampResource, Compare)
 #endif
 }
 
-#if defined(CAMP_HAVE_CUDA)
-TEST(CampResource, Reassignment)
+template < typename Res >
+void test_reassignment()
 {
   Resource h1{Host()};
-  Resource c1{Cuda()};
-  h1 = Cuda();
-  ASSERT_EQ(typeid(c1), typeid(h1));
+  Resource r1{Res()};
+  h1 = Res();
+  ASSERT_EQ(typeid(r1), typeid(h1));
 
   Resource h2{Host()};
-  Resource c2{Cuda()};
-  c2 = Host();
-  ASSERT_EQ(typeid(c2), typeid(h2));
+  Resource r2{Res()};
+  r2 = Host();
+  ASSERT_EQ(typeid(r2), typeid(h2));
 }
-#endif
-if defined(CAMP_HAVE_HIP)
+//
 TEST(CampResource, Reassignment)
 {
-  Resource h1{Host()};
-  Resource c1{Hip()};
-  h1 = Hip();
-  ASSERT_EQ(typeid(c1), typeid(h1));
-
-  Resource h2{Host()};
-  Resource c2{Hip()};
-  c2 = Host();
-  ASSERT_EQ(typeid(c2), typeid(h2));
-}
+  test_reassignment<Host>();
+#ifdef CAMP_HAVE_CUDA
+  test_reassignment<Cuda>();
 #endif
+#ifdef CAMP_HAVE_HIP
+  test_reassignment<Hip>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_reassignment<Omp>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_reassignment<Sycl>();
+#endif
+}
 
 #if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, StreamSelect)
