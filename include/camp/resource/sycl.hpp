@@ -32,6 +32,7 @@ namespace resources
     class SyclEvent
     {
     public:
+      // TODO: make this actually work
       SyclEvent(sycl::queue *CAMP_UNUSED_ARG(qu)) { m_event = sycl::event(); }
       bool check() const { return true; }
       void wait() const { getSyclEvent_t().wait(); }
