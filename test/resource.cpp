@@ -100,6 +100,30 @@ TEST(CampResource, ConvertFails)
   test_convert_fails<Sycl, Sycl2>();
 #endif
 }
+
+template < typename Res >
+void test_convert_works(Platform platform)
+{
+  Resource r{Res()};
+  ASSERT_TRUE(r.try_get<Res>());
+  ASSERT_EQ(r.get<Res>().get_platform(), platform);
+}
+//
+TEST(CampResource, ConvertWorks)
+{
+  test_convert_works<Host>(Platform::host);
+#ifdef CAMP_HAVE_CUDA
+  test_convert_works<Cuda>(Platform::cuda);
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_convert_works<Hip>(Platform::hip);
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_convert_works<Omp>(Platform::omp_target);
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_convert_works<Sycl>(Platform::sycl);
+#endif
 }
 
 TEST(CampResource, GetPlatform)
@@ -166,13 +190,6 @@ TEST(CampResource, Compare)
 #ifdef CAMP_HAVE_SYCL
   test_compare<Sycl>(h1, h2, h3);
 #endif
-}
-
-TEST(CampResource, ConvertWorks)
-{
-  Resource h1{Host()};
-  ASSERT_TRUE(h1.try_get<Host>());
-  ASSERT_EQ(h1.get<Host>().get_platform(), Platform::host);
 }
 
 #if defined(CAMP_HAVE_CUDA)
