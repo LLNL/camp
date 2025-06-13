@@ -352,59 +352,83 @@ static EventProxy<Res> do_stuff(Res r)
 {
   return EventProxy<Res>(r);
 }
+//
+template < typename Res, typename ResEvent >
+void test_event_proxy()
+{
+  Res r{Res{}};
 
+  {
+    EventProxy<Res> ep{r};
+    ResEvent e = ep.get();
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    EventProxy<Res> ep{r};
+    ResEvent e = ep;
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    EventProxy<Res> ep{r};
+    Event e = ep.get();
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    EventProxy<Res> ep{r};
+    Event e = ep;
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    EventProxy<Resource> ep{Resource{r}};
+    Event e = ep.get();
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    EventProxy<Resource> ep{Resource{r}};
+    Event e = ep;
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    ResEvent e = do_stuff(r);
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    Event e = do_stuff(r);
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    Event e = do_stuff(Resource{r});
+    CAMP_ALLOW_UNUSED_LOCAL(e);
+  }
+
+  {
+    do_stuff(r);
+  }
+}
+//
 TEST(CampEventProxy, Get)
 {
-  Host h1{Host{}};
-
-  {
-    EventProxy<Resource> ep{Resource{h1}};
-    Event e = ep;
-  }
-
-  {
-    EventProxy<Host> ep{h1};
-    Event e = ep;
-  }
-
-  {
-    EventProxy<Host> ep{h1};
-    HostEvent e = ep;
-    CAMP_ALLOW_UNUSED_LOCAL(e);
-  }
-
-  {
-    Event e = do_stuff(Resource{h1});
-  }
-
-  {
-    Event e = do_stuff(h1);
-  }
-
-  {
-    HostEvent e = do_stuff(h1);
-    CAMP_ALLOW_UNUSED_LOCAL(e);
-  }
-
-  {
-    do_stuff(h1);
-  }
-
-  {
-    EventProxy<Resource> ep{Resource{h1}};
-    Event e = ep.get();
-  }
-
-  {
-    EventProxy<Host> ep{h1};
-    Event e = ep.get();
-  }
-
-  {
-    EventProxy<Host> ep{h1};
-    HostEvent e = ep.get();
-    CAMP_ALLOW_UNUSED_LOCAL(e);
-  }
+  test_event_proxy<Host, HostEvent>();
+#ifdef CAMP_HAVE_CUDA
+  test_event_proxy<Cuda, CudaEvent>();
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_event_proxy<Hip, HipEvent>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_event_proxy<Omp, OmpEvent>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_event_proxy<Sycl, SyclEvent>();
+#endif
 }
 
 TEST(CampResource, Wait) {
