@@ -78,6 +78,9 @@ namespace resources
         return &addrs[num % 16];
       }
 
+      // Private from-address constructor
+      Omp(char* a, int device = omp_get_default_device()) : addr(a), dev(device) {}
+
       void check_ma(MemoryAccess ma) {
         if(ma != MemoryAccess::Device) {
           ::camp::throw_re("OpenMP Target currently does not support allocating shared or managed memory");
@@ -87,6 +90,17 @@ namespace resources
       Omp(int group = -1, int device = omp_get_default_device())
           : addr(get_addr(group)), dev(device)
       {
+      }
+
+      /// Create a resource from a custom address
+      /// The device specified must match the address, if none is specified the
+      /// currently selected device is used.
+      static Omp OmpFromAddr(char* a, int device = -1)
+      {
+        if (device < 0) {
+          device = omp_get_default_device();
+        }
+        return Omp(a, device);
       }
 
       // Methods
