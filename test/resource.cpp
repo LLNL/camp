@@ -258,6 +258,25 @@ TEST(CampResource, StreamSelect)
     campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
   }
 #endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  {
+    char a[2];
+    test_select_stream(Omp::OmpFromAddr(&a[0]),
+                       Omp::OmpFromAddr(&a[1]));
+  }
+#endif
+#ifdef CAMP_HAVE_SYCL
+  {
+    auto gpuSelector = sycl::gpu_selector_v;
+    sycl::property_list propertyList =
+        sycl::property_list(sycl::property::queue::in_order());
+    sycl::context context;
+    sycl::queue queue1(context, gpuSelector, propertyList);
+    sycl::queue queue2(context, gpuSelector, propertyList);
+    test_select_stream(Sycl::SyclFromQueue(queue1),
+                       Sycl::SyclFromQueue(queue2));
+  }
+#endif
 }
 
 template < typename Res >
