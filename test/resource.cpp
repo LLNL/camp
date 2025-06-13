@@ -13,8 +13,19 @@
 using namespace camp::resources;
 
 // compatible but different resource for conversion test
-struct Host2 : Host {
-};
+struct Host2 : Host { };
+#ifdef CAMP_HAVE_CUDA
+  struct Cuda2 : Cuda { };
+#endif
+#ifdef CAMP_HAVE_HIP
+  struct Hip2 : Hip { };
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  struct Omp2 : Omp { };
+#endif
+#ifdef CAMP_HAVE_SYCL
+  struct Sycl2 : Sycl { };
+#endif
 
 template < typename Res >
 void test_construct()
@@ -64,12 +75,31 @@ TEST(CampResource, Copy)
 #endif
 }
 
+template < typename Res, typename Res2 >
+void test_convert_fails()
+{
+  Resource r{Res()};
+  r.get<Res>();
+  ASSERT_THROW(r.get<Res2>(), std::runtime_error);
+  ASSERT_FALSE(r.try_get<Res2>());
+}
+//
 TEST(CampResource, ConvertFails)
 {
-  Resource h1{Host()};
-  h1.get<Host>();
-  ASSERT_THROW(h1.get<Host2>(), std::runtime_error);
-  ASSERT_FALSE(h1.try_get<Host2>());
+  test_convert_fails<Host, Host2>();
+#ifdef CAMP_HAVE_CUDA
+  test_convert_fails<Cuda, Cuda2>();
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_convert_fails<Hip, Hip2>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_convert_fails<Omp, Omp2>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_convert_fails<Sycl, Sycl2>();
+#endif
+}
 }
 
 TEST(CampResource, GetPlatform)
