@@ -39,11 +39,29 @@ TEST(CampResource, Construct)
 #endif
 }
 
+template < typename Res >
+void test_copy()
+{
+  Resource r1{Res()};
+  auto r2 = r1;
+  Resource r3 = r1;
+}
+//
 TEST(CampResource, Copy)
 {
-  Resource h1{Host()};
-  auto h2 = h1;
-  Resource h3 = h1;
+  test_copy<Host>();
+#ifdef CAMP_HAVE_CUDA
+  test_copy<Cuda>();
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_copy<Hip>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_copy<Omp>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_copy<Sycl>();
+#endif
 }
 
 TEST(CampResource, ConvertFails)
