@@ -316,48 +316,36 @@ TEST(CampResource, GetEvent)
 #endif
 }
 
-#if defined(CAMP_HAVE_CUDA)
+template < typename Res, typename ResEvent, typename... EventArgs >
+void test_get_typed_event(EventArgs&&... eventArgs)
+{
+  Resource r{Res()};
+  Event erased_event = r.get_event();
+  auto typed_event = erased_event.get<ResEvent>();
+  ResEvent event(std::forward<EventArgs>(eventArgs)...);
+  ASSERT_EQ(typeid(event), typeid(typed_event));
+}
+//
 TEST(CampEvent, Get)
 {
-  Resource h1{Host()};
-  Resource c1{Cuda()};
-
-  Event erased_host_event = h1.get_event();
-  Event erased_cuda_event = c1.get_event();
-
-  auto pure_host_event = erased_host_event.get<HostEvent>();
-  auto pure_cuda_event = erased_cuda_event.get<CudaEvent>();
-
-  HostEvent host_event;
-  cudaStream_t s;
-  campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
-  CudaEvent cuda_event(s);
-
-  ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
-  ASSERT_EQ(typeid(cuda_event), typeid(pure_cuda_event));
-}
+  test_get_typed_event<Host, HostEvent>();
+#if defined(CAMP_HAVE_CUDA)
+  {
+    cudaStream_t s;
+    campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+    test_get_typed_event<Cuda, CudaEvent>(s);
+    campCudaErrchkDiscardReturn(cudaStreamDestroy(s));
+  }
 #endif
 #if defined(CAMP_HAVE_HIP)
-TEST(CampEvent, Get)
-{
-  Resource h1{Host()};
-  Resource d1{Hip()};
-
-  Event erased_host_event = h1.get_event();
-  Event erased_hip_event = d1.get_event();
-
-  auto pure_host_event = erased_host_event.get<HostEvent>();
-  auto pure_hip_event = erased_hip_event.get<HipEvent>();
-
-  HostEvent host_event;
-  hipStream_t s;
-  campHipErrchkDiscardReturn(hipStreamCreate(&s));
-  HipEvent hip_event(s);
-
-  ASSERT_EQ(typeid(host_event), typeid(pure_host_event));
-  ASSERT_EQ(typeid(hip_event), typeid(pure_hip_event));
-}
+  {
+    hipStream_t s;
+    campHipErrchkDiscardReturn(hipStreamCreate(&s));
+    test_get_typed_event<Hip, HipEvent>(s);
+    campHipErrchkDiscardReturn(hipStreamDestroy(s));
+  }
 #endif
+}
 
 template<typename Res>
 static EventProxy<Res> do_stuff(Res r)
