@@ -380,6 +380,22 @@ TEST(CampEvent, Get)
     campHipErrchkDiscardReturn(hipStreamDestroy(s));
   }
 #endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  {
+    char a[1];
+    test_get_typed_event<Omp, OmpEvent>(&a[0]);
+  }
+#endif
+#ifdef CAMP_HAVE_SYCL
+  {
+    auto gpuSelector = sycl::gpu_selector_v;
+    sycl::property_list propertyList =
+        sycl::property_list(sycl::property::queue::in_order());
+    sycl::context context;
+    sycl::queue q(context, gpuSelector, propertyList);
+    test_get_typed_event<Sycl, SyclEvent>(q);
+  }
+#endif
 }
 
 template<typename Res>
