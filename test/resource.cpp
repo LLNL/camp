@@ -205,8 +205,23 @@ TEST(CampResource, Reassignment)
   c2 = Host();
   ASSERT_EQ(typeid(c2), typeid(h2));
 }
+#endif
+if defined(CAMP_HAVE_HIP)
+TEST(CampResource, Reassignment)
+{
+  Resource h1{Host()};
+  Resource c1{Hip()};
+  h1 = Hip();
+  ASSERT_EQ(typeid(c1), typeid(h1));
 
+  Resource h2{Host()};
+  Resource c2{Hip()};
+  c2 = Host();
+  ASSERT_EQ(typeid(c2), typeid(h2));
+}
+#endif
 
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, StreamSelect)
 {
   cudaStream_t stream1, stream2;
@@ -227,7 +242,31 @@ TEST(CampResource, StreamSelect)
   campCudaErrchkDiscardReturn(cudaStreamDestroy(stream1));
   campCudaErrchkDiscardReturn(cudaStreamDestroy(stream2));
 }
+#endif
+#if defined(CAMP_HAVE_HIP)
+TEST(CampResource, StreamSelect)
+{
+  hipStream_t stream1, stream2;
 
+  campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
+  campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
+
+  Resource c1{Hip::HipFromStream(stream1)};
+  Resource c2{Hip::HipFromStream(stream2)};
+
+  const int N = 5;
+  int* d_array1 = c1.allocate<int>(N);
+  int* d_array2 = c2.allocate<int>(N);
+
+  c1.deallocate(d_array1);
+  c2.deallocate(d_array2);
+
+  campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
+  campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
+}
+#endif
+
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, Get)
 {
   Resource dev_host{Host()};
@@ -241,7 +280,24 @@ TEST(CampResource, Get)
   Cuda pure_cuda;
   ASSERT_EQ(typeid(erased_cuda), typeid(pure_cuda));
 }
+#endif
+#if defined(CAMP_HAVE_HIP)
+TEST(CampResource, Get)
+{
+  Resource dev_host{Host()};
+  Resource dev_hip{Hip()};
 
+  auto erased_host = dev_host.get<Host>();
+  Host pure_host;
+  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
+
+  auto erased_hip = dev_hip.get<Hip>();
+  Hip pure_hip;
+  ASSERT_EQ(typeid(erased_hip), typeid(pure_hip));
+}
+#endif
+
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, GetEvent)
 {
   Resource h1{Host()};
@@ -257,7 +313,26 @@ TEST(CampResource, GetEvent)
   Event evc{CudaEvent(s)};
   ASSERT_EQ(typeid(evc), typeid(ev2));
 }
+#endif
+#if defined(CAMP_HAVE_HIP)
+TEST(CampResource, GetEvent)
+{
+  Resource h1{Host()};
+  Resource c1{Hip()};
 
+  auto ev1 = h1.get_event();
+  Event evh{HostEvent()};
+  ASSERT_EQ(typeid(evh), typeid(ev1));
+
+  auto ev2 = c1.get_event();
+  hipStream_t s;
+  campHipErrchkDiscardReturn(hipStreamCreate(&s));
+  Event evc{HipEvent(s)};
+  ASSERT_EQ(typeid(evc), typeid(ev2));
+}
+#endif
+
+#if defined(CAMP_HAVE_CUDA)
 TEST(CampEvent, Get)
 {
   Resource h1{Host()};
@@ -279,70 +354,6 @@ TEST(CampEvent, Get)
 }
 #endif
 #if defined(CAMP_HAVE_HIP)
-TEST(CampResource, Reassignment)
-{
-  Resource h1{Host()};
-  Resource c1{Hip()};
-  h1 = Hip();
-  ASSERT_EQ(typeid(c1), typeid(h1));
-
-  Resource h2{Host()};
-  Resource c2{Hip()};
-  c2 = Host();
-  ASSERT_EQ(typeid(c2), typeid(h2));
-}
-
-TEST(CampResource, StreamSelect)
-{
-  hipStream_t stream1, stream2;
-
-  campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
-  campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
-
-  Resource c1{Hip::HipFromStream(stream1)};
-  Resource c2{Hip::HipFromStream(stream2)};
-
-  const int N = 5;
-  int* d_array1 = c1.allocate<int>(N);
-  int* d_array2 = c2.allocate<int>(N);
-
-  c1.deallocate(d_array1);
-  c2.deallocate(d_array2);
-
-  campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
-  campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
-}
-
-TEST(CampResource, Get)
-{
-  Resource dev_host{Host()};
-  Resource dev_hip{Hip()};
-
-  auto erased_host = dev_host.get<Host>();
-  Host pure_host;
-  ASSERT_EQ(typeid(erased_host), typeid(pure_host));
-
-  auto erased_hip = dev_hip.get<Hip>();
-  Hip pure_hip;
-  ASSERT_EQ(typeid(erased_hip), typeid(pure_hip));
-}
-
-TEST(CampResource, GetEvent)
-{
-  Resource h1{Host()};
-  Resource c1{Hip()};
-
-  auto ev1 = h1.get_event();
-  Event evh{HostEvent()};
-  ASSERT_EQ(typeid(evh), typeid(ev1));
-
-  auto ev2 = c1.get_event();
-  hipStream_t s;
-  campHipErrchkDiscardReturn(hipStreamCreate(&s));
-  Event evc{HipEvent(s)};
-  ASSERT_EQ(typeid(evc), typeid(ev2));
-}
-
 TEST(CampEvent, Get)
 {
   Resource h1{Host()};
