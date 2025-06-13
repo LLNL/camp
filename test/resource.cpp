@@ -286,40 +286,35 @@ TEST(CampResource, Get)
 #endif
 }
 
-#if defined(CAMP_HAVE_CUDA)
+template < typename Res, typename ResEvent, typename... EventArgs >
+void test_get_event(EventArgs&&... eventArgs)
+{
+  Resource r{Res()};
+  auto erased_event = r.get_event();
+  Event event{ResEvent(std::forward<EventArgs>(eventArgs)...)};
+  ASSERT_EQ(typeid(event), typeid(erased_event));
+}
+//
 TEST(CampResource, GetEvent)
 {
-  Resource h1{Host()};
-  Resource c1{Cuda()};
-
-  auto ev1 = h1.get_event();
-  Event evh{HostEvent()};
-  ASSERT_EQ(typeid(evh), typeid(ev1));
-
-  auto ev2 = c1.get_event();
-  cudaStream_t s;
-  campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
-  Event evc{CudaEvent(s)};
-  ASSERT_EQ(typeid(evc), typeid(ev2));
-}
+  test_get_event<Host, HostEvent>();
+#if defined(CAMP_HAVE_CUDA)
+  {
+    cudaStream_t s;
+    campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+    test_get_event<Cuda, CudaEvent>(s);
+    campCudaErrchkDiscardReturn(cudaStreamDestroy(s));
+  }
 #endif
 #if defined(CAMP_HAVE_HIP)
-TEST(CampResource, GetEvent)
-{
-  Resource h1{Host()};
-  Resource c1{Hip()};
-
-  auto ev1 = h1.get_event();
-  Event evh{HostEvent()};
-  ASSERT_EQ(typeid(evh), typeid(ev1));
-
-  auto ev2 = c1.get_event();
-  hipStream_t s;
-  campHipErrchkDiscardReturn(hipStreamCreate(&s));
-  Event evc{HipEvent(s)};
-  ASSERT_EQ(typeid(evc), typeid(ev2));
-}
+  {
+    hipStream_t s;
+    campHipErrchkDiscardReturn(hipStreamCreate(&s));
+    test_get_event<Hip, HipEvent>(s);
+    campHipErrchkDiscardReturn(hipStreamDestroy(s));
+  }
 #endif
+}
 
 #if defined(CAMP_HAVE_CUDA)
 TEST(CampEvent, Get)
