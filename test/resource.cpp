@@ -16,9 +16,27 @@ using namespace camp::resources;
 struct Host2 : Host {
 };
 
+template < typename Res >
+void test_construct()
+{
+  Resource h1{Res()};
+}
+//
 TEST(CampResource, Construct)
 {
-  Resource h1{Host()};
+  test_construct<Host>();
+#ifdef CAMP_HAVE_CUDA
+  test_construct<Cuda>();
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_construct<Hip>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_construct<Omp>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_construct<Sycl>();
+#endif
 }
 
 TEST(CampResource, Copy)
