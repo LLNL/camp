@@ -431,11 +431,30 @@ TEST(CampEventProxy, Get)
 #endif
 }
 
-TEST(CampResource, Wait) {
-  auto h = camp::resources::Host();
-  h.wait();
-  Event he = h.get_event_erased();
-  h.wait_for(&he);
-  Resource r(h);
+template < typename Res >
+void test_wait()
+{
+  auto r = Res();
   r.wait();
+  Event event = r.get_event_erased();
+  r.wait_for(&event);
+  Resource er(r);
+  er.wait();
+}
+//
+TEST(CampResource, Wait)
+{
+  test_wait<Host>();
+#ifdef CAMP_HAVE_CUDA
+  test_wait<Cuda>();
+#endif
+#ifdef CAMP_HAVE_HIP
+  test_wait<Hip>();
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_wait<Omp>();
+#endif
+#ifdef CAMP_HAVE_SYCL
+  test_wait<Sycl>();
+#endif
 }
