@@ -223,50 +223,42 @@ TEST(CampResource, Reassignment)
 #endif
 }
 
-#if defined(CAMP_HAVE_CUDA)
+void test_select_stream(Resource r1, Resource r2)
+{
+  const int N = 5;
+  int* r_array1 = r1.allocate<int>(N);
+  int* r_array2 = r2.allocate<int>(N);
+
+  r1.deallocate(r_array1);
+  r2.deallocate(r_array2);
+}
+//
 TEST(CampResource, StreamSelect)
 {
-  cudaStream_t stream1, stream2;
-
-  campCudaErrchkDiscardReturn(cudaStreamCreate(&stream1));
-  campCudaErrchkDiscardReturn(cudaStreamCreate(&stream2));
-
-  Resource c1{Cuda::CudaFromStream(stream1)};
-  Resource c2{Cuda::CudaFromStream(stream2)};
-
-  const int N = 5;
-  int* d_array1 = c1.allocate<int>(N);
-  int* d_array2 = c2.allocate<int>(N);
-
-  c1.deallocate(d_array1);
-  c2.deallocate(d_array2);
-
-  campCudaErrchkDiscardReturn(cudaStreamDestroy(stream1));
-  campCudaErrchkDiscardReturn(cudaStreamDestroy(stream2));
-}
+  test_select_stream(Host(), Host());
+#if defined(CAMP_HAVE_CUDA)
+  {
+    cudaStream_t stream1, stream2;
+    campCudaErrchkDiscardReturn(cudaStreamCreate(&stream1));
+    campCudaErrchkDiscardReturn(cudaStreamCreate(&stream2));
+    test_select_stream(Cuda::CudaFromStream(stream1),
+                       Cuda::CudaFromStream(stream2));
+    campCudaErrchkDiscardReturn(cudaStreamDestroy(stream1));
+    campCudaErrchkDiscardReturn(cudaStreamDestroy(stream2));
+  }
 #endif
 #if defined(CAMP_HAVE_HIP)
-TEST(CampResource, StreamSelect)
-{
-  hipStream_t stream1, stream2;
-
-  campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
-  campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
-
-  Resource c1{Hip::HipFromStream(stream1)};
-  Resource c2{Hip::HipFromStream(stream2)};
-
-  const int N = 5;
-  int* d_array1 = c1.allocate<int>(N);
-  int* d_array2 = c2.allocate<int>(N);
-
-  c1.deallocate(d_array1);
-  c2.deallocate(d_array2);
-
-  campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
-  campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
-}
+  {
+    hipStream_t stream1, stream2;
+    campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
+    campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
+    test_select_stream(Hip::HipFromStream(stream1),
+                       Hip::HipFromStream(stream2));
+    campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
+    campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
+  }
 #endif
+}
 
 #if defined(CAMP_HAVE_CUDA)
 TEST(CampResource, Get)
