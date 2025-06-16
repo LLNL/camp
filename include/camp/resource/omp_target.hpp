@@ -190,7 +190,29 @@ namespace resources
         return ret;
       }
 
+      /*
+       * \brief Get the device associated with this Omp resource.
+       *
+       * \code
+       * camp::resources::Omp res;
+       * #pragma omp target device(res.get_device())
+       * \endcode
+       *
+       * \return The device id of this Omp resource.
+       */
       int get_device() const { return dev; }
+
+      /*
+       * \brief Get the depend address associated with this Omp resource.
+       *        This address is used in depend clauses with tasks or nowait.
+       *
+       * \code
+       * camp::resources::Omp res;
+       * #pragma omp target depend(inout : res.get_depend_location()[0]) nowait
+       * \endcode
+       *
+       * \return The depend address of this Omp resource.
+       */
       char* get_depend_location() const { return addr; }
 
       /*
