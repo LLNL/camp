@@ -30,7 +30,8 @@ struct Host2 : Host { };
 template < typename Res >
 void test_construct()
 {
-  Resource h1{Res()};
+  Resource r{Res()};
+  CAMP_ALLOW_UNUSED_LOCAL(r);
 }
 //
 TEST(CampResource, Construct)
@@ -56,6 +57,8 @@ void test_copy()
   Resource r1{Res()};
   auto r2 = r1;
   Resource r3 = r1;
+  CAMP_ALLOW_UNUSED_LOCAL(r2);
+  CAMP_ALLOW_UNUSED_LOCAL(r3);
 }
 //
 TEST(CampResource, Copy)
