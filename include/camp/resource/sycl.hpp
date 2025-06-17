@@ -32,6 +32,7 @@ namespace resources
     class SyclEvent
     {
     public:
+      // TODO: make this actually work
       SyclEvent(sycl::queue *CAMP_UNUSED_ARG(qu)) { m_event = sycl::event(); }
       bool check() const { return true; }
       void wait() const { getSyclEvent_t().wait(); }
@@ -119,6 +120,9 @@ namespace resources
         return &queueMap[contextInUse][num % 16];
       }
 
+      // Private from-queue constructor
+      Sycl(sycl::queue& q) : qu(&q) {}
+
     public:
       Sycl(int group = -1)
       {
@@ -129,6 +133,12 @@ namespace resources
       Sycl(sycl::context &syclContext, int group = -1)
           : qu(get_a_queue(syclContext, group, true))
       {
+      }
+
+      /// Create a resource from a custom queue
+      static Sycl SyclFromQueue(sycl::queue& q)
+      {
+        return Sycl(q);
       }
 
       // Methods
