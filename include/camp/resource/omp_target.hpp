@@ -78,6 +78,9 @@ namespace resources
         return &s_addrs[num % num_addrs];
       }
 
+      // Private from-address constructor
+      Omp(char* a, int device = omp_get_default_device()) : addr(a), dev(device) {}
+
       void check_ma(MemoryAccess ma) {
         if(ma != MemoryAccess::Device) {
           ::camp::throw_re("OpenMP Target currently does not support allocating shared or managed memory");
@@ -87,6 +90,17 @@ namespace resources
       Omp(int group = -1, int device = omp_get_default_device())
           : addr(get_addr(group)), dev(device)
       {
+      }
+
+      /// Create a resource from a custom address
+      /// The device specified must match the address, if none is specified the
+      /// currently selected device is used.
+      static Omp OmpFromAddr(char* a, int device = -1)
+      {
+        if (device < 0) {
+          device = omp_get_default_device();
+        }
+        return Omp(a, device);
       }
 
       // Methods
@@ -189,6 +203,32 @@ namespace resources
         }
         return ret;
       }
+
+      /*
+       * \brief Get the device associated with this Omp resource.
+       *
+       * \code
+       * camp::resources::Omp res;
+       * #pragma omp target device(res.get_device())
+       * \endcode
+       *
+       * \return The device id of this Omp resource.
+       */
+      int get_device() const { return dev; }
+
+      /*
+       * \brief Get the depend address associated with this Omp resource.
+       *        This address is used in depend clauses with tasks or nowait.
+       *
+       * \code
+       * camp::resources::Omp res;
+       * #pragma omp target depend(inout : res.get_depend_location()[0]) nowait
+       * \endcode
+       *
+       * \return The depend address of this Omp resource.
+       */
+      char* get_depend_location() const { return addr; }
+
       /*
        * \brief Compares two (Omp) resources to see if they are equal.
        *
