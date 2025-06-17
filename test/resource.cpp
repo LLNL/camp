@@ -147,51 +147,58 @@ TEST(CampResource, GetPlatform)
 }
 
 template < typename Res >
-void test_compare(Resource& h1, Resource& h2, Resource& h3)
+void test_compare(Resource& h1)
 {
   Resource r1{Res()};
-  Resource r2{Res()};
-  Res r; Resource r3{r};
+  Res r; Resource r2{r};
 
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
-  ASSERT_TRUE(r == r);
   ASSERT_TRUE(r1 != r2);
   ASSERT_TRUE(r2 != r1);
-  ASSERT_TRUE(r1 != h1);
-  ASSERT_TRUE(r3 != h3);
+  ASSERT_TRUE(r == r);
 
+  ASSERT_FALSE(r1 != r1);
+  ASSERT_FALSE(r2 != r2);
   ASSERT_FALSE(r1 == r2);
   ASSERT_FALSE(r2 == r1);
-  ASSERT_FALSE(r2 == r3);
-  ASSERT_FALSE(h2 == r2);
-  ASSERT_FALSE(h3 == r3);
-  ASSERT_FALSE(r1 != r1);
+  ASSERT_FALSE(r != r);
+
+  ASSERT_TRUE(r1 != h1);
+  ASSERT_TRUE(h1 != r1);
+
+  ASSERT_FALSE(r1 == h1);
+  ASSERT_FALSE(h1 == r1);
 }
 //
 TEST(CampResource, Compare)
 {
   Resource h1{Host()};
-  Resource h2{Host()};
-  Host h; Resource h3{h};
+  Host h; Resource h2{h};
 
   ASSERT_TRUE(h1 == h1);
+  ASSERT_TRUE(h2 == h2);
   ASSERT_TRUE(h1 == h2);
+  ASSERT_TRUE(h2 == h1);
   ASSERT_TRUE(h == h);
 
+  ASSERT_FALSE(h1 != h1);
+  ASSERT_FALSE(h2 != h2);
   ASSERT_FALSE(h1 != h2);
+  ASSERT_FALSE(h2 != h1);
+  ASSERT_FALSE(h != h);
 
 #ifdef CAMP_HAVE_CUDA
-  test_compare<Cuda>(h1, h2, h3);
+  test_compare<Cuda>(h1);
 #endif
 #ifdef CAMP_HAVE_HIP
-  test_compare<Hip>(h1, h2, h3);
+  test_compare<Hip>(h1);
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_compare<Omp>(h1, h2, h3);
+  test_compare<Omp>(h1);
 #endif
 #ifdef CAMP_HAVE_SYCL
-  test_compare<Sycl>(h1, h2, h3);
+  test_compare<Sycl>(h1);
 #endif
 }
 
