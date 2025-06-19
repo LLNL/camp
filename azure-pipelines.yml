@@ -96,6 +96,7 @@ jobs:
         compiler: /opt/rocm/llvm/bin/amdclang++
       sycl:
         base_img: oneapi
+        cmake_extra: -DENABLE_SYCL=On
         compiler: dpcpp
   pool:
     vmImage: 'ubuntu-latest'
