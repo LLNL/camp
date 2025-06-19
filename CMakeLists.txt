@@ -34,11 +34,11 @@ if(NOT DEFINED BLT_CXX_STD)
   standard")
   message("Using C++ standard: ${BLT_CXX_STD}")
 else() #check BLT_CXX_STD is high enough by disallowing the only invalid option
-  set(_unsupported_cxx "c++98" "c++11")
+  set(_unsupported_cxx "c++98" "c++11" "c++14")
   if (BLT_CXX_STD IN_LIST _unsupported_cxx)
     message(FATAL_ERROR "CAMP and the RAJA framework no
     longer support ${_unsupported_cxx}, select a c++
-    standard of 14 or higher")
+    standard of 17 or higher")
   endif()
 endif(NOT DEFINED BLT_CXX_STD)
 set(CMAKE_CXX_EXTENSIONS OFF)
