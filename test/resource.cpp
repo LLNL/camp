@@ -356,7 +356,7 @@ TEST(CampResource, GetEvent)
         sycl::property_list(sycl::property::queue::in_order());
     sycl::context context;
     sycl::queue q(context, gpuSelector, propertyList);
-    test_get_event<Sycl, SyclEvent>(q);
+    test_get_event<Sycl, SyclEvent>(&q);
   }
 #endif
 }
@@ -403,7 +403,7 @@ TEST(CampEvent, Get)
         sycl::property_list(sycl::property::queue::in_order());
     sycl::context context;
     sycl::queue q(context, gpuSelector, propertyList);
-    test_get_typed_event<Sycl, SyclEvent>(q);
+    test_get_typed_event<Sycl, SyclEvent>(&q);
   }
 #endif
 }
