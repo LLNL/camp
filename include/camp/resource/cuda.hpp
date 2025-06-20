@@ -17,6 +17,7 @@
 #include "camp/resource/platform.hpp"
 
 #include <cuda_runtime.h>
+#include <array>
 #include <mutex>
 
 namespace camp
@@ -81,28 +82,25 @@ namespace resources
     {
       static cudaStream_t get_a_stream(int num)
       {
-        static cudaStream_t streams[16] = {};
-        static int previous = 0;
+        static constexpr int num_streams = 16;
+        static std::array<cudaStream_t, num_streams> s_streams = [] {
+              std::array<cudaStream_t, num_streams> streams;
+              for (auto &s : streams) {
+                campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+              }
+              return streams;
+            }();
 
-        static std::once_flag m_onceFlag;
-        static std::mutex m_mtx;
-
-        std::call_once(m_onceFlag, [] {
-          if (streams[0] == nullptr) {
-            for (auto &s : streams) {
-              campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
-            }
-          }
-        });
+        static std::mutex s_mtx;
+        static int s_previous = num_streams-1;
 
         if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return streams[previous];
+          std::lock_guard<std::mutex> lock(s_mtx);
+          s_previous = (s_previous + 1) % num_streams;
+          return s_streams[s_previous];
         }
 
-        return streams[num % 16];
+        return s_streams[num % num_streams];
       }
 
       // Private from-stream constructor
