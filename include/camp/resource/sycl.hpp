@@ -44,7 +44,85 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue *get_a_queue(sycl::context *syclContext,
+      /*
+       * \brief Get the camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the camp managed sycl context.
+       */
+      static sycl::context& get_private_context(const sycl::context* syclContext)
+      {
+        static sycl::context s_context(syclContext ? *syclContext : sycl::context());
+        return s_context;
+      }
+
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the per thread camp managed sycl context.
+       */
+      static sycl::context& get_thread_private_context(sycl::context const& syclContext)
+      {
+        thread_local sycl::context t_context(syclContext);
+        return t_context;
+      }
+
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the per thread camp managed sycl context.
+       */
+      static sycl::context const& get_thread_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext);
+        return get_thread_private_context(syclContext);
+      }
+
+public:
+      /*
+       * \brief Get the camp managed sycl context.
+       *
+       * \return Const reference to the camp managed sycl context.
+       */
+      static sycl::context const& get_default_context()
+      {
+        return get_private_context(nullptr);
+      }
+
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * \return Const reference to the per thread camp managed sycl context.
+       */
+      static sycl::context const& get_thread_default_context()
+      {
+        return get_thread_private_context(get_private_context(nullptr));
+      }
+
+      /*
+       * \brief Set the camp managed sycl context.
+       */
+      static void set_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext) = syclContext;
+      }
+
+      /*
+       * \brief Set the per thread camp managed sycl context.
+       */
+      static void set_thread_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext);
+        get_thread_private_context(syclContext) = syclContext;
+      }
+
+private:
+      static sycl::queue *get_a_queue(const sycl::context* syclContext,
                                       int num)
       {
         static constexpr int num_queues = 16;
@@ -52,23 +130,25 @@ namespace resources
         static std::mutex s_mtx;
 
         // note that this type must not invalidate iterators when modified
-        using queueMap_type = std::map<sycl::context *, std::pair<int, std::array<sycl::queue, num_queues>>>;
+        using queueMap_type = std::map<const sycl::context*, std::pair<int, std::array<sycl::queue, num_queues>>>;
         static queueMap_type queueMap;
         static const typename queueMap_type::iterator queueMap_end = queueMap.end();
-
-        // Think about possibility of inconsistent behavior with prevContextIter
-        static thread_local typename queueMap_type::iterator prevContextIter = queueMap_end;
+        thread_local typename queueMap_type::iterator prevContextIter = queueMap_end;
 
         if (syclContext) {
           if (prevContextIter != queueMap_end) {
             if (syclContext != prevContextIter->first) {
               prevContextIter = queueMap_end;
             }
+          } else {
+            // allow first time setting of default contexts
+            get_thread_default_context(*syclContext);
           }
         } else {
-          if (prevContextIter == queueMap_end) {
-            static sycl::context privateContext;
-            syclContext = &privateContext;
+          if (prevContextIter != queueMap_end) {
+            // intentionally left empty as syclContext not needed
+          } else {
+            syclContext = &get_thread_default_context();
           }
         }
 
@@ -76,13 +156,13 @@ namespace resources
           std::lock_guard<std::mutex> lock(s_mtx);
 
           if (prevContextIter == queueMap_end) {
-            auto contextIter = queueMap.find(syclContext);
-            if (contextIter == queueMap_end) {
+            prevContextIter = queueMap.find(syclContext);
+            if (prevContextIter == queueMap_end) {
               static constexpr auto gpuSelector = sycl::gpu_selector_v;
               static const sycl::property_list propertyList =
                   sycl::property_list(sycl::property::queue::in_order());
 
-              contextIter = queueMap.emplace(syclContext, { num_queues-1, {
+              prevContextIter = queueMap.emplace(syclContext, { num_queues-1, {
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
@@ -100,7 +180,6 @@ namespace resources
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList)}}).first;
             }
-            prevContextIter = contextIter;
           }
 
           if (num < 0) {
