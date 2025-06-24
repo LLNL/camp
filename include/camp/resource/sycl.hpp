@@ -201,7 +201,13 @@ private:
       {
       }
 
-      Sycl(sycl::context &syclContext, int group = -1)
+      Sycl(int group = -1, sycl::context const& syclContext)
+          : qu(get_a_queue(&syclContext, group))
+      {
+      }
+
+      // deprecated
+      Sycl(sycl::context const& syclContext, int group = -1)
           : qu(get_a_queue(&syclContext, group))
       {
       }
