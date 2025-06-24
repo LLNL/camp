@@ -221,7 +221,7 @@ private:
       // get default resource
       static Sycl get_default()
       {
-        static Sycl h;
+        static Sycl h(0, get_default_context());
         return h;
       }
 
