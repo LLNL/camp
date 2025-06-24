@@ -63,19 +63,19 @@ namespace resources
     {
       static char *get_addr(int num)
       {
-        static char addrs[16] = {};
-        static int previous = 0;
+        static constexpr int num_addrs = 16;
+        static char s_addrs[num_addrs] = {};
 
-        static std::mutex m_mtx;
+        static std::mutex s_mtx;
+        static int s_previous = num_addrs-1;
 
         if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return &addrs[previous];
+          std::lock_guard<std::mutex> lock(s_mtx);
+          s_previous = (s_previous + 1) % num_addrs;
+          return &s_addrs[s_previous];
         }
 
-        return &addrs[num % 16];
+        return &s_addrs[num % num_addrs];
       }
 
       // Private from-address constructor
