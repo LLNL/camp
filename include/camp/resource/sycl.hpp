@@ -130,7 +130,8 @@ private:
         static std::mutex s_mtx;
 
         // note that this type must not invalidate iterators when modified
-        using queueMap_type = std::map<const sycl::context*, std::pair<int, std::array<sycl::queue, num_queues>>>;
+        using value_second_type = std::pair<int, std::array<sycl::queue, num_queues>>;
+        using queueMap_type = std::map<const sycl::context*, value_second_type>;
         static queueMap_type queueMap;
         static const typename queueMap_type::iterator queueMap_end = queueMap.end();
         thread_local typename queueMap_type::iterator cachedContextIter = queueMap_end;
@@ -155,23 +156,25 @@ private:
               static const sycl::property_list propertyList =
                   sycl::property_list(sycl::property::queue::in_order());
 
-              cachedContextIter = queueMap.emplace(syclContext, { num_queues-1, {
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList),
-                  sycl::queue(*syclContext, gpuSelector, propertyList)}}).first;
+              cachedContextIter = queueMap.emplace(syclContext,
+                  value_second_type(num_queues-1, {
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList)})
+                  ).first;
             }
           }
 
