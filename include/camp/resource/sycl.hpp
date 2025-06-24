@@ -218,13 +218,17 @@ private:
         return Sycl(q);
       }
 
-      // Methods
-      Platform get_platform() const { return Platform::sycl; }
+      // get default resource
       static Sycl get_default()
       {
         static Sycl h;
         return h;
       }
+
+      // Methods
+      Platform get_platform() const { return Platform::sycl; }
+
+      // Event
       SyclEvent get_event() { return SyclEvent(get_queue()); }
       Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
       void wait() { qu->wait(); }
@@ -284,6 +288,7 @@ private:
         }
       }
 
+      // implementation specific
       sycl::queue *get_queue() { return qu; }
       sycl::queue const *get_queue() const { return qu; }
 
