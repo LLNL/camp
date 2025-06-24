@@ -189,12 +189,7 @@ private:
       Sycl(sycl::queue& q) : qu(&q) {}
 
     public:
-      Sycl(int group = -1)
-        : qu(get_a_queue(nullptr, group))
-      {
-      }
-
-      Sycl(int group = -1, sycl::context const& syclContext)
+      Sycl(int group = -1, sycl::context const& syclContext = get_thread_default_context())
           : qu(get_a_queue(&syclContext, group))
       {
       }
