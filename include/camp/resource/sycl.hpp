@@ -133,36 +133,29 @@ private:
         using queueMap_type = std::map<const sycl::context*, std::pair<int, std::array<sycl::queue, num_queues>>>;
         static queueMap_type queueMap;
         static const typename queueMap_type::iterator queueMap_end = queueMap.end();
-        thread_local typename queueMap_type::iterator prevContextIter = queueMap_end;
+        thread_local typename queueMap_type::iterator cachedContextIter = queueMap_end;
 
         if (syclContext) {
-          if (prevContextIter != queueMap_end) {
-            if (syclContext != prevContextIter->first) {
-              prevContextIter = queueMap_end;
-            }
-          } else {
-            // allow first time setting of default contexts
-            get_thread_default_context(*syclContext);
-          }
-        } else {
-          if (prevContextIter != queueMap_end) {
-            // intentionally left empty as syclContext not needed
-          } else {
-            syclContext = &get_thread_default_context();
-          }
+          // implement sticky contexts
+          set_thread_default_context(*syclContext);
+        }
+        syclContext = &get_thread_default_context();
+
+        if (syclContext != cachedContextIter->first) {
+          cachedContextIter = queueMap_end;
         }
 
-        if (prevContextIter == queueMap_end || num < 0) {
+        if (cachedContextIter == queueMap_end || num < 0) {
           std::lock_guard<std::mutex> lock(s_mtx);
 
-          if (prevContextIter == queueMap_end) {
-            prevContextIter = queueMap.find(syclContext);
-            if (prevContextIter == queueMap_end) {
+          if (cachedContextIter == queueMap_end) {
+            cachedContextIter = queueMap.find(syclContext);
+            if (cachedContextIter == queueMap_end) {
               static constexpr auto gpuSelector = sycl::gpu_selector_v;
               static const sycl::property_list propertyList =
                   sycl::property_list(sycl::property::queue::in_order());
 
-              prevContextIter = queueMap.emplace(syclContext, { num_queues-1, {
+              cachedContextIter = queueMap.emplace(syclContext, { num_queues-1, {
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
                   sycl::queue(*syclContext, gpuSelector, propertyList),
@@ -183,13 +176,13 @@ private:
           }
 
           if (num < 0) {
-            int& previous = prevContextIter->second.first;
+            int& previous = cachedContextIter->second.first;
             previous = (previous + 1) % num_queues;
-            return &prevContextIter->second.second[previous];
+            return &cachedContextIter->second.second[previous];
           }
         }
 
-        return &prevContextIter->second.second[num % num_queues];
+        return &cachedContextIter->second.second[num % num_queues];
       }
 
       // Private from-queue constructor
