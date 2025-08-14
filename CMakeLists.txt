@@ -107,12 +107,6 @@ if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP requires CUDA version 10.1 or newer.")
   endif()
-
-  if(ENABLE_NV_TOOLS_EXT)
-    set(camp_depends
-      ${camp_depends}
-      nvtoolsext)
-  endif ()
 endif ()
 
 if (ENABLE_HIP)
