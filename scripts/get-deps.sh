@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+###############################################################################
+# Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+# and Camp project contributors. See the camp/LICENSE file for details.
+#
+# SPDX-License-Identifier: (BSD-3-Clause)
+###############################################################################
+
 apt-get update || true #ignore fail here, because rocm docker is broken
 apt-get install -y --no-install-recommends curl unzip sudo
 apt-get clean

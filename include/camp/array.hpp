@@ -1,30 +1,19 @@
-/*
-Copyright (c) 2024, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
-
-/*
-The implementation of camp::array follows the C++ standard but borrows from the
-implementation of std::array from the LLVM project at the following location:
-https://github.com/llvm/llvm-project/blob/main/libcxx/include/array
-The license information from that file is included below.
-
-//===----------------------------------------------------------------------===//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// The implementation of camp::array follows the C++ standard but borrows 
+// from the implementation of std::array in the LLVM project at:
+// https://github.com/llvm/llvm-project/blob/main/libcxx/include/array
+//
+// The license information from that file is included below.
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-
-See the LLVM_LICENSE file at http://github.com/llnl/camp for the full license
-text.
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef camp_array_HPP__
 #define camp_array_HPP__
@@ -61,6 +50,12 @@ namespace camp {
       using const_iterator = const_pointer;
 
       // TODO: Investigate device trap
+      ///
+      /// Accesses the element at the specified index with bounds checking.
+      ///
+      /// @param i The index of the element to access.
+      /// @return A reference to the element at the specified index.
+      /// @throws std::out_of_range if the index is out of bounds.
       constexpr reference at(size_type i) {
          if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
@@ -69,6 +64,12 @@ namespace camp {
          return elements[i];
       }
 
+      ///
+      /// Accesses the element at the specified index with bounds checking (const version).
+      ///
+      /// @param i The index of the element to access.
+      /// @return A const reference to the element at the specified index.
+      /// @throws std::out_of_range if the index is out of bounds.
       constexpr const_reference at(size_type i) const {
          if (i >= N) {
             throw std::out_of_range{"camp::array::at detected out of range access"};
@@ -289,7 +290,6 @@ namespace camp {
 #endif
 } // namespace camp
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 // For structured bindings
 namespace std {
    template <class T, std::size_t N>
@@ -303,7 +303,6 @@ namespace std {
       using type = T;
    };
 }
-#endif
 
 #endif // !defined(CAMP_ARRAY_H)
 

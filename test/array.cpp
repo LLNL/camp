@@ -1,3 +1,10 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 #include "camp/array.hpp"
 #include "Test.hpp"
 
@@ -373,25 +380,26 @@ CAMP_TEST_BEGIN(array, to_array)
           b[2] == 10;
 } CAMP_TEST_END(array, to_array)
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 
 CAMP_TEST_BEGIN(array, tuple_size)
 {
-   constexpr std::size_t size = std::tuple_size<camp::array<double, 7>>::value;
-   constexpr std::size_t size_v = std::tuple_size_v<camp::array<double, 11>>;
+   constexpr std::size_t size7 = std::tuple_size<camp::array<double, 7>>::value;
+   constexpr std::size_t size11 = std::tuple_size<camp::array<double, 11>>::value;
 
-   return size == 7 &&
-          size_v == 11;
+   return size7 == 7 &&
+          size11 == 11;
 } CAMP_TEST_END(array, tuple_size)
 
 CAMP_TEST_BEGIN(array, tuple_element)
 {
-   constexpr bool element0 = std::is_same_v<double, std::tuple_element_t<0, camp::array<double, 5>>>;
-   constexpr bool element4 = std::is_same_v<double, std::tuple_element_t<4, camp::array<double, 5>>>;
+   constexpr bool element0 = std::is_same<double, std::tuple_element_t<0, camp::array<double, 5>>>::value;
+   constexpr bool element4 = std::is_same<double, std::tuple_element_t<4, camp::array<double, 5>>>::value;
 
    return element0 &&
           element4;
 } CAMP_TEST_END(array, tuple_element)
+
+#if defined(__cplusplus) && __cplusplus >= 201703L
 
 CAMP_TEST_BEGIN(array, structured_binding)
 {
@@ -405,6 +413,8 @@ CAMP_TEST_BEGIN(array, structured_binding)
           a[1] == 3;
 } CAMP_TEST_END(array, structured_binding)
 
+//If CUDA is enabled and building with c++17, must use up-to-date CUDA version
+//Or this test will fail. Worked with cuda/11.8.0 and clang/18.1.8 
 CAMP_TEST_BEGIN(array, deduction_guide)
 {
    camp::array a{-1, 1};

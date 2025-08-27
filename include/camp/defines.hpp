@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef CAMP_DEFINES_HPP
 #define CAMP_DEFINES_HPP
@@ -27,6 +24,8 @@ http://github.com/llnl/camp
 
 namespace camp
 {
+
+#define CAMP_UNUSED_ARG(X)
 
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
 
@@ -183,6 +182,8 @@ CAMP_DLL_EXPORT void throw_re(const char *s);
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
+#define campCudaErrchkDiscardReturn(ans) (void)::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
+
 CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
                               const char *call,
                               const char *file,
@@ -194,6 +195,8 @@ CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
 #ifdef CAMP_ENABLE_HIP
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
+
+#define campHipErrchkDiscardReturn(ans) (void)::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
 CAMP_DLL_EXPORT hipError_t hipAssert(hipError_t code,
                             const char *call,

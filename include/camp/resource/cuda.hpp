@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef __CAMP_CUDA_HPP
 #define __CAMP_CUDA_HPP
@@ -35,9 +32,9 @@ namespace resources
       struct device_guard {
         device_guard(int device)
         {
-          campCudaErrchk(cudaGetDevice(&prev_device));
+          campCudaErrchkDiscardReturn(cudaGetDevice(&prev_device));
           if (device != prev_device) {
-            campCudaErrchk(cudaSetDevice(device));
+            campCudaErrchkDiscardReturn(cudaSetDevice(device));
           } else {
             prev_device = -1;
           }
@@ -46,7 +43,7 @@ namespace resources
         ~device_guard()
         {
           if (prev_device != -1) {
-            campCudaErrchk(cudaSetDevice(prev_device));
+            campCudaErrchkDiscardReturn(cudaSetDevice(prev_device));
           }
         }
 
@@ -66,7 +63,7 @@ namespace resources
       {
         return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess);
       }
-      void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
+      void wait() const { campCudaErrchkDiscardReturn(cudaEventSynchronize(m_event)); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -74,9 +71,9 @@ namespace resources
 
       void init(cudaStream_t stream)
       {
-        campCudaErrchk(
+        campCudaErrchkDiscardReturn(
             cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
-        campCudaErrchk(cudaEventRecord(m_event, stream));
+        campCudaErrchkDiscardReturn(cudaEventRecord(m_event, stream));
       }
     };
 
@@ -93,7 +90,7 @@ namespace resources
         std::call_once(m_onceFlag, [] {
           if (streams[0] == nullptr) {
             for (auto &s : streams) {
-              campCudaErrchk(cudaStreamCreate(&s));
+              campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
             }
           }
         });
@@ -144,7 +141,7 @@ namespace resources
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
         if (dev < 0) {
-          campCudaErrchk(cudaGetDevice(&dev));
+          campCudaErrchkDiscardReturn(cudaGetDevice(&dev));
         }
         return Cuda(s, dev);
       }
@@ -158,7 +155,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          campCudaErrchk(cudaStreamCreate(&s));
+          campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
 #endif
           return s;
         }());
@@ -172,7 +169,7 @@ namespace resources
       void wait()
       {
         auto d{device_guard(device)};
-        campCudaErrchk(cudaStreamSynchronize(stream));
+        campCudaErrchkDiscardReturn(cudaStreamSynchronize(stream));
       }
 
       void wait_for(Event *e)
@@ -180,7 +177,7 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          campCudaErrchk(cudaStreamWaitEvent(get_stream(),
+          campCudaErrchkDiscardReturn(cudaStreamWaitEvent(get_stream(),
                                              cuda_event->getCudaEvent_t(),
                                              0));
         } else {
@@ -198,15 +195,15 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              campCudaErrchk(cudaMalloc(&ret, sizeof(T) * size));
+              campCudaErrchkDiscardReturn(cudaMalloc(&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              campCudaErrchk(cudaMallocHost(&ret, sizeof(T) * size));
+              campCudaErrchkDiscardReturn(cudaMallocHost(&ret, sizeof(T) * size));
               break;
             case MemoryAccess::Managed:
-              campCudaErrchk(cudaMallocManaged(&ret, sizeof(T) * size));
+              campCudaErrchkDiscardReturn(cudaMallocManaged(&ret, sizeof(T) * size));
               break;
           }
         }
@@ -226,15 +223,15 @@ namespace resources
         }
         switch (ma) {
           case MemoryAccess::Device:
-            campCudaErrchk(cudaFree(p));
+            campCudaErrchkDiscardReturn(cudaFree(p));
             break;
           case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
-            campCudaErrchk(cudaFreeHost(p));
+            campCudaErrchkDiscardReturn(cudaFreeHost(p));
             break;
           case MemoryAccess::Managed:
-            campCudaErrchk(cudaFree(p));
+            campCudaErrchkDiscardReturn(cudaFree(p));
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
@@ -244,7 +241,7 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchk(
+          campCudaErrchkDiscardReturn(
               cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream));
         }
       }
@@ -252,7 +249,7 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchk(cudaMemsetAsync(p, val, size, stream));
+          campCudaErrchkDiscardReturn(cudaMemsetAsync(p, val, size, stream));
         }
       }
 

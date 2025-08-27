@@ -1,7 +1,9 @@
-Copyright (c) 2018, Lawrence Livermore National Security, LLC. Produced at the Lawrence Livermore National Laboratory
-Written by Tom Scogland <scogland1@llnl.gov>
-CODE-756261
-All rights reserved.
+Copyright (c) 2018-2025, Lawrence Livermore National Security, LLC.
+Produced at the Lawrence Livermore National Laboratory.
+All rights reserved. See details in the camp/LICENSE file.
+
+Unlimited Open Source - BSD Distribution
+LLNL-CODE-756261
 
 This file is part of camp.  For details, see http://github.com/llnl/camp.
 Please also read the NOTICE at the root of the camp repository.

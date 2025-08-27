@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef __CAMP_SYCL_HPP
 #define __CAMP_SYCL_HPP
@@ -19,13 +16,11 @@ http://github.com/llnl/camp
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include <map>
 #include <array>
 #include <mutex>
-
-using namespace cl;
 
 namespace camp
 {
@@ -37,7 +32,8 @@ namespace resources
     class SyclEvent
     {
     public:
-      SyclEvent(sycl::queue *qu) { m_event = sycl::event(); }
+      // TODO: make this actually work
+      SyclEvent(sycl::queue *CAMP_UNUSED_ARG(qu)) { m_event = sycl::event(); }
       bool check() const { return true; }
       void wait() const { getSyclEvent_t().wait(); }
       sycl::event getSyclEvent_t() const { return m_event; }
@@ -113,6 +109,7 @@ namespace resources
         static int previous = 0;
 
         static std::once_flag m_onceFlag;
+        CAMP_ALLOW_UNUSED_LOCAL(m_onceFlag);
         if (num < 0) {
           m_mtx.lock();
           previous = (previous + 1) % 16;
@@ -122,6 +119,9 @@ namespace resources
 
         return &queueMap[contextInUse][num % 16];
       }
+
+      // Private from-queue constructor
+      Sycl(sycl::queue& q) : qu(&q) {}
 
     public:
       Sycl(int group = -1)
@@ -133,6 +133,12 @@ namespace resources
       Sycl(sycl::context &syclContext, int group = -1)
           : qu(get_a_queue(syclContext, group, true))
       {
+      }
+
+      /// Create a resource from a custom queue
+      static Sycl SyclFromQueue(sycl::queue& q)
+      {
+        return Sycl(q);
       }
 
       // Methods
@@ -183,7 +189,11 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { sycl::free(p, *qu); }
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
+      {
+        CAMP_ALLOW_UNUSED_LOCAL(ma);
+        sycl::free(p, *qu);
+      }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
