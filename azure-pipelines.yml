@@ -50,14 +50,14 @@ jobs:
   timeoutInMinutes: 360
   strategy:
     matrix:
-      gcc8-debug:
+      gcc10-debug:
         base_img: gcc
-        ver: 8
+        ver: 10
         cmake_extra: -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On
         build_type: Debug
-      gcc8:
+      gcc10:
         base_img: gcc
-        ver: 8
+        ver: 10
       gcc-latest:
         base_img: gcc
         ver: latest
