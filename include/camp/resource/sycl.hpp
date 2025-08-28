@@ -44,94 +44,162 @@ namespace resources
 
     class Sycl
     {
-      static sycl::queue *get_a_queue(sycl::context &syclContext,
-                                      int num,
-                                      bool useContext)
+      /*
+       * \brief Get the camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the camp managed sycl context.
+       */
+      static sycl::context& get_private_context(const sycl::context* syclContext)
       {
-        constexpr auto gpuSelector = sycl::gpu_selector_v;
-        static sycl::property_list propertyList =
-            sycl::property_list(sycl::property::queue::in_order());
-        static sycl::context privateContext;
-        static sycl::context *contextInUse = NULL;
-        static std::map<sycl::context *, std::array<sycl::queue, 16>> queueMap;
+        static sycl::context s_context(syclContext ? *syclContext : sycl::context());
+        return s_context;
+      }
 
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the per thread camp managed sycl context.
+       */
+      static sycl::context& get_thread_private_context(sycl::context const& syclContext)
+      {
+        thread_local sycl::context t_context(syclContext);
+        return t_context;
+      }
 
-        static std::mutex m_mtx;
-        m_mtx.lock();
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * Note that the first call sets up the context with the given argument.
+       *
+       * \return Reference to the per thread camp managed sycl context.
+       */
+      static sycl::context const& get_thread_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext);
+        return get_thread_private_context(syclContext);
+      }
 
-        // User passed a context, use it
-        if (useContext) {
-          contextInUse = &syclContext;
+public:
+      /*
+       * \brief Get the camp managed sycl context.
+       *
+       * \return Const reference to the camp managed sycl context.
+       */
+      static sycl::context const& get_default_context()
+      {
+        return get_private_context(nullptr);
+      }
 
-          if (queueMap.find(contextInUse) == queueMap.end()) {
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+      /*
+       * \brief Get the per thread camp managed sycl context.
+       *
+       * \return Const reference to the per thread camp managed sycl context.
+       */
+      static sycl::context const& get_thread_default_context()
+      {
+        return get_thread_private_context(get_private_context(nullptr));
+      }
+
+      /*
+       * \brief Set the camp managed sycl context.
+       */
+      static void set_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext) = syclContext;
+      }
+
+      /*
+       * \brief Set the per thread camp managed sycl context.
+       */
+      static void set_thread_default_context(sycl::context const& syclContext)
+      {
+        get_private_context(&syclContext);
+        get_thread_private_context(syclContext) = syclContext;
+      }
+
+private:
+      static sycl::queue *get_a_queue(const sycl::context* syclContext,
+                                      int num)
+      {
+        static constexpr int num_queues = 16;
+
+        static std::mutex s_mtx;
+
+        // note that this type must not invalidate iterators when modified
+        using value_second_type = std::pair<int, std::array<sycl::queue, num_queues>>;
+        using queueMap_type = std::map<const sycl::context*, value_second_type>;
+        static queueMap_type queueMap;
+        static const typename queueMap_type::iterator queueMap_end = queueMap.end();
+        thread_local typename queueMap_type::iterator cachedContextIter = queueMap_end;
+
+        if (syclContext) {
+          // implement sticky contexts
+          set_thread_default_context(*syclContext);
+        }
+        syclContext = &get_thread_default_context();
+
+        if (syclContext != cachedContextIter->first) {
+          cachedContextIter = queueMap_end;
+        }
+
+        if (cachedContextIter == queueMap_end || num < 0) {
+          std::lock_guard<std::mutex> lock(s_mtx);
+
+          if (cachedContextIter == queueMap_end) {
+            cachedContextIter = queueMap.find(syclContext);
+            if (cachedContextIter == queueMap_end) {
+              static constexpr auto gpuSelector = sycl::gpu_selector_v;
+              static const sycl::property_list propertyList =
+                  sycl::property_list(sycl::property::queue::in_order());
+
+              cachedContextIter = queueMap.emplace(syclContext,
+                  value_second_type(num_queues-1, {
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList),
+                    sycl::queue(*syclContext, gpuSelector, propertyList)})
+                  ).first;
+            }
           }
-        } else {  // User did not pass context, use last used or private one
-          if (contextInUse == NULL) {
-            contextInUse = &privateContext;
-            queueMap[contextInUse] = {
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList),
-                sycl::queue(*contextInUse, gpuSelector, propertyList)};
+
+          if (num < 0) {
+            int& previous = cachedContextIter->second.first;
+            previous = (previous + 1) % num_queues;
+            return &cachedContextIter->second.second[previous];
           }
         }
-        m_mtx.unlock();
 
-        static int previous = 0;
-
-        static std::once_flag m_onceFlag;
-        CAMP_ALLOW_UNUSED_LOCAL(m_onceFlag);
-        if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return &queueMap[contextInUse][previous];
-        }
-
-        return &queueMap[contextInUse][num % 16];
+        return &cachedContextIter->second.second[num % num_queues];
       }
 
       // Private from-queue constructor
       Sycl(sycl::queue& q) : qu(&q) {}
 
     public:
-      Sycl(int group = -1)
+      Sycl(int group = -1, sycl::context const& syclContext = get_thread_default_context())
+          : qu(get_a_queue(&syclContext, group))
       {
-        sycl::context temp;
-        qu = get_a_queue(temp, group, false);
       }
 
-      Sycl(sycl::context &syclContext, int group = -1)
-          : qu(get_a_queue(syclContext, group, true))
+      [[deprecated]]
+      Sycl(sycl::context const& syclContext, int group = -1)
+          : qu(get_a_queue(&syclContext, group))
       {
       }
 
@@ -141,13 +209,16 @@ namespace resources
         return Sycl(q);
       }
 
-      // Methods
-      Platform get_platform() const { return Platform::sycl; }
+      // get default resource
       static Sycl get_default()
       {
-        static Sycl h;
-        return h;
+        return Sycl(0, get_default_context());
       }
+
+      // Methods
+      Platform get_platform() const { return Platform::sycl; }
+
+      // Event
       SyclEvent get_event() { return SyclEvent(get_queue()); }
       Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
       void wait() { qu->wait(); }
@@ -207,6 +278,7 @@ namespace resources
         }
       }
 
+      // implementation specific
       sycl::queue *get_queue() { return qu; }
       sycl::queue const *get_queue() const { return qu; }
 
