@@ -212,8 +212,7 @@ private:
       // get default resource
       static Sycl get_default()
       {
-        static Sycl h(0, get_default_context());
-        return h;
+        return Sycl(0, get_default_context());
       }
 
       // Methods
