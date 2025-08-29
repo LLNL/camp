@@ -11,6 +11,10 @@
 #include <type_traits>
 #include <memory>
 
+#include "camp/config.hpp"
+#include "camp/defines.hpp"
+#include "camp/helpers.hpp"
+
 namespace camp
 {
 namespace resources

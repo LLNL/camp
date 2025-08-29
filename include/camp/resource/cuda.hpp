@@ -13,6 +13,7 @@
 #ifdef CAMP_ENABLE_CUDA
 
 #include "camp/defines.hpp"
+#include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
@@ -33,9 +34,9 @@ namespace resources
       struct device_guard {
         device_guard(int device)
         {
-          campCudaErrchkDiscardReturn(cudaGetDevice(&prev_device));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaGetDevice, &prev_device);
           if (device != prev_device) {
-            campCudaErrchkDiscardReturn(cudaSetDevice(device));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaSetDevice, device);
           } else {
             prev_device = -1;
           }
@@ -44,7 +45,7 @@ namespace resources
         ~device_guard()
         {
           if (prev_device != -1) {
-            campCudaErrchkDiscardReturn(cudaSetDevice(prev_device));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaSetDevice, prev_device);
           }
         }
 
@@ -62,9 +63,9 @@ namespace resources
 
       bool check() const
       {
-        return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess);
+        return (CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(cudaEventQuery, m_event) == cudaSuccess);
       }
-      void wait() const { campCudaErrchkDiscardReturn(cudaEventSynchronize(m_event)); }
+      void wait() const { CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventSynchronize, m_event); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -72,9 +73,9 @@ namespace resources
 
       void init(cudaStream_t stream)
       {
-        campCudaErrchkDiscardReturn(
-            cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
-        campCudaErrchkDiscardReturn(cudaEventRecord(m_event, stream));
+        CAMP_CUDA_API_INVOKE_AND_CHECK(
+            cudaEventCreateWithFlags, &m_event, cudaEventDisableTiming);
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventRecord, m_event, stream);
       }
     };
 
@@ -86,7 +87,7 @@ namespace resources
         static std::array<cudaStream_t, num_streams> s_streams = [] {
               std::array<cudaStream_t, num_streams> streams;
               for (auto &s : streams) {
-                campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+                CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
               }
               return streams;
             }();
@@ -139,7 +140,7 @@ namespace resources
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
         if (dev < 0) {
-          campCudaErrchkDiscardReturn(cudaGetDevice(&dev));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaGetDevice, &dev);
         }
         return Cuda(s, dev);
       }
@@ -153,7 +154,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
 #endif
           return s;
         }());
@@ -167,7 +168,7 @@ namespace resources
       void wait()
       {
         auto d{device_guard(device)};
-        campCudaErrchkDiscardReturn(cudaStreamSynchronize(stream));
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamSynchronize, stream);
       }
 
       void wait_for(Event *e)
@@ -175,9 +176,9 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          campCudaErrchkDiscardReturn(cudaStreamWaitEvent(get_stream(),
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamWaitEvent, get_stream(),
                                              cuda_event->getCudaEvent_t(),
-                                             0));
+                                             0);
         } else {
           e->wait();
         }
@@ -193,15 +194,15 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              campCudaErrchkDiscardReturn(cudaMalloc(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMalloc, &ret, sizeof(T) * size);
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              campCudaErrchkDiscardReturn(cudaMallocHost(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocHost, &ret, sizeof(T) * size);
               break;
             case MemoryAccess::Managed:
-              campCudaErrchkDiscardReturn(cudaMallocManaged(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocManaged, &ret, sizeof(T) * size);
               break;
           }
         }
@@ -221,15 +222,15 @@ namespace resources
         }
         switch (ma) {
           case MemoryAccess::Device:
-            campCudaErrchkDiscardReturn(cudaFree(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFree, p);
             break;
           case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
-            campCudaErrchkDiscardReturn(cudaFreeHost(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFreeHost, p);
             break;
           case MemoryAccess::Managed:
-            campCudaErrchkDiscardReturn(cudaFree(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFree, p);
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
@@ -239,15 +240,15 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchkDiscardReturn(
-              cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(
+              cudaMemcpyAsync, dst, src, size, cudaMemcpyDefault, stream);
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchkDiscardReturn(cudaMemsetAsync(p, val, size, stream));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMemsetAsync, p, val, size, stream);
         }
       }
 
