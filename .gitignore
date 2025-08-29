@@ -21,3 +21,8 @@ cmake-build-*/
 docker-*-build/
 /Debug/
 ./extern/googletest/*
+
+# install directories
+install/
+install-*/
+install_*/

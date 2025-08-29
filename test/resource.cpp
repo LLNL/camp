@@ -249,23 +249,23 @@ TEST(CampResource, StreamSelect)
 #if defined(CAMP_HAVE_CUDA)
   {
     cudaStream_t stream1, stream2;
-    campCudaErrchkDiscardReturn(cudaStreamCreate(&stream1));
-    campCudaErrchkDiscardReturn(cudaStreamCreate(&stream2));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream1);
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream2);
     test_select_stream(Cuda::CudaFromStream(stream1),
                        Cuda::CudaFromStream(stream2));
-    campCudaErrchkDiscardReturn(cudaStreamDestroy(stream1));
-    campCudaErrchkDiscardReturn(cudaStreamDestroy(stream2));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream1);
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream2);
   }
 #endif
 #if defined(CAMP_HAVE_HIP)
   {
     hipStream_t stream1, stream2;
-    campHipErrchkDiscardReturn(hipStreamCreate(&stream1));
-    campHipErrchkDiscardReturn(hipStreamCreate(&stream2));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream1);
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream2);
     test_select_stream(Hip::HipFromStream(stream1),
                        Hip::HipFromStream(stream2));
-    campHipErrchkDiscardReturn(hipStreamDestroy(stream1));
-    campHipErrchkDiscardReturn(hipStreamDestroy(stream2));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream1);
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream2);
   }
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
@@ -330,17 +330,17 @@ TEST(CampResource, GetEvent)
 #if defined(CAMP_HAVE_CUDA)
   {
     cudaStream_t s;
-    campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
     test_get_event<Cuda, CudaEvent>(s);
-    campCudaErrchkDiscardReturn(cudaStreamDestroy(s));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, s);
   }
 #endif
 #if defined(CAMP_HAVE_HIP)
   {
     hipStream_t s;
-    campHipErrchkDiscardReturn(hipStreamCreate(&s));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &s);
     test_get_event<Hip, HipEvent>(s);
-    campHipErrchkDiscardReturn(hipStreamDestroy(s));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, s);
   }
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
@@ -377,17 +377,17 @@ TEST(CampEvent, Get)
 #if defined(CAMP_HAVE_CUDA)
   {
     cudaStream_t s;
-    campCudaErrchkDiscardReturn(cudaStreamCreate(&s));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
     test_get_typed_event<Cuda, CudaEvent>(s);
-    campCudaErrchkDiscardReturn(cudaStreamDestroy(s));
+    CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, s);
   }
 #endif
 #if defined(CAMP_HAVE_HIP)
   {
     hipStream_t s;
-    campHipErrchkDiscardReturn(hipStreamCreate(&s));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &s);
     test_get_typed_event<Hip, HipEvent>(s);
-    campHipErrchkDiscardReturn(hipStreamDestroy(s));
+    CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, s);
   }
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
