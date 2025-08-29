@@ -17,8 +17,13 @@ struct MyInt
   int i;
 };
 
+namespace camp
+{
+namespace experimental
+{
+
 template < >
-struct ::camp::experimental::StreamInsertHelper<MyInt&>
+struct StreamInsertHelper<MyInt&>
 {
   MyInt& m_val;
 
@@ -29,7 +34,7 @@ struct ::camp::experimental::StreamInsertHelper<MyInt&>
 };
 
 template < >
-struct ::camp::experimental::StreamInsertHelper<MyInt const&>
+struct StreamInsertHelper<MyInt const&>
 {
   MyInt const& m_val;
 
@@ -38,6 +43,9 @@ struct ::camp::experimental::StreamInsertHelper<MyInt const&>
     return str << m_val.i;
   }
 };
+
+} // namespace experimental
+} // namespace camp
 
 
 TEST(CampErrors, Throw)
