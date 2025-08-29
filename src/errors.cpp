@@ -25,7 +25,7 @@ namespace camp
 {
 
 void throw_re(const char *s) { throw std::runtime_error(s); }
-void throw_re(std::string s) { throw std::runtime_error(s); }
+void throw_re(std::string const& s) { throw std::runtime_error(s); }
 
 #ifdef CAMP_ENABLE_CUDA
 

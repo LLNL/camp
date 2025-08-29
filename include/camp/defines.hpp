@@ -185,7 +185,7 @@ using nullptr_t = decltype(nullptr);
 CAMP_DLL_EXPORT void throw_re(const char *s);
 ///
 [[noreturn]]
-CAMP_DLL_EXPORT void throw_re(std::string s);
+CAMP_DLL_EXPORT void throw_re(std::string const& s);
 
 #ifdef CAMP_ENABLE_CUDA
 
