@@ -13,6 +13,8 @@
 #include <mutex>
 #include <type_traits>
 
+#include "camp/config.hpp"
+#include "camp/defines.hpp"
 #include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/host.hpp"

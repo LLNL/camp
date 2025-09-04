@@ -106,6 +106,19 @@ Learn more about the Camp ``tuple`` feature on the :ref:`tuple-label` page.
 
 See the full example `here <https://github.com/LLNL/RAJA/blob/0aef7cc44348d82e94e73e12f77c27ea306e47b8/include/RAJA/util/View.hpp>`_.
 
+RAJA also uses Camp for error checking and generating error strings for cuda
+and hip API functions.
+
+.. code-block:: cpp
+
+   CAMP_HIP_API_INVOKE_AND_CHECK(hipLaunchKernel, func, gridDim, blockDim, args, shmem, res.get_stream());
+   // C++ exception with description "HIP error: invalid configuration argument hipLaunchKernel(func=0x273ff0, gridDim={1,2,3}, blockDim={3,2,1}, args=0x7fffffff76f8, sharedMem=0, stream=0x7e0860) /path/to/RAJA/install/RAJA/include/RAJA/policy/hip/MemUtils_HIP.hpp:273" thrown in the test body.
+
+In this example, RAJA uses a CAMP error checking and reporting macro when
+launching a hip kernel. If the kernel launch fails it will generate a string
+containing the error message, the function called, the function arguments, and
+the location of the call.
+
 RAJA has many examples of using Camp. In fact, so many internal RAJA implementations use Camp that RAJA has a
 `Camp alias page <https://github.com/LLNL/RAJA/blob/0aef7cc44348d82e94e73e12f77c27ea306e47b8/include/RAJA/util/camp_aliases.hpp>`_ which
 creates RAJA aliases for many Camp features.
