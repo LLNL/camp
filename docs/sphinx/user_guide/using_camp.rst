@@ -112,7 +112,7 @@ and hip API functions.
 .. code-block:: cpp
 
    CAMP_HIP_API_INVOKE_AND_CHECK(hipLaunchKernel, func, gridDim, blockDim, args, shmem, res.get_stream());
-   // C++ exception with description "HIP error: invalid configuration argument hipLaunchKernel(func=0x273ff0, gridDim={1,2,3}, blockDim={3,2,1}, args=0x7fffffff76f8, sharedMem=0, stream=0x7e0860) .../RAJA/include/RAJA/policy/hip/MemUtils_HIP.hpp:273" thrown in the test body.
+   // C++ exception with description "HIP error: invalid configuration argument hipLaunchKernel(func=0x273ff0, gridDim={1,2,3}, blockDim={3,2,1}, args=0x7fffffff76f8, sharedMem=0, stream=0x7e0860) /path/to/RAJA/install/RAJA/include/RAJA/policy/hip/MemUtils_HIP.hpp:273" thrown in the test body.
 
 In this example, RAJA uses a CAMP error checking and reporting macro when
 launching a hip kernel. If the kernel launch fails it will generate a string
