@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 3.10)
 
 project (camp
   LANGUAGES CXX C
-  VERSION 2025.03.0)
+  VERSION 2025.09.0)
 
 set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
