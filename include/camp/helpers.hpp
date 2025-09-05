@@ -397,6 +397,9 @@ std::ostream& insertArgsString(std::ostream& str,
     }
     if (!arg_names.empty()) {
       auto arg_name_size = arg_names.find(' ');
+      if (arg_name_size > arg_names.size()) {
+        arg_name_size = arg_names.size();
+      }
       str << arg_names.substr(0, arg_name_size) << "=";
       if (arg_name_size < arg_names.size()) {
         ++arg_name_size; // skip space
