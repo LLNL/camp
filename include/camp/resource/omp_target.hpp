@@ -12,7 +12,6 @@
 
 #ifdef CAMP_ENABLE_TARGET_OPENMP
 
-#include "camp/errors.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
