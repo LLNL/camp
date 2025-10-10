@@ -277,6 +277,12 @@ namespace resources
         return !(*this == h);
       }
 
+      size_t get_id() const {
+        constexpr size_t hip_type = 2ULL << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        return hip_type | (stream_hash & 0xFFFFFFFF);
+      }
+
     private:
       hipStream_t stream;
       int device;

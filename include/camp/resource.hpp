@@ -122,6 +122,10 @@ namespace resources
         return !(*this == r);
       }
 
+      size_t get_id() const {
+        return m_value->get_id();
+      }
+
     private:
       class ContextInterface
       {
@@ -130,6 +134,7 @@ namespace resources
         virtual Platform get_platform() const = 0;
 
         virtual bool compare(Resource const& r) const = 0;
+        virtual size_t get_id() const = 0;
 
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -151,6 +156,7 @@ namespace resources
         Platform get_platform() const override { return m_modelVal.get_platform(); }
 
         bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
+        size_t get_id() const override { return m_modelVal.get_id(); }
 
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }

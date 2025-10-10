@@ -85,6 +85,11 @@ namespace resources
       {
         return false;
       }
+
+      size_t get_id() const
+      {
+        return 0; // All Host resources are the same
+      }
     };
 
   }  // namespace v1

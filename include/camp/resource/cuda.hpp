@@ -275,6 +275,12 @@ namespace resources
         return !(*this == c);
       }
 
+      size_t get_id() const {
+        constexpr size_t cuda_type = 1ULL << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        return cuda_type | (stream_hash & 0xFFFFFFFF);
+      }
+
     private:
       cudaStream_t stream;
       int device;
