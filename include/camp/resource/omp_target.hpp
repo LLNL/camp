@@ -251,7 +251,7 @@ namespace resources
 
       size_t get_id() const {
         constexpr size_t omp_type = 3ULL << 32;
-        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));
         return omp_type | (stream_hash & 0xFFFFFFFF);
       }
 

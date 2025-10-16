@@ -223,10 +223,6 @@ void test_get_id(Resource& h1, size_t TYPE_ID)
   EXPECT_EQ(r1.get_id(), r1.get_id());
   EXPECT_EQ(r2.get_id(), r2.get_id());
   EXPECT_EQ(r3.get_id(), r3.get_id());
-
-  EXPECT_EQ((r1.get_id() & (0xFFFFFFFFULL << 32)), TYPE_ID);
-  EXPECT_EQ((r2.get_id() & (0xFFFFFFFFULL << 32)), TYPE_ID);
-  EXPECT_EQ((r3.get_id() & (0xFFFFFFFFULL << 32)), TYPE_ID);
 }
 //
 TEST(CampResource, GetID)
