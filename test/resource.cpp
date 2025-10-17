@@ -208,6 +208,9 @@ void test_get_id(Resource& h1, size_t TYPE_ID)
   Resource r1{Res()};
   Res r; Resource r2{r};
   Resource r3{Res()};
+  Resource r4{Res(0)}; //should be same as r1
+
+  EXPECT_EQ(r1.get_id(), r4.get_id());
 
   EXPECT_NE(r1.get_id(), r2.get_id());
   EXPECT_NE(r2.get_id(), r1.get_id());
