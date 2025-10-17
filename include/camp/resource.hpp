@@ -106,7 +106,6 @@ namespace resources
       bool operator==(Resource const& r) const
       {
         return (get_id() == r.get_id());
-        //return (m_value->compare(r));
       }
 
       /*
