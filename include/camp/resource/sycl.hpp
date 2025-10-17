@@ -302,6 +302,46 @@ private:
         return !(*this == s);
       }
 
+      /*
+       * \brief Less-than comparison operator.
+       *
+       * \return True if this resource's ID is less than the other's.
+       */
+      bool operator<(Sycl const& s) const
+      {
+        return (get_id() < s.get_id());
+      }
+
+      /*
+       * \brief Greater-than comparison operator.
+       *
+       * \return True if this resource's ID is greater than the other's.
+       */
+      bool operator>(Sycl const& s) const
+      {
+        return (get_id() > s.get_id());
+      }
+
+      /*
+       * \brief Less-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is less than or equal to the other's.
+       */
+      bool operator<=(Sycl const& s) const
+      {
+        return (get_id() <= s.get_id());
+      }
+
+      /*
+       * \brief Greater-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is greater than or equal to the other's.
+       */
+      bool operator>=(Sycl const& s) const
+      {
+        return (get_id() >= s.get_id());
+      }
+    
       size_t get_id() const {
         constexpr size_t sycl_type = 4ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(qu));

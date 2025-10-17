@@ -93,37 +93,70 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
+      size_t get_id() const {
+        return m_value->get_id();
+      }
+
       /*
-       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they are
-       * on the same platform and they describe the same stream (i.e. CUDA, HIP) or queue (i.e. SYCL).
-       * (Note: This operator overload is on the generic Resource. Using the ContextModel's operator
-       * overload, we can call the specific resource's (i.e. T) operator== to compare streams or
-       * queues.)
+       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
+       * have the same ID (same platform and same stream/queue).
        *
-       * \return True or false depending on comparison with m_value if they are on the same platform.
+       * \return True if they have the same ID, false otherwise.
        */
       bool operator==(Resource const& r) const
       {
-        if(get_platform() == r.get_platform()) {
-          return (m_value->compare(r));
-        }
-        return false;
+        return (get_id() == r.get_id());
+        //return (m_value->compare(r));
       }
+
       /*
-       * \brief Compares two Resources to see if they are NOT equal. Two Resources are not equal
-       * if they are on separate platforms. Also, even if they are on the same platform, if they
-       * describe different streams (i.e. CUDA, HIP) or different queues (i.e. SYCL), then they 
-       * are not equal.
+       * \brief Compares two Resources to see if they are NOT equal.
        *
-       * \return Negation of == operator. 
+       * \return Negation of == operator.
        */
       bool operator!=(Resource const& r) const
       {
         return !(*this == r);
       }
 
-      size_t get_id() const {
-        return m_value->get_id();
+      /*
+       * \brief Less-than comparison operator.
+       *
+       * \return True if this resource's ID is less than the other's.
+       */
+      bool operator<(Resource const& r) const
+      {
+        return (get_id() < r.get_id());
+      }
+
+      /*
+       * \brief Greater-than comparison operator.
+       *
+       * \return True if this resource's ID is greater than the other's.
+       */
+      bool operator>(Resource const& r) const
+      {
+        return (get_id() > r.get_id());
+      }
+
+      /*
+       * \brief Less-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is less than or equal to the other's.
+       */
+      bool operator<=(Resource const& r) const
+      {
+        return (get_id() <= r.get_id());
+      }
+
+      /*
+       * \brief Greater-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is greater than or equal to the other's.
+       */
+      bool operator>=(Resource const& r) const
+      {
+        return (get_id() >= r.get_id());
       }
 
     private:

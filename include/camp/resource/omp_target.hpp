@@ -249,6 +249,46 @@ namespace resources
         return !(*this == o);
       }
 
+      /*
+       * \brief Less-than comparison operator.
+       *
+       * \return True if this resource's ID is less than the other's.
+       */
+      bool operator<(Omp const& o) const
+      {
+        return (get_id() < o.get_id());
+      }
+
+      /*
+       * \brief Greater-than comparison operator.
+       *
+       * \return True if this resource's ID is greater than the other's.
+       */
+      bool operator>(Omp const& o) const
+      {
+        return (get_id() > o.get_id());
+      }
+
+      /*
+       * \brief Less-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is less than or equal to the other's.
+       */
+      bool operator<=(Omp const& o) const
+      {
+        return (get_id() <= o.get_id());
+      }
+
+      /*
+       * \brief Greater-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is greater than or equal to the other's.
+       */
+      bool operator>=(Omp const& o) const
+      {
+        return (get_id() >= o.get_id());
+      }
+
       size_t get_id() const {
         constexpr size_t omp_type = 3ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));

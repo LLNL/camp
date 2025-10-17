@@ -262,7 +262,7 @@ namespace resources
        */
       bool operator==(Cuda const& c) const
       {
-        return (get_stream() == c.get_stream());
+        return (get_id() == c.get_id());
       }
       
       /*
@@ -273,6 +273,46 @@ namespace resources
       bool operator!=(Cuda const& c) const
       {
         return !(*this == c);
+      }
+
+      /*
+       * \brief Less-than comparison operator.
+       *
+       * \return True if this resource's ID is less than the other's.
+       */
+      bool operator<(Cuda const& c) const
+      {
+        return (get_id() < c.get_id());
+      }
+
+      /*
+       * \brief Greater-than comparison operator.
+       *
+       * \return True if this resource's ID is greater than the other's.
+       */
+      bool operator>(Cuda const& c) const
+      {
+        return (get_id() > c.get_id());
+      }
+
+      /*
+       * \brief Less-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is less than or equal to the other's.
+       */
+      bool operator<=(Cuda const& c) const
+      {
+        return (get_id() <= c.get_id());
+      }
+
+      /*
+       * \brief Greater-than-or-equal comparison operator.
+       *
+       * \return True if this resource's ID is greater than or equal to the other's.
+       */
+      bool operator>=(Cuda const& c) const
+      {
+        return (get_id() >= c.get_id());
       }
 
       size_t get_id() const {
