@@ -147,10 +147,13 @@ TEST(CampResource, GetPlatform)
 }
 
 template < typename Res >
-void test_compare(Resource& h1)
+void test_id_compare(Resource& h1)
 {
   Resource r1{Res()};
   Res r; Resource r2{r};
+  Resource r3{Res(0)}; //should be same as r1
+
+  EXPECT_EQ(r1, r3);
 
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
@@ -189,67 +192,16 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(h != h);
 
 #ifdef CAMP_HAVE_CUDA
-  test_compare<Cuda>(h1);
+  test_id_compare<Cuda>(h1);
 #endif
 #ifdef CAMP_HAVE_HIP
-  test_compare<Hip>(h1);
+  test_id_compare<Hip>(h1);
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_compare<Omp>(h1);
+  test_id_compare<Omp>(h1);
 #endif
 #ifdef CAMP_HAVE_SYCL
-  test_compare<Sycl>(h1);
-#endif
-}
-
-template < typename Res >
-void test_get_id(Resource& h1, size_t TYPE_ID)
-{
-  Resource r1{Res()};
-  Res r; Resource r2{r};
-  Resource r3{Res()};
-  Resource r4{Res(0)}; //should be same as r1
-
-  EXPECT_EQ(r1.get_id(), r4.get_id());
-
-  EXPECT_NE(r1.get_id(), r2.get_id());
-  EXPECT_NE(r2.get_id(), r1.get_id());
-  EXPECT_NE(r3.get_id(), r1.get_id());
-  EXPECT_NE(r2.get_id(), r3.get_id());
-  EXPECT_NE(r1.get_id(), 0);
-  EXPECT_NE(r2.get_id(), 0);
-  EXPECT_NE(r3.get_id(), 0);
-  EXPECT_NE(r1.get_id(), h1.get_id());
-  EXPECT_NE(r2.get_id(), h1.get_id());
-  EXPECT_NE(r3.get_id(), h1.get_id());
-
-  EXPECT_EQ(r1.get_id(), r1.get_id());
-  EXPECT_EQ(r2.get_id(), r2.get_id());
-  EXPECT_EQ(r3.get_id(), r3.get_id());
-}
-//
-TEST(CampResource, GetID)
-{
-  Resource h1{Host()};
-  Host h; Resource h2{h};
-
-  EXPECT_EQ(h1.get_id(), h1.get_id());
-  EXPECT_EQ(h2.get_id(), h2.get_id());
-  EXPECT_EQ(h1.get_id(), h2.get_id());
-  EXPECT_EQ(h1.get_id(), 0);
-  EXPECT_EQ(h2.get_id(), 0);
-
-#ifdef CAMP_HAVE_CUDA
-  test_get_id<Cuda>(h1, (1ULL << 32));
-#endif
-#ifdef CAMP_HAVE_HIP
-  test_get_id<Hip>(h1, (2ULL << 32));
-#endif
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_get_id<Omp>(h1, (3ULL << 32));
-#endif
-#ifdef CAMP_HAVE_SYCL
-  test_get_id<Sycl>(h1, (4ULL << 32));
+  test_id_compare<Sycl>(h1);
 #endif
 }
 

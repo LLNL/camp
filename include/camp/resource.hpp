@@ -93,10 +93,6 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
-      size_t get_id() const {
-        return m_value->get_id();
-      }
-
       /*
        * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
        * have the same ID (same platform and same stream/queue).
@@ -119,8 +115,6 @@ namespace resources
       }
 
       /*
-       * \brief Less-than comparison operator.
-       *
        * \return True if this resource's ID is less than the other's.
        */
       bool operator<(Resource const& r) const
@@ -129,8 +123,6 @@ namespace resources
       }
 
       /*
-       * \brief Greater-than comparison operator.
-       *
        * \return True if this resource's ID is greater than the other's.
        */
       bool operator>(Resource const& r) const
@@ -139,8 +131,6 @@ namespace resources
       }
 
       /*
-       * \brief Less-than-or-equal comparison operator.
-       *
        * \return True if this resource's ID is less than or equal to the other's.
        */
       bool operator<=(Resource const& r) const
@@ -149,8 +139,6 @@ namespace resources
       }
 
       /*
-       * \brief Greater-than-or-equal comparison operator.
-       *
        * \return True if this resource's ID is greater than or equal to the other's.
        */
       bool operator>=(Resource const& r) const
@@ -159,6 +147,25 @@ namespace resources
       }
 
     private:
+
+      friend struct std::hash<camp::resources::Resource>;  
+  
+      /*
+       * \brief Retrieves the unique identifier for this Resource.
+       * 
+       * The ID is an implementation-defined value that uniquely identifies
+       * the combination of platform type and underlying stream/queue. Resources
+       * with the same ID represent the same execution context and can be
+       * considered equivalent for scheduling and synchronization purposes.
+       * 
+       * \return A size_t value uniquely identifying this Resource's 
+       * platform and stream/queue combination.
+       *
+       */ 
+      size_t get_id() const {
+        return m_value->get_id();
+      }
+
       class ContextInterface
       {
       public:
@@ -304,4 +311,26 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Resource.
+ * 
+ * Provides a hash function for Resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * The hash is based on the Resource's unique identifier, which represents the
+ * combination of platform type and underlying stream/queue. Resources with 
+ * identical execution contexts (same platform and stream/queue) will produce
+ * the same hash value.
+ * 
+ * \return A size_t hash value computed from the Resource's internal ID.
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Resource> {
+    std::size_t operator()(const camp::resources::Resource& r) const {
+      return std::hash<size_t>{}(r.get_id());
+    }
+  };
+}
+
 #endif /* __CAMP_RESOURCE_HPP */
