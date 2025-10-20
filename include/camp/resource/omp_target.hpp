@@ -250,8 +250,6 @@ namespace resources
       }
 
       /*
-       * \brief Less-than comparison operator.
-       *
        * \return True if this resource's ID is less than the other's.
        */
       bool operator<(Omp const& o) const
@@ -260,8 +258,6 @@ namespace resources
       }
 
       /*
-       * \brief Greater-than comparison operator.
-       *
        * \return True if this resource's ID is greater than the other's.
        */
       bool operator>(Omp const& o) const
@@ -270,8 +266,6 @@ namespace resources
       }
 
       /*
-       * \brief Less-than-or-equal comparison operator.
-       *
        * \return True if this resource's ID is less than or equal to the other's.
        */
       bool operator<=(Omp const& o) const
@@ -280,8 +274,6 @@ namespace resources
       }
 
       /*
-       * \brief Greater-than-or-equal comparison operator.
-       *
        * \return True if this resource's ID is greater than or equal to the other's.
        */
       bool operator>=(Omp const& o) const
