@@ -86,6 +86,38 @@ namespace resources
         return false;
       }
 
+      /*
+       * \return Since Host IDs are always zero, 0 < 0 is false
+       */
+      bool operator<(Host const&) const
+      {
+        return false;
+      }
+
+      /*
+       * \return Since Host IDs are always zero, 0 > 0 is false
+       */
+      bool operator>(Host const&) const
+      {
+        return false;
+      }
+
+      /*
+       * \return Since Host IDs are always zero, 0 <= 0 is true
+       */
+      bool operator<=(Host const&) const
+      {
+        return true;
+      }
+
+      /*
+       * \return Since Host IDs are always zero, 0 >= 0 is true
+       */
+      bool operator>=(Host const&) const
+      {
+        return true;
+      }
+
       size_t get_id() const
       {
         return 0; // All Host resources are the same
