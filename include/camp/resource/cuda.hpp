@@ -295,6 +295,24 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Cuda.
+ * 
+ * Provides a hash function for cuda typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * 
+ * \return A size_t hash value computed from the cuda typed resource's internal ID.
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Cuda> {
+    std::size_t operator()(const camp::resources::Cuda& c) const {
+      return std::hash<size_t>{}(c.get_id());
+    }
+  };
+}
+
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
 #endif /* __CAMP_CUDA_HPP */

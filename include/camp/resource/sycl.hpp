@@ -315,6 +315,23 @@ private:
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Sycl.
+ * 
+ * Provides a hash function for Sycl typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * 
+ * \return A size_t hash value computed from the Sycl typed resource's internal ID.
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Sycl> {
+    std::size_t operator()(const camp::resources::Sycl& s) const {
+      return std::hash<size_t>{}(s.get_id());
+    }
+  };
+}
 #endif  //#ifdef CAMP_ENABLE_SYCL
 
 #endif /* __CAMP_SYCL_HPP */
