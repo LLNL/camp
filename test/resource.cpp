@@ -152,21 +152,21 @@ TEST(CampResource, UnorderedMapKey)
   std::unordered_multimap<Resource, size_t> mmap;
 
   Resource h{Host()};
-#ifdef CAMP_HAVE_CUDA
+#if defined(CAMP_HAVE_CUDA)
   Resource d1{Cuda()};
   Resource d2{Cuda()};
-#endif
-#ifdef CAMP_HAVE_HIP
+#elif defined(CAMP_HAVE_HIP)
   Resource d1{Hip()};
   Resource d2{Hip()};
-#endif
-#ifdef CAMP_HAVE_OMP_OFFLOAD
+#elif defined(CAMP_HAVE_OMP_OFFLOAD)
   Resource d1{Omp()};
   Resource d2{Omp()};
-#endif
-#ifdef CAMP_HAVE_SYCL
+#elif defined(CAMP_HAVE_SYCL)
   Resource d1{Sycl()};
   Resource d2{Sycl()};
+#else
+  // If only the Host is enabled, it doesn't make sense to use a map
+  GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
 #endif
   
   map.insert({h, 10}); mmap.insert({h, 10});
