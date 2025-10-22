@@ -148,6 +148,10 @@ TEST(CampResource, GetPlatform)
 
 TEST(CampResource, UnorderedMapKey)
 {
+#if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)
+  // If only the Host is enabled, it doesn't make sense to use a map
+  GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
+#else
   std::unordered_map<Resource, size_t> map;
   std::unordered_multimap<Resource, size_t> mmap;
 
@@ -164,9 +168,6 @@ TEST(CampResource, UnorderedMapKey)
 #elif defined(CAMP_HAVE_SYCL)
   Resource d1{Sycl()};
   Resource d2{Sycl()};
-#else
-  // If only the Host is enabled, it doesn't make sense to use a map
-  GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
 #endif
   
   map.insert({h, 10}); mmap.insert({h, 10});
@@ -185,6 +186,7 @@ TEST(CampResource, UnorderedMapKey)
   auto range2 = mmap.equal_range(d2);
   ASSERT_EQ(std::distance(range.first, range.second), 1);
   ASSERT_EQ(std::distance(range2.first, range2.second), 2);
+#endif
 }
 
 template < typename Res >
