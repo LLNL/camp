@@ -174,11 +174,8 @@ for the Host.
 Resource IDs
 ^^^^^^^^^^^^
 
-Resource IDs make using Resources in data structures like maps possible. Each unique stream will get a unique ID.
-This means that all Host Resource IDs will be the same since there is only one `stream of execution` on the Host.
-However, each unique device stream (or queue) will receive a unique ID. This makes Camp Resources hashable and able
-to be used as keys in a map, for example.
-
-However, note that the ordering of Resource IDs is not meaningful semantically. In other words, a Cuda resource is
-"greater than" a Host resource due to how the platform is encoded, not for any other reason. This makes for
-consistent ordering for deterministic behavior.
+Resource IDs make using resources in data structures like unordered maps possible. Each unique stream will get a unique ID.
+This means that each unique device stream (or queue) will receive a unique ID. This makes Camp generic and typed resources hashable 
+and able to be used as keys in a map, for example. However, since all Host resource IDs will be the same (because there is only 
+one `stream of execution` on the Host) the Host resources can NOT be used as a key in an unordered map. Using the Host resource
+as a key would not make sense because, for instance, ``std::unordered_map<Host, Value> map`` would only ever have one entry.
