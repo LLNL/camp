@@ -258,7 +258,7 @@ namespace resources
       /*
        * \brief Compares two (Cuda) resources to see if they are equal.
        *
-       * \return True or false depending on if it is the same stream.
+       * \return True or false depending on if it is the same id (hash of stream).
        */
       bool operator==(Cuda const& c) const
       {
@@ -273,38 +273,6 @@ namespace resources
       bool operator!=(Cuda const& c) const
       {
         return !(*this == c);
-      }
-
-      /*
-       * \return True if this resource's ID is less than the other's.
-       */
-      bool operator<(Cuda const& c) const
-      {
-        return (get_id() < c.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than the other's.
-       */
-      bool operator>(Cuda const& c) const
-      {
-        return (get_id() > c.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is less than or equal to the other's.
-       */
-      bool operator<=(Cuda const& c) const
-      {
-        return (get_id() <= c.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than or equal to the other's.
-       */
-      bool operator>=(Cuda const& c) const
-      {
-        return (get_id() >= c.get_id());
       }
 
       size_t get_id() const {

@@ -114,38 +114,6 @@ namespace resources
         return !(*this == r);
       }
 
-      /*
-       * \return True if this resource's ID is less than the other's.
-       */
-      bool operator<(Resource const& r) const
-      {
-        return (get_id() < r.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than the other's.
-       */
-      bool operator>(Resource const& r) const
-      {
-        return (get_id() > r.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is less than or equal to the other's.
-       */
-      bool operator<=(Resource const& r) const
-      {
-        return (get_id() <= r.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than or equal to the other's.
-       */
-      bool operator>=(Resource const& r) const
-      {
-        return (get_id() >= r.get_id());
-      }
-
     private:
 
       friend struct std::hash<camp::resources::Resource>;  

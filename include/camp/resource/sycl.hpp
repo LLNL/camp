@@ -285,11 +285,11 @@ private:
       /*
        * \brief Compares two (Sycl) resources to see if they are equal.
        *
-       * \return True or false depending on if this is the same queue.
+       * \return True or false depending on if this is the same id (hash of queue).
        */
       bool operator==(Sycl const& s) const
       {
-        return (get_queue() == s.get_queue());
+        return (get_id() == s.get_id());
       }
       
       /*
@@ -302,38 +302,6 @@ private:
         return !(*this == s);
       }
 
-      /*
-       * \return True if this resource's ID is less than the other's.
-       */
-      bool operator<(Sycl const& s) const
-      {
-        return (get_id() < s.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than the other's.
-       */
-      bool operator>(Sycl const& s) const
-      {
-        return (get_id() > s.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is less than or equal to the other's.
-       */
-      bool operator<=(Sycl const& s) const
-      {
-        return (get_id() <= s.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than or equal to the other's.
-       */
-      bool operator>=(Sycl const& s) const
-      {
-        return (get_id() >= s.get_id());
-      }
-    
       size_t get_id() const {
         constexpr size_t sycl_type = 4ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(qu));

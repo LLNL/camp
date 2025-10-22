@@ -260,11 +260,11 @@ namespace resources
       /*
        * \brief Compares two (Hip) resources to see if they are equal.
        *
-       * \return True or false depending on if this is the same stream.
+       * \return True or false depending on if this is the same id (hash of stream).
        */
       bool operator==(Hip const& h) const
       {
-        return (get_stream() == h.get_stream());
+        return (get_id() == h.get_id());
       }
       
       /*
@@ -275,38 +275,6 @@ namespace resources
       bool operator!=(Hip const& h) const
       {
         return !(*this == h);
-      }
-
-      /*
-       * \return True if this resource's ID is less than the other's.
-       */
-      bool operator<(Hip const& h) const
-      {
-        return (get_id() < h.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than the other's.
-       */
-      bool operator>(Hip const& h) const
-      {
-        return (get_id() > h.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is less than or equal to the other's.
-       */
-      bool operator<=(Hip const& h) const
-      {
-        return (get_id() <= h.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than or equal to the other's.
-       */
-      bool operator>=(Hip const& h) const
-      {
-        return (get_id() >= h.get_id());
       }
 
       size_t get_id() const {

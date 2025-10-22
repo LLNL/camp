@@ -146,6 +146,47 @@ TEST(CampResource, GetPlatform)
 #endif
 }
 
+TEST(CampResource, UnorderedMapKey)
+{
+  std::unordered_map<Resource, size_t> map;
+  std::unordered_multimap<Resource, size_t> mmap;
+
+  Resource h{Host()};
+#ifdef CAMP_HAVE_CUDA
+  Resource d1{Cuda()};
+  Resource d2{Cuda()};
+#endif
+#ifdef CAMP_HAVE_HIP
+  Resource d1{Hip()};
+  Resource d2{Hip()};
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  Resource d1{Omp()};
+  Resource d2{Omp()};
+#endif
+#ifdef CAMP_HAVE_SYCL
+  Resource d1{Sycl()};
+  Resource d2{Sycl()};
+#endif
+  
+  map.insert({h, 10}); mmap.insert({h, 10});
+  map.insert({h, 20}); mmap.insert({h, 20});
+  map.insert({d1, 30}); mmap.insert({d1, 30});
+  map.insert({d2, 40}); mmap.insert({d2, 40});
+  map.insert({d2, 50}); mmap.insert({d2, 50});
+
+  // Verify we can use Resource as a key to find entries
+  ASSERT_EQ(map.count(h), 1); ASSERT_EQ(mmap.count(h), 2);
+  ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(mmap.count(d1), 1);
+  ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(mmap.count(d2), 2);
+  
+  // Verify equal_range works (critical for your PendingMap usage)
+  auto range = map.equal_range(h);
+  auto range2 = mmap.equal_range(d2);
+  ASSERT_EQ(std::distance(range.first, range.second), 1);
+  ASSERT_EQ(std::distance(range2.first, range2.second), 2);
+}
+
 template < typename Res >
 void test_id_compare(Resource& h1)
 {

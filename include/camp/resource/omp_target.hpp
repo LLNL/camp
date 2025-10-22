@@ -232,11 +232,11 @@ namespace resources
       /*
        * \brief Compares two (Omp) resources to see if they are equal.
        *
-       * \return True or false depending on if this is the same dev int and addr ptr.
+       * \return True or false depending on if this is the same id (hash of addr ptr).
        */
       bool operator==(Omp const& o) const
       {
-        return (dev == o.dev && addr == o.addr);
+        return (get_id() == o.get_id());
       }
       
       /*
@@ -247,38 +247,6 @@ namespace resources
       bool operator!=(Omp const& o) const
       {
         return !(*this == o);
-      }
-
-      /*
-       * \return True if this resource's ID is less than the other's.
-       */
-      bool operator<(Omp const& o) const
-      {
-        return (get_id() < o.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than the other's.
-       */
-      bool operator>(Omp const& o) const
-      {
-        return (get_id() > o.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is less than or equal to the other's.
-       */
-      bool operator<=(Omp const& o) const
-      {
-        return (get_id() <= o.get_id());
-      }
-
-      /*
-       * \return True if this resource's ID is greater than or equal to the other's.
-       */
-      bool operator>=(Omp const& o) const
-      {
-        return (get_id() >= o.get_id());
       }
 
       size_t get_id() const {
