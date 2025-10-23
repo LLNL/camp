@@ -101,7 +101,7 @@ namespace resources
        */
       bool operator==(Resource const& r) const
       {
-        return (get_id() == r.get_id());
+        return (get_hash() == r.get_hash());
       }
 
       /*
@@ -130,8 +130,8 @@ namespace resources
        * platform and stream/queue combination.
        *
        */ 
-      size_t get_id() const {
-        return m_value->get_id();
+      size_t get_hash() const {
+        return m_value->get_hash();
       }
 
       class ContextInterface
@@ -141,7 +141,7 @@ namespace resources
         virtual Platform get_platform() const = 0;
 
         virtual bool compare(Resource const& r) const = 0;
-        virtual size_t get_id() const = 0;
+        virtual size_t get_hash() const = 0;
 
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -163,7 +163,7 @@ namespace resources
         Platform get_platform() const override { return m_modelVal.get_platform(); }
 
         bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
-        size_t get_id() const override { return m_modelVal.get_id(); }
+        size_t get_hash() const override { return m_modelVal.get_hash(); }
 
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
@@ -296,7 +296,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Resource> {
     std::size_t operator()(const camp::resources::Resource& r) const {
-      return std::hash<size_t>{}(r.get_id());
+      return std::hash<size_t>{}(r.get_hash());
     }
   };
 }

@@ -86,7 +86,7 @@ namespace resources
         return false;
       }
 
-      size_t get_id() const
+      size_t get_hash() const
       {
         return 0; // All Host resources are the same
       }
@@ -95,4 +95,21 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Host.
+ * 
+ * Provides a hash function for Host typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * 
+ * \return Always zero since all Host resources are the same
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Host> {
+    std::size_t operator()(const camp::resources::Host& h) const {
+      return std::hash<size_t>{}(0);
+    }
+  };
+}
 #endif /* __CAMP_DEVICES_HPP */

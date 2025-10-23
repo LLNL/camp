@@ -236,7 +236,7 @@ namespace resources
        */
       bool operator==(Omp const& o) const
       {
-        return (get_id() == o.get_id());
+        return (get_hash() == o.get_hash());
       }
       
       /*
@@ -249,7 +249,7 @@ namespace resources
         return !(*this == o);
       }
 
-      size_t get_id() const {
+      size_t get_hash() const {
         constexpr size_t omp_type = 3ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));
         return omp_type | (stream_hash & 0xFFFFFFFF);
@@ -282,7 +282,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Omp> {
     std::size_t operator()(const camp::resources::Omp& o) const {
-      return std::hash<size_t>{}(o.get_id());
+      return std::hash<size_t>{}(o.get_hash());
     }
   };
 }

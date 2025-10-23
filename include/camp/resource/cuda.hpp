@@ -262,7 +262,7 @@ namespace resources
        */
       bool operator==(Cuda const& c) const
       {
-        return (get_id() == c.get_id());
+        return (get_hash() == c.get_hash());
       }
       
       /*
@@ -275,7 +275,7 @@ namespace resources
         return !(*this == c);
       }
 
-      size_t get_id() const {
+      size_t get_hash() const {
         constexpr size_t cuda_type = 1ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
         return cuda_type | (stream_hash & 0xFFFFFFFF);
@@ -308,7 +308,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Cuda> {
     std::size_t operator()(const camp::resources::Cuda& c) const {
-      return std::hash<size_t>{}(c.get_id());
+      return std::hash<size_t>{}(c.get_hash());
     }
   };
 }

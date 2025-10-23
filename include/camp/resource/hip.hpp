@@ -264,7 +264,7 @@ namespace resources
        */
       bool operator==(Hip const& h) const
       {
-        return (get_id() == h.get_id());
+        return (get_hash() == h.get_hash());
       }
       
       /*
@@ -277,7 +277,7 @@ namespace resources
         return !(*this == h);
       }
 
-      size_t get_id() const {
+      size_t get_hash() const {
         constexpr size_t hip_type = 2ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
         return hip_type | (stream_hash & 0xFFFFFFFF);
@@ -310,7 +310,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Hip> {
     std::size_t operator()(const camp::resources::Hip& h) const {
-      return std::hash<size_t>{}(h.get_id());
+      return std::hash<size_t>{}(h.get_hash());
     }
   };
 }

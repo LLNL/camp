@@ -289,7 +289,7 @@ private:
        */
       bool operator==(Sycl const& s) const
       {
-        return (get_id() == s.get_id());
+        return (get_hash() == s.get_hash());
       }
       
       /*
@@ -302,7 +302,7 @@ private:
         return !(*this == s);
       }
 
-      size_t get_id() const {
+      size_t get_hash() const {
         constexpr size_t sycl_type = 4ULL << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(qu));
         return sycl_type | (stream_hash & 0xFFFFFFFF);
@@ -328,7 +328,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Sycl> {
     std::size_t operator()(const camp::resources::Sycl& s) const {
-      return std::hash<size_t>{}(s.get_id());
+      return std::hash<size_t>{}(s.get_hash());
     }
   };
 }
