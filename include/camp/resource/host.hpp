@@ -108,7 +108,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Host> {
     std::size_t operator()(const camp::resources::Host& h) const {
-      return std::hash<size_t>{}(0);
+      return std::hash<size_t>{}(h.get_hash());
     }
   };
 }
