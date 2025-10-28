@@ -310,7 +310,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Hip> {
     std::size_t operator()(const camp::resources::Hip& h) const {
-      return std::hash<size_t>{}(h.get_hash());
+      return h.get_hash();
     }
   };
 }

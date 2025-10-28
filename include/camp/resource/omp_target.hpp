@@ -282,7 +282,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Omp> {
     std::size_t operator()(const camp::resources::Omp& o) const {
-      return std::hash<size_t>{}(o.get_hash());
+      return o.get_hash();
     }
   };
 }

@@ -328,7 +328,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Sycl> {
     std::size_t operator()(const camp::resources::Sycl& s) const {
-      return std::hash<size_t>{}(s.get_hash());
+      return s.get_hash();
     }
   };
 }

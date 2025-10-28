@@ -308,7 +308,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Cuda> {
     std::size_t operator()(const camp::resources::Cuda& c) const {
-      return std::hash<size_t>{}(c.get_hash());
+      return c.get_hash();
     }
   };
 }

@@ -296,7 +296,7 @@ namespace std {
   template <>
   struct hash<camp::resources::Resource> {
     std::size_t operator()(const camp::resources::Resource& r) const {
-      return std::hash<size_t>{}(r.get_hash());
+      return r.get_hash();
     }
   };
 }
