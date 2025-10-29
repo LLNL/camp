@@ -262,7 +262,7 @@ namespace resources
        */
       bool operator==(Cuda const& c) const
       {
-        return (get_hash() == c.get_hash());
+        return (get_stream() == c.get_stream());
       }
       
       /*

@@ -289,7 +289,7 @@ private:
        */
       bool operator==(Sycl const& s) const
       {
-        return (get_hash() == s.get_hash());
+        return (get_queue() == s.get_queue());
       }
       
       /*

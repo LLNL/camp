@@ -101,7 +101,10 @@ namespace resources
        */
       bool operator==(Resource const& r) const
       {
-        return (get_hash() == r.get_hash());
+        if (get_platform() == r.get_platform()) {
+          return (m_value->compare(r));
+        }
+        return false;
       }
 
       /*

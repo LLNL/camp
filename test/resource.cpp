@@ -146,46 +146,73 @@ TEST(CampResource, GetPlatform)
 #endif
 }
 
+template <typename Res>
+void test_map_key(Resource& h)
+{
+  // Generic
+  std::unordered_map<Resource, size_t> map;
+  std::unordered_multimap<Resource, size_t> multimap;
+  Resource d1{Res()};
+  Resource d2{Res()};
+
+  // Typed
+  std::unordered_map<Res, size_t> rmap;
+  std::unordered_multimap<Res, size_t> rmultimap;
+  Res r1;
+  Res r2;
+
+  // Generic
+  map.insert({h, 10}); multimap.insert({h, 10});
+  map.insert({h, 20}); multimap.insert({h, 20});
+  map.insert({d1, 30}); multimap.insert({d1, 30});
+  map.insert({d2, 40}); multimap.insert({d2, 40});
+  map.insert({d2, 50}); multimap.insert({d2, 50});
+
+  // Typed
+  rmap.insert({r1, 30}); rmultimap.insert({r1, 30});
+  rmap.insert({r2, 40}); rmultimap.insert({r2, 40});
+  rmap.insert({r2, 50}); rmultimap.insert({r2, 50});
+
+  // Verify we can use Resource as a key to find entries
+  // Generic
+  ASSERT_EQ(map.count(h), 1); ASSERT_EQ(multimap.count(h), 2);
+  ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(multimap.count(d1), 1);
+  ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(multimap.count(d2), 2);
+  
+  // Typed
+  ASSERT_EQ(rmap.count(r1), 1); ASSERT_EQ(rmultimap.count(r1), 1);
+  ASSERT_EQ(rmap.count(r2), 1); ASSERT_EQ(rmultimap.count(r2), 2);
+
+  // Verify equal_range works (critical for your PendingMap usage)
+  // Generic
+  auto range = map.equal_range(h);
+  auto range2 = multimap.equal_range(d2);
+  ASSERT_EQ(std::distance(range.first, range.second), 1);
+  ASSERT_EQ(std::distance(range2.first, range2.second), 2);
+
+  // Typed
+  auto rrange2 = rmultimap.equal_range(r2);
+  ASSERT_EQ(std::distance(rrange2.first, rrange2.second), 2);
+}
+
 TEST(CampResource, UnorderedMapKey)
 {
 #if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)
   // If only the Host is enabled, it doesn't make sense to use a map
   GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
 #else
-  std::unordered_map<Resource, size_t> map;
-  std::unordered_multimap<Resource, size_t> mmap;
 
   Resource h{Host()};
 #if defined(CAMP_HAVE_CUDA)
-  Resource d1{Cuda()};
-  Resource d2{Cuda()};
+  test_map_key<Cuda>(h);
 #elif defined(CAMP_HAVE_HIP)
-  Resource d1{Hip()};
-  Resource d2{Hip()};
+  test_map_key<Hip>(h);
 #elif defined(CAMP_HAVE_OMP_OFFLOAD)
-  Resource d1{Omp()};
-  Resource d2{Omp()};
+  test_map_key<Omp>(h);
 #elif defined(CAMP_HAVE_SYCL)
-  Resource d1{Sycl()};
-  Resource d2{Sycl()};
+  test_map_key<Sycl>(h);
 #endif
   
-  map.insert({h, 10}); mmap.insert({h, 10});
-  map.insert({h, 20}); mmap.insert({h, 20});
-  map.insert({d1, 30}); mmap.insert({d1, 30});
-  map.insert({d2, 40}); mmap.insert({d2, 40});
-  map.insert({d2, 50}); mmap.insert({d2, 50});
-
-  // Verify we can use Resource as a key to find entries
-  ASSERT_EQ(map.count(h), 1); ASSERT_EQ(mmap.count(h), 2);
-  ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(mmap.count(d1), 1);
-  ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(mmap.count(d2), 2);
-  
-  // Verify equal_range works (critical for your PendingMap usage)
-  auto range = map.equal_range(h);
-  auto range2 = mmap.equal_range(d2);
-  ASSERT_EQ(std::distance(range.first, range.second), 1);
-  ASSERT_EQ(std::distance(range2.first, range2.second), 2);
 #endif
 }
 

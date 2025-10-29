@@ -264,7 +264,7 @@ namespace resources
        */
       bool operator==(Hip const& h) const
       {
-        return (get_hash() == h.get_hash());
+        return (get_stream() == h.get_stream());
       }
       
       /*

@@ -236,7 +236,7 @@ namespace resources
        */
       bool operator==(Omp const& o) const
       {
-        return (get_hash() == o.get_hash());
+        return (dev == o.dev && addr == o.addr);
       }
       
       /*
