@@ -250,7 +250,7 @@ namespace resources
       }
 
       size_t get_hash() const {
-        constexpr size_t omp_type = 3ULL << 32;
+        const size_t omp_type = size_t(get_platform()) << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));
         return omp_type | (stream_hash & 0xFFFFFFFF);
       }

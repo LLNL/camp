@@ -278,7 +278,7 @@ namespace resources
       }
 
       size_t get_hash() const {
-        constexpr size_t hip_type = 2ULL << 32;
+        const size_t hip_type = size_t(get_platform()) << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
         return hip_type | (stream_hash & 0xFFFFFFFF);
       }

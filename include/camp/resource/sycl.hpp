@@ -303,7 +303,7 @@ private:
       }
 
       size_t get_hash() const {
-        constexpr size_t sycl_type = 4ULL << 32;
+        const size_t sycl_type = size_t(get_platform()) << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(qu));
         return sycl_type | (stream_hash & 0xFFFFFFFF);
       }

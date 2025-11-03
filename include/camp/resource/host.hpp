@@ -88,7 +88,7 @@ namespace resources
 
       size_t get_hash() const
       {
-        return 0; // All Host resources are the same
+        return size_t(get_platform()) << 32; // All Host resources are the same
       }
     };
 
@@ -102,7 +102,7 @@ namespace resources
  * Provides a hash function for Host typed resource objects, enabling their use as keys
  * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return Hash value for the host (always zero)
+ * \return Hash value for the host (always the value of get_platform())
  */
 namespace std {
   template <>

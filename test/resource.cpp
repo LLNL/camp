@@ -275,6 +275,19 @@ TEST(CampResource, Compare)
 #endif
 }
 
+TEST(CampResource, HostCompare)
+{
+  Host h1; Resource h2{h1};
+  Resource h3{Host().get_default()};
+
+  ASSERT_TRUE(Resource{h1} == h2);
+  ASSERT_TRUE(Resource{h1} == h3);
+  ASSERT_TRUE(h2 == h1);
+  ASSERT_TRUE(h2 == h3);
+  ASSERT_TRUE(h3 == h1);
+  ASSERT_TRUE(h3 == h2);
+}
+
 template < typename Res >
 void test_reassignment()
 {
