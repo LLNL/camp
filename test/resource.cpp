@@ -173,7 +173,7 @@ void test_map_key(Resource& h)
   rmap.insert({r2, 40}); rmultimap.insert({r2, 40});
   rmap.insert({r2, 50}); rmultimap.insert({r2, 50});
 
-  // Verify we can use Resource as a key to find entries
+  // Verify using Resource as a key to find entries works
   // Generic
   ASSERT_EQ(map.count(h), 1); ASSERT_EQ(multimap.count(h), 2);
   ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(multimap.count(d1), 1);
@@ -183,7 +183,7 @@ void test_map_key(Resource& h)
   ASSERT_EQ(rmap.count(r1), 1); ASSERT_EQ(rmultimap.count(r1), 1);
   ASSERT_EQ(rmap.count(r2), 1); ASSERT_EQ(rmultimap.count(r2), 2);
 
-  // Verify equal_range works (critical for your PendingMap usage)
+  // Verify equal_range works
   // Generic
   auto range = map.equal_range(h);
   auto range2 = multimap.equal_range(d2);
@@ -194,7 +194,7 @@ void test_map_key(Resource& h)
   auto rrange2 = rmultimap.equal_range(r2);
   ASSERT_EQ(std::distance(rrange2.first, rrange2.second), 2);
 }
-
+//
 TEST(CampResource, UnorderedMapKey)
 {
 #if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)

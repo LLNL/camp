@@ -95,9 +95,9 @@ namespace resources
 
       /*
        * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
-       * have the same ID (same platform and same stream/queue).
+       * have the platform and same stream/queue
        *
-       * \return True if they have the same ID, false otherwise.
+       * \return True if they have the same platform and stream/queue, false otherwise.
        */
       bool operator==(Resource const& r) const
       {
@@ -122,14 +122,11 @@ namespace resources
       friend struct std::hash<camp::resources::Resource>;  
   
       /*
-       * \brief Retrieves the unique identifier for this Resource.
+       * \brief Retrieves the a hash for this Resource.
+       * The hash allows Resources to be used as keys in data structures
+       * like unordered maps.
        * 
-       * The ID is an implementation-defined value that uniquely identifies
-       * the combination of platform type and underlying stream/queue. Resources
-       * with the same ID represent the same execution context and can be
-       * considered equivalent for scheduling and synchronization purposes.
-       * 
-       * \return A size_t value uniquely identifying this Resource's 
+       * \return A size_t hash value for this Resource's 
        * platform and stream/queue combination.
        *
        */ 
@@ -284,16 +281,12 @@ namespace resources
 }  // namespace camp
 
 /*
- * \brief Specialization of std::hash for camp::resources::Resource.
+ * \brief Specialization of std::hash for camp::resources::Resource
  * 
  * Provides a hash function for Resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
- * The hash is based on the Resource's unique identifier, which represents the
- * combination of platform type and underlying stream/queue. Resources with 
- * identical execution contexts (same platform and stream/queue) will produce
- * the same hash value.
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return A size_t hash value computed from the Resource's internal ID.
+ * \return A size_t hash value
  */
 namespace std {
   template <>

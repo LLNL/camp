@@ -67,9 +67,9 @@ namespace resources
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
       /*
-       * \brief Compares two (Host) resources to see if they are equal.
+       * \brief Compares two (Host) resources to see if they are equal
        *
-       * \return Always return true since we are on the Host in this case.
+       * \return Always return true since Host resources are always the same
        */
       bool operator==(Host const&) const
       {
@@ -77,9 +77,9 @@ namespace resources
       }
       
       /*
-       * \brief Compares two (Host) resources to see if they are NOT equal.
+       * \brief Compares two (Host) resources to see if they are NOT equal
        *
-       * \return Always return false. Host resources are always the same.
+       * \return Always return false. Host resources are always the same
        */
       bool operator!=(Host const&) const
       {
@@ -97,12 +97,12 @@ namespace resources
 }  // namespace camp
 
 /*
- * \brief Specialization of std::hash for camp::resources::Host.
+ * \brief Specialization of std::hash for camp::resources::Host
  * 
  * Provides a hash function for Host typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return Always zero since all Host resources are the same
+ * \return Hash value for the host (always zero)
  */
 namespace std {
   template <>

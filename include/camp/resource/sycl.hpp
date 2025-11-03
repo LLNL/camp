@@ -283,9 +283,9 @@ private:
       sycl::queue const *get_queue() const { return qu; }
 
       /*
-       * \brief Compares two (Sycl) resources to see if they are equal.
+       * \brief Compares two (Sycl) resources to see if they are equal
        *
-       * \return True or false depending on if this is the same id (hash of queue).
+       * \return True or false depending on if this is the same queue
        */
       bool operator==(Sycl const& s) const
       {
@@ -293,7 +293,7 @@ private:
       }
       
       /*
-       * \brief Compares two (Sycl) resources to see if they are NOT equal.
+       * \brief Compares two (Sycl) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
@@ -317,12 +317,12 @@ private:
 }  // namespace camp
 
 /*
- * \brief Specialization of std::hash for camp::resources::Sycl.
+ * \brief Specialization of std::hash for camp::resources::Sycl
  * 
  * Provides a hash function for Sycl typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return A size_t hash value computed from the Sycl typed resource's internal ID.
+ * \return A size_t hash value
  */
 namespace std {
   template <>

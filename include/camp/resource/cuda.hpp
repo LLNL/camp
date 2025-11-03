@@ -256,9 +256,9 @@ namespace resources
       int get_device() const { return device; }
 
       /*
-       * \brief Compares two (Cuda) resources to see if they are equal.
+       * \brief Compares two (Cuda) resources to see if they are equal
        *
-       * \return True or false depending on if it is the same id (hash of stream).
+       * \return True or false depending on if it is the same stream
        */
       bool operator==(Cuda const& c) const
       {
@@ -266,7 +266,7 @@ namespace resources
       }
       
       /*
-       * \brief Compares two (Cuda) resources to see if they are NOT equal.
+       * \brief Compares two (Cuda) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
@@ -297,12 +297,12 @@ namespace resources
 }  // namespace camp
 
 /*
- * \brief Specialization of std::hash for camp::resources::Cuda.
+ * \brief Specialization of std::hash for camp::resources::Cuda
  * 
  * Provides a hash function for cuda typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return A size_t hash value computed from the cuda typed resource's internal ID.
+ * \return A size_t hash value 
  */
 namespace std {
   template <>

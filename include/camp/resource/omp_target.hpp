@@ -230,9 +230,9 @@ namespace resources
       char* get_depend_location() const { return addr; }
 
       /*
-       * \brief Compares two (Omp) resources to see if they are equal.
+       * \brief Compares two (Omp) resources to see if they are equal
        *
-       * \return True or false depending on if this is the same id (hash of addr ptr).
+       * \return True or false depending on if this is the same dev and addr ptr
        */
       bool operator==(Omp const& o) const
       {
@@ -240,7 +240,7 @@ namespace resources
       }
       
       /*
-       * \brief Compares two (Omp) resources to see if they are NOT equal.
+       * \brief Compares two (Omp) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
@@ -271,12 +271,12 @@ namespace resources
 }  // namespace camp
 
 /*
- * \brief Specialization of std::hash for camp::resources::Omp.
+ * \brief Specialization of std::hash for camp::resources::Omp
  * 
  * Provides a hash function for Omp typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.).
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
  * 
- * \return A size_t hash value computed from the Omp typed resource's internal ID.
+ * \return A size_t hash value
  */
 namespace std {
   template <>
