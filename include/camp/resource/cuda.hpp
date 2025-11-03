@@ -276,7 +276,7 @@ namespace resources
       }
 
       size_t get_hash() const {
-        constexpr size_t cuda_type = 1ULL << 32;
+        constexpr size_t cuda_type = size_t(get_platform()) << 32;
         size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
         return cuda_type | (stream_hash & 0xFFFFFFFF);
       }
