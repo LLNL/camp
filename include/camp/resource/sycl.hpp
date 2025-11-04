@@ -122,7 +122,7 @@ public:
       }
 
 private:
-      static sycl::queue *get_a_queue(const sycl::context* syclContext,
+      static sycl::queue& get_a_queue(const sycl::context* syclContext,
                                       int num)
       {
         static constexpr int num_queues = 16;
@@ -181,24 +181,18 @@ private:
           if (num < 0) {
             int& previous = cachedContextIter->second.first;
             previous = (previous + 1) % num_queues;
-            return &cachedContextIter->second.second[previous];
+            return cachedContextIter->second.second[previous];
           }
         }
 
-        return &cachedContextIter->second.second[num % num_queues];
+        return cachedContextIter->second.second[num % num_queues];
       }
 
       // Private from-queue constructor
-      Sycl(sycl::queue& q) : qu(&q) {}
+      Sycl(sycl::queue& q) : qu(q) {}
 
     public:
       Sycl(int group = -1, sycl::context const& syclContext = get_thread_default_context())
-          : qu(get_a_queue(&syclContext, group))
-      {
-      }
-
-      [[deprecated]]
-      Sycl(sycl::context const& syclContext, int group = -1)
           : qu(get_a_queue(&syclContext, group))
       {
       }
@@ -221,7 +215,7 @@ private:
       // Event
       SyclEvent get_event() { return SyclEvent(get_queue()); }
       Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
-      void wait() { qu->wait(); }
+      void wait() { qu.wait(); }
       void wait_for(Event *e)
       {
         auto *sycl_event = e->try_get<SyclEvent>();
@@ -238,17 +232,17 @@ private:
       {
         T *ret = nullptr;
         if (size > 0) {
-          ret = sycl::malloc_shared<T>(size, *qu);
+          ret = sycl::malloc_shared<T>(size, qu);
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              ret = sycl::malloc_device<T>(size, *qu);
+              ret = sycl::malloc_device<T>(size, qu);
               break;
             case MemoryAccess::Pinned:
-              ret = sycl::malloc_host<T>(size, *qu);
+              ret = sycl::malloc_host<T>(size, qu);
               break;
             case MemoryAccess::Managed:
-              ret = sycl::malloc_shared<T>(size, *qu);
+              ret = sycl::malloc_shared<T>(size, qu);
               break;
           }
         }
@@ -263,24 +257,24 @@ private:
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
       {
         CAMP_ALLOW_UNUSED_LOCAL(ma);
-        sycl::free(p, *qu);
+        sycl::free(p, qu);
       }
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
-          qu->memcpy(dst, src, size).wait();
+          qu.memcpy(dst, src, size).wait();
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
-          qu->memset(p, val, size).wait();
+          qu.memset(p, val, size).wait();
         }
       }
 
       // implementation specific
-      sycl::queue *get_queue() { return qu; }
-      sycl::queue const *get_queue() const { return qu; }
+      sycl::queue& get_queue() { return qu; }
+      sycl::queue const& get_queue() const { return qu; }
 
       /*
        * \brief Compares two (Sycl) resources to see if they are equal
@@ -289,7 +283,7 @@ private:
        */
       bool operator==(Sycl const& s) const
       {
-        return (get_queue() == s.get_queue());
+        return (qu == s.qu);
       }
       
       /*
@@ -309,7 +303,7 @@ private:
       }
 
     private:
-      sycl::queue *qu;
+      sycl::queue qu;
     };
 
   }  // namespace v1
