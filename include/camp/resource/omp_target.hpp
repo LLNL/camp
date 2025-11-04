@@ -230,9 +230,9 @@ namespace resources
       char* get_depend_location() const { return addr; }
 
       /*
-       * \brief Compares two (Omp) resources to see if they are equal.
+       * \brief Compares two (Omp) resources to see if they are equal
        *
-       * \return True or false depending on if this is the same dev int and addr ptr.
+       * \return True or false depending on if this is the same dev and addr ptr
        */
       bool operator==(Omp const& o) const
       {
@@ -240,13 +240,19 @@ namespace resources
       }
       
       /*
-       * \brief Compares two (Omp) resources to see if they are NOT equal.
+       * \brief Compares two (Omp) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
       bool operator!=(Omp const& o) const
       {
         return !(*this == o);
+      }
+
+      size_t get_hash() const {
+        const size_t omp_type = size_t(get_platform()) << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));
+        return omp_type | (stream_hash & 0xFFFFFFFF);
       }
 
     private:
@@ -263,6 +269,23 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Omp
+ * 
+ * Provides a hash function for Omp typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Omp> {
+    std::size_t operator()(const camp::resources::Omp& o) const {
+      return o.get_hash();
+    }
+  };
+}
 #endif  //#ifdef CAMP_ENABLE_TARGET_OPENMP
 
 #endif /* __CAMP_OMP_TARGET_HPP */

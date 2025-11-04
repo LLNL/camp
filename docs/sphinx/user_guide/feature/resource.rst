@@ -171,3 +171,11 @@ While it is possible for two device resources to be different since each resourc
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
 for the Host.
 
+Resource Hashes
+^^^^^^^^^^^^^^^
+
+Resource hashes make using resources as keys in data structures like unordered maps possible. Each resource corresponding to 
+a unique device stream or queue will get a hash. However, since all Host resources will be the same (because there is only 
+one `stream of execution` on the Host), users should be cautious when using the Host resource as a key. For example, 
+``std::unordered_map<Host, Value> map`` would only ever have one entry.
+

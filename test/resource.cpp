@@ -146,11 +146,84 @@ TEST(CampResource, GetPlatform)
 #endif
 }
 
+template <typename Res>
+void test_map_key(Resource& h)
+{
+  // Generic
+  std::unordered_map<Resource, size_t> map;
+  std::unordered_multimap<Resource, size_t> multimap;
+  Resource d1{Res()};
+  Resource d2{Res()};
+
+  // Typed
+  std::unordered_map<Res, size_t> rmap;
+  std::unordered_multimap<Res, size_t> rmultimap;
+  Res r1;
+  Res r2;
+
+  // Generic
+  map.insert({h, 10}); multimap.insert({h, 10});
+  map.insert({h, 20}); multimap.insert({h, 20});
+  map.insert({d1, 30}); multimap.insert({d1, 30});
+  map.insert({d2, 40}); multimap.insert({d2, 40});
+  map.insert({d2, 50}); multimap.insert({d2, 50});
+
+  // Typed
+  rmap.insert({r1, 30}); rmultimap.insert({r1, 30});
+  rmap.insert({r2, 40}); rmultimap.insert({r2, 40});
+  rmap.insert({r2, 50}); rmultimap.insert({r2, 50});
+
+  // Verify using Resource as a key to find entries works
+  // Generic
+  ASSERT_EQ(map.count(h), 1); ASSERT_EQ(multimap.count(h), 2);
+  ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(multimap.count(d1), 1);
+  ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(multimap.count(d2), 2);
+  
+  // Typed
+  ASSERT_EQ(rmap.count(r1), 1); ASSERT_EQ(rmultimap.count(r1), 1);
+  ASSERT_EQ(rmap.count(r2), 1); ASSERT_EQ(rmultimap.count(r2), 2);
+
+  // Verify equal_range works
+  // Generic
+  auto range = map.equal_range(h);
+  auto range2 = multimap.equal_range(d2);
+  ASSERT_EQ(std::distance(range.first, range.second), 1);
+  ASSERT_EQ(std::distance(range2.first, range2.second), 2);
+
+  // Typed
+  auto rrange2 = rmultimap.equal_range(r2);
+  ASSERT_EQ(std::distance(rrange2.first, rrange2.second), 2);
+}
+//
+TEST(CampResource, UnorderedMapKey)
+{
+#if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)
+  // If only the Host is enabled, it doesn't make sense to use a map
+  GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
+#else
+
+  Resource h{Host()};
+#if defined(CAMP_HAVE_CUDA)
+  test_map_key<Cuda>(h);
+#elif defined(CAMP_HAVE_HIP)
+  test_map_key<Hip>(h);
+#elif defined(CAMP_HAVE_OMP_OFFLOAD)
+  test_map_key<Omp>(h);
+#elif defined(CAMP_HAVE_SYCL)
+  test_map_key<Sycl>(h);
+#endif
+  
+#endif
+}
+
 template < typename Res >
-void test_compare(Resource& h1)
+void test_id_compare(Resource& h1)
 {
   Resource r1{Res()};
   Res r; Resource r2{r};
+  Resource r3{Res(0)}; //should be same as r1
+
+  EXPECT_EQ(r1, r3);
 
   ASSERT_TRUE(r1 == r1);
   ASSERT_TRUE(r2 == r2);
@@ -189,17 +262,30 @@ TEST(CampResource, Compare)
   ASSERT_FALSE(h != h);
 
 #ifdef CAMP_HAVE_CUDA
-  test_compare<Cuda>(h1);
+  test_id_compare<Cuda>(h1);
 #endif
 #ifdef CAMP_HAVE_HIP
-  test_compare<Hip>(h1);
+  test_id_compare<Hip>(h1);
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_compare<Omp>(h1);
+  test_id_compare<Omp>(h1);
 #endif
 #ifdef CAMP_HAVE_SYCL
-  test_compare<Sycl>(h1);
+  test_id_compare<Sycl>(h1);
 #endif
+}
+
+TEST(CampResource, HostCompare)
+{
+  Host h1; Resource h2{h1};
+  Resource h3{Host().get_default()};
+
+  ASSERT_TRUE(Resource{h1} == h2);
+  ASSERT_TRUE(Resource{h1} == h3);
+  ASSERT_TRUE(h2 == h1);
+  ASSERT_TRUE(h2 == h3);
+  ASSERT_TRUE(h3 == h1);
+  ASSERT_TRUE(h3 == h2);
 }
 
 template < typename Res >

@@ -256,9 +256,9 @@ namespace resources
       int get_device() const { return device; }
 
       /*
-       * \brief Compares two (Cuda) resources to see if they are equal.
+       * \brief Compares two (Cuda) resources to see if they are equal
        *
-       * \return True or false depending on if it is the same stream.
+       * \return True or false depending on if it is the same stream
        */
       bool operator==(Cuda const& c) const
       {
@@ -266,13 +266,19 @@ namespace resources
       }
       
       /*
-       * \brief Compares two (Cuda) resources to see if they are NOT equal.
+       * \brief Compares two (Cuda) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
       bool operator!=(Cuda const& c) const
       {
         return !(*this == c);
+      }
+
+      size_t get_hash() const {
+        const size_t cuda_type = size_t(get_platform()) << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        return cuda_type | (stream_hash & 0xFFFFFFFF);
       }
 
     private:
@@ -289,6 +295,24 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Cuda
+ * 
+ * Provides a hash function for cuda typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value 
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Cuda> {
+    std::size_t operator()(const camp::resources::Cuda& c) const {
+      return c.get_hash();
+    }
+  };
+}
+
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
 #endif /* __CAMP_CUDA_HPP */

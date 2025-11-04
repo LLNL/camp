@@ -283,9 +283,9 @@ private:
       sycl::queue const *get_queue() const { return qu; }
 
       /*
-       * \brief Compares two (Sycl) resources to see if they are equal.
+       * \brief Compares two (Sycl) resources to see if they are equal
        *
-       * \return True or false depending on if this is the same queue.
+       * \return True or false depending on if this is the same queue
        */
       bool operator==(Sycl const& s) const
       {
@@ -293,13 +293,19 @@ private:
       }
       
       /*
-       * \brief Compares two (Sycl) resources to see if they are NOT equal.
+       * \brief Compares two (Sycl) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
       bool operator!=(Sycl const& s) const
       {
         return !(*this == s);
+      }
+
+      size_t get_hash() const {
+        const size_t sycl_type = size_t(get_platform()) << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(qu));
+        return sycl_type | (stream_hash & 0xFFFFFFFF);
       }
 
     private:
@@ -309,6 +315,23 @@ private:
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Sycl
+ * 
+ * Provides a hash function for Sycl typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Sycl> {
+    std::size_t operator()(const camp::resources::Sycl& s) const {
+      return s.get_hash();
+    }
+  };
+}
 #endif  //#ifdef CAMP_ENABLE_SYCL
 
 #endif /* __CAMP_SYCL_HPP */

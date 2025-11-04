@@ -94,28 +94,23 @@ namespace resources
       void wait() { m_value->wait(); }
 
       /*
-       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they are
-       * on the same platform and they describe the same stream (i.e. CUDA, HIP) or queue (i.e. SYCL).
-       * (Note: This operator overload is on the generic Resource. Using the ContextModel's operator
-       * overload, we can call the specific resource's (i.e. T) operator== to compare streams or
-       * queues.)
+       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
+       * have the platform and same stream/queue
        *
-       * \return True or false depending on comparison with m_value if they are on the same platform.
+       * \return True if they have the same platform and stream/queue, false otherwise.
        */
       bool operator==(Resource const& r) const
       {
-        if(get_platform() == r.get_platform()) {
+        if (get_platform() == r.get_platform()) {
           return (m_value->compare(r));
         }
         return false;
       }
+
       /*
-       * \brief Compares two Resources to see if they are NOT equal. Two Resources are not equal
-       * if they are on separate platforms. Also, even if they are on the same platform, if they
-       * describe different streams (i.e. CUDA, HIP) or different queues (i.e. SYCL), then they 
-       * are not equal.
+       * \brief Compares two Resources to see if they are NOT equal.
        *
-       * \return Negation of == operator. 
+       * \return Negation of == operator.
        */
       bool operator!=(Resource const& r) const
       {
@@ -123,6 +118,22 @@ namespace resources
       }
 
     private:
+
+      friend struct std::hash<camp::resources::Resource>;  
+  
+      /*
+       * \brief Retrieves the a hash for this Resource.
+       * The hash allows Resources to be used as keys in data structures
+       * like unordered maps.
+       * 
+       * \return A size_t hash value for this Resource's 
+       * platform and stream/queue combination.
+       *
+       */ 
+      size_t get_hash() const {
+        return m_value->get_hash();
+      }
+
       class ContextInterface
       {
       public:
@@ -130,6 +141,7 @@ namespace resources
         virtual Platform get_platform() const = 0;
 
         virtual bool compare(Resource const& r) const = 0;
+        virtual size_t get_hash() const = 0;
 
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
@@ -151,6 +163,7 @@ namespace resources
         Platform get_platform() const override { return m_modelVal.get_platform(); }
 
         bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
+        size_t get_hash() const override { return m_modelVal.get_hash(); }
 
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
@@ -266,4 +279,22 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Resource
+ * 
+ * Provides a hash function for Resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Resource> {
+    std::size_t operator()(const camp::resources::Resource& r) const {
+      return r.get_hash();
+    }
+  };
+}
+
 #endif /* __CAMP_RESOURCE_HPP */
