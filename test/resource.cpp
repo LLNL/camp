@@ -27,6 +27,182 @@ struct Host2 : Host { };
   struct Sycl2 : Sycl { };
 #endif
 
+struct NotAResource {
+};
+
+static_assert(is_host_resource<Host>::value,
+              "Host should satisfy is_host_resource");
+static_assert(is_host_resource<Host&>::value,
+              "Host& should satisfy is_host_resource");
+static_assert(is_host_resource<const Host>::value,
+              "const Host should satisfy is_host_resource");
+static_assert(is_host_resource<const Host&>::value,
+              "const Host& should satisfy is_host_resource");
+
+#ifdef CAMP_HAVE_CUDA
+static_assert(!is_host_resource<Cuda>::value,
+              "Cuda should not satisfy is_host_resource");
+#endif
+#ifdef CAMP_HAVE_HIP
+static_assert(!is_host_resource<Hip>::value,
+              "Hip should not satisfy is_host_resource");
+#endif
+#ifdef CAMP_HAVE_SYCL
+static_assert(!is_host_resource<Sycl>::value,
+              "Sycl should not satisfy is_host_resource");
+#endif
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+static_assert(!is_host_resource<Omp>::value,
+              "Omp should not satisfy is_host_resource");
+#endif
+
+static_assert(!is_host_resource<int>::value,
+              "int should not satisfy is_host_resource");
+static_assert(!is_host_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_host_resource");
+static_assert(!is_host_resource<void*>::value,
+              "void* should not satisfy is_host_resource");
+static_assert(!is_host_resource<Host2>::value,
+              "Host2 (derived type) should not satisfy is_host_resource");
+
+#ifdef CAMP_HAVE_CUDA
+static_assert(is_cuda_resource<Cuda>::value,
+              "Cuda should satisfy is_cuda_resource");
+static_assert(is_cuda_resource<Cuda&>::value,
+              "Cuda& should satisfy is_cuda_resource");
+static_assert(is_cuda_resource<const Cuda>::value,
+              "const Cuda should satisfy is_cuda_resource");
+
+static_assert(!is_cuda_resource<Host>::value,
+              "Host should not satisfy is_cuda_resource");
+#ifdef CAMP_HAVE_HIP
+static_assert(!is_cuda_resource<Hip>::value,
+              "Hip should not satisfy is_cuda_resource");
+#endif
+
+static_assert(!is_cuda_resource<int>::value,
+              "int should not satisfy is_cuda_resource");
+static_assert(!is_cuda_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_cuda_resource");
+#endif
+
+#ifdef CAMP_HAVE_HIP
+static_assert(is_hip_resource<Hip>::value,
+              "Hip should satisfy is_hip_resource");
+static_assert(is_hip_resource<Hip&>::value,
+              "Hip& should satisfy is_hip_resource");
+static_assert(is_hip_resource<const Hip>::value,
+              "const Hip should satisfy is_hip_resource");
+
+static_assert(!is_hip_resource<Host>::value,
+              "Host should not satisfy is_hip_resource");
+#ifdef CAMP_HAVE_CUDA
+static_assert(!is_hip_resource<Cuda>::value,
+              "Cuda should not satisfy is_hip_resource");
+#endif
+
+static_assert(!is_hip_resource<int>::value,
+              "int should not satisfy is_hip_resource");
+static_assert(!is_hip_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_hip_resource");
+#endif
+
+#ifdef CAMP_HAVE_SYCL
+static_assert(is_sycl_resource<Sycl>::value,
+              "Sycl should satisfy is_sycl_resource");
+static_assert(is_sycl_resource<Sycl&>::value,
+              "Sycl& should satisfy is_sycl_resource");
+static_assert(is_sycl_resource<const Sycl>::value,
+              "const Sycl should satisfy is_sycl_resource");
+
+static_assert(!is_sycl_resource<Host>::value,
+              "Host should not satisfy is_sycl_resource");
+
+static_assert(!is_sycl_resource<int>::value,
+              "int should not satisfy is_sycl_resource");
+static_assert(!is_sycl_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_sycl_resource");
+#endif
+
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+static_assert(is_omp_resource<Omp>::value,
+              "Omp should satisfy is_omp_resource");
+static_assert(is_omp_resource<Omp&>::value,
+              "Omp& should satisfy is_omp_resource");
+static_assert(is_omp_resource<const Omp>::value,
+              "const Omp should satisfy is_omp_resource");
+
+static_assert(!is_omp_resource<Host>::value,
+              "Host should not satisfy is_omp_resource");
+
+static_assert(!is_omp_resource<int>::value,
+              "int should not satisfy is_omp_resource");
+static_assert(!is_omp_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_omp_resource");
+#endif
+
+static_assert(is_resource<Host>::value,
+              "Host should satisfy is_resource");
+static_assert(is_resource<Host&>::value,
+              "Host& should satisfy is_resource");
+static_assert(is_resource<const Host>::value,
+              "const Host should satisfy is_resource");
+static_assert(is_resource<const Host&>::value,
+              "const Host& should satisfy is_resource");
+static_assert(is_resource<Host&&>::value,
+              "Host&& should satisfy is_resource");
+
+#ifdef CAMP_HAVE_CUDA
+static_assert(is_resource<Cuda>::value,
+              "Cuda should satisfy is_resource");
+static_assert(is_resource<Cuda&>::value,
+              "Cuda& should satisfy is_resource");
+static_assert(is_resource<const Cuda>::value,
+              "const Cuda should satisfy is_resource");
+#endif
+
+#ifdef CAMP_HAVE_HIP
+static_assert(is_resource<Hip>::value,
+              "Hip should satisfy is_resource");
+static_assert(is_resource<Hip&>::value,
+              "Hip& should satisfy is_resource");
+static_assert(is_resource<const Hip>::value,
+              "const Hip should satisfy is_resource");
+#endif
+
+#ifdef CAMP_HAVE_SYCL
+static_assert(is_resource<Sycl>::value,
+              "Sycl should satisfy is_resource");
+static_assert(is_resource<Sycl&>::value,
+              "Sycl& should satisfy is_resource");
+static_assert(is_resource<const Sycl>::value,
+              "const Sycl should satisfy is_resource");
+#endif
+
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+static_assert(is_resource<Omp>::value,
+              "Omp should satisfy is_resource");
+static_assert(is_resource<Omp&>::value,
+              "Omp& should satisfy is_resource");
+static_assert(is_resource<const Omp>::value,
+              "const Omp should satisfy is_resource");
+#endif
+
+static_assert(!is_resource<int>::value,
+              "int should not satisfy is_resource");
+static_assert(!is_resource<float>::value,
+              "float should not satisfy is_resource");
+static_assert(!is_resource<double>::value,
+              "double should not satisfy is_resource");
+static_assert(!is_resource<void*>::value,
+              "void* should not satisfy is_resource");
+static_assert(!is_resource<char*>::value,
+              "char* should not satisfy is_resource");
+static_assert(!is_resource<NotAResource>::value,
+              "NotAResource should not satisfy is_resource");
+static_assert(!is_resource<Host2>::value,
+              "Host2 (derived type) should not satisfy is_resource");
+
 template < typename Res >
 void test_construct()
 {
@@ -61,6 +237,8 @@ void test_copy()
   CAMP_ALLOW_UNUSED_LOCAL(r3);
 }
 //
+
+
 TEST(CampResource, Copy)
 {
   test_copy<Host>();
@@ -604,4 +782,91 @@ TEST(CampResource, Wait)
 #ifdef CAMP_HAVE_SYCL
   test_wait<Sycl>();
 #endif
+}
+
+TEST(CampResourceTypeTraits, HelperTraits) {
+  ASSERT_TRUE(is_host_resource<Host>::value);
+  ASSERT_TRUE(is_host_resource<Host&>::value);
+  ASSERT_TRUE(is_host_resource<const Host>::value);
+  ASSERT_FALSE(is_host_resource<int>::value);
+  ASSERT_FALSE(is_host_resource<NotAResource>::value);
+  ASSERT_FALSE(is_host_resource<Host2>::value);
+
+#ifdef CAMP_HAVE_CUDA
+  ASSERT_TRUE(is_cuda_resource<Cuda>::value);
+  ASSERT_TRUE(is_cuda_resource<Cuda&>::value);
+  ASSERT_TRUE(is_cuda_resource<const Cuda>::value);
+  ASSERT_FALSE(is_cuda_resource<Host>::value);
+  ASSERT_FALSE(is_cuda_resource<int>::value);
+  ASSERT_FALSE(is_cuda_resource<NotAResource>::value);
+
+  ASSERT_FALSE(is_host_resource<Cuda>::value);
+  ASSERT_FALSE(is_cuda_resource<Host>::value);
+#endif
+
+#ifdef CAMP_HAVE_HIP
+  ASSERT_TRUE(is_hip_resource<Hip>::value);
+  ASSERT_TRUE(is_hip_resource<Hip&>::value);
+  ASSERT_TRUE(is_hip_resource<const Hip>::value);
+  ASSERT_FALSE(is_hip_resource<Host>::value);
+  ASSERT_FALSE(is_hip_resource<int>::value);
+  ASSERT_FALSE(is_hip_resource<NotAResource>::value);
+#endif
+
+#ifdef CAMP_HAVE_SYCL
+  ASSERT_TRUE(is_sycl_resource<Sycl>::value);
+  ASSERT_TRUE(is_sycl_resource<Sycl&>::value);
+  ASSERT_TRUE(is_sycl_resource<const Sycl>::value);
+  ASSERT_FALSE(is_sycl_resource<Host>::value);
+  ASSERT_FALSE(is_sycl_resource<int>::value);
+  ASSERT_FALSE(is_sycl_resource<NotAResource>::value);
+#endif
+
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  ASSERT_TRUE(is_omp_resource<Omp>::value);
+  ASSERT_TRUE(is_omp_resource<Omp&>::value);
+  ASSERT_TRUE(is_omp_resource<const Omp>::value);
+  ASSERT_FALSE(is_omp_resource<Host>::value);
+  ASSERT_FALSE(is_omp_resource<int>::value);
+  ASSERT_FALSE(is_omp_resource<NotAResource>::value);
+#endif
+}
+
+TEST(CampResourceTypeTraits, IsResourceTrait) {
+  ASSERT_TRUE(is_resource<Host>::value);
+  ASSERT_TRUE(is_resource<Host&>::value);
+  ASSERT_TRUE(is_resource<const Host>::value);
+  ASSERT_TRUE(is_resource<const Host&>::value);
+
+#ifdef CAMP_HAVE_CUDA
+  ASSERT_TRUE(is_resource<Cuda>::value);
+  ASSERT_TRUE(is_resource<Cuda&>::value);
+  ASSERT_TRUE(is_resource<const Cuda>::value);
+#endif
+
+#ifdef CAMP_HAVE_HIP
+  ASSERT_TRUE(is_resource<Hip>::value);
+  ASSERT_TRUE(is_resource<Hip&>::value);
+  ASSERT_TRUE(is_resource<const Hip>::value);
+#endif
+
+#ifdef CAMP_HAVE_SYCL
+  ASSERT_TRUE(is_resource<Sycl>::value);
+  ASSERT_TRUE(is_resource<Sycl&>::value);
+  ASSERT_TRUE(is_resource<const Sycl>::value);
+#endif
+
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  ASSERT_TRUE(is_resource<Omp>::value);
+  ASSERT_TRUE(is_resource<Omp&>::value);
+  ASSERT_TRUE(is_resource<const Omp>::value);
+#endif
+
+  ASSERT_FALSE(is_resource<int>::value);
+  ASSERT_FALSE(is_resource<float>::value);
+  ASSERT_FALSE(is_resource<double>::value);
+  ASSERT_FALSE(is_resource<void*>::value);
+  ASSERT_FALSE(is_resource<char*>::value);
+  ASSERT_FALSE(is_resource<NotAResource>::value);
+  ASSERT_FALSE(is_resource<Host2>::value);
 }
