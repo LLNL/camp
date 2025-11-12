@@ -337,8 +337,8 @@ TEST(CampResource, StreamSelect)
     cudaStream_t stream1, stream2;
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream1);
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream2);
-    test_select_stream(Cuda::CudaFromStream(stream1),
-                       Cuda::CudaFromStream(stream2));
+    test_select_stream(Resource{Cuda::CudaFromStream(stream1)},
+                       Resource{Cuda::CudaFromStream(stream2)});
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream1);
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream2);
   }
@@ -357,8 +357,8 @@ TEST(CampResource, StreamSelect)
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   {
     char a[2];
-    test_select_stream(Omp::OmpFromAddr(&a[0]),
-                       Omp::OmpFromAddr(&a[1]));
+    test_select_stream(Resource{Omp::OmpFromAddr(&a[0])},
+                       Resource{Omp::OmpFromAddr(&a[1])});
   }
 #endif
 #ifdef CAMP_HAVE_SYCL
@@ -369,8 +369,8 @@ TEST(CampResource, StreamSelect)
     sycl::context context;
     sycl::queue queue1(context, gpuSelector, propertyList);
     sycl::queue queue2(context, gpuSelector, propertyList);
-    test_select_stream(Sycl::SyclFromQueue(queue1),
-                       Sycl::SyclFromQueue(queue2));
+    test_select_stream(Resource{Sycl::SyclFromQueue(queue1)},
+                       Resource{Sycl::SyclFromQueue(queue2)});
   }
 #endif
 }
