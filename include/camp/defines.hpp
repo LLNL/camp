@@ -1,18 +1,16 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef CAMP_DEFINES_HPP
 #define CAMP_DEFINES_HPP
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include <camp/config.hpp>
 
@@ -28,7 +26,12 @@ http://github.com/llnl/camp
 namespace camp
 {
 
+#define CAMP_UNUSED_ARG(X)
+
 #define CAMP_ALLOW_UNUSED_LOCAL(X) (void)(X)
+
+#define CAMP_STRINGIFY_HELPER(...) #__VA_ARGS__
+#define CAMP_STRINGIFY(...) CAMP_STRINGIFY_HELPER(__VA_ARGS__)
 
 #if defined(__clang__)
 #define CAMP_COMPILER_CLANG
@@ -176,17 +179,58 @@ using nullptr_t = decltype(nullptr);
     using type = typename X<Lambda::template expr, Rest...>::type; \
   }
 
+
 /// Throw a runtime_error, avoid including exception everywhere
+[[noreturn]]
 CAMP_DLL_EXPORT void throw_re(const char *s);
+///
+[[noreturn]]
+CAMP_DLL_EXPORT void throw_re(std::string const& s);
 
 #ifdef CAMP_ENABLE_CUDA
 
 #define campCudaErrchk(ans) ::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
 
+#define campCudaErrchkDiscardReturn(ans) (void)::camp::cudaAssert((ans), #ans, __FILE__, __LINE__)
+
+[[deprecated]]
 CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
-                              const char *call,
-                              const char *file,
-                              int line);
+                                       const char *call,
+                                       const char *file,
+                                       int line);
+
+/// Invoke the given CUDA API function and report CUDA error codes.
+///
+/// NOTE: This prints arguments to the given function so the arguments
+///       are evaluated twice on an error.
+#define CAMP_CUDA_API_INVOKE_AND_CHECK_IMPLEMENTATION(func, ...)             \
+    /* Avoid shadowing by adding 56792578 to variable names */               \
+    cudaError_t code_56792578 = func(__VA_ARGS__);                           \
+    if (code_56792578 != cudaSuccess &&                                      \
+        code_56792578 != cudaErrorNotReady) /* [[unlikely]] */               \
+    {                                                                        \
+      static constexpr auto func_name_56792578 = CAMP_STRINGIFY(func);       \
+      static constexpr auto arg_names_56792578 =                             \
+          ::camp::experimental::cuda_get_api_arg_names(func_name_56792578);  \
+      ::camp::reportError(                                                   \
+          "CUDA",                                                            \
+          cudaGetErrorString(code_56792578),                                 \
+          func_name_56792578,                                                \
+          arg_names_56792578,                                                \
+          std::forward_as_tuple(__VA_ARGS__),                                \
+          __FILE__, __LINE__);                                               \
+    }
+///
+#define CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(...)                           \
+  [&](){                                                                     \
+    CAMP_CUDA_API_INVOKE_AND_CHECK_IMPLEMENTATION(__VA_ARGS__)               \
+    return code_56792578;                                                    \
+  }()
+///
+#define CAMP_CUDA_API_INVOKE_AND_CHECK(...)                                  \
+  do {                                                                       \
+    CAMP_CUDA_API_INVOKE_AND_CHECK_IMPLEMENTATION(__VA_ARGS__)               \
+  } while (false)
 
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
@@ -195,10 +239,47 @@ CAMP_DLL_EXPORT cudaError_t cudaAssert(cudaError_t code,
 
 #define campHipErrchk(ans) ::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
 
+#define campHipErrchkDiscardReturn(ans) (void)::camp::hipAssert((ans), #ans, __FILE__, __LINE__)
+
+[[deprecated]]
 CAMP_DLL_EXPORT hipError_t hipAssert(hipError_t code,
-                            const char *call,
-                            const char *file,
-                            int line);
+                                     const char *call,
+                                     const char *file,
+                                     int line);
+
+
+/// Invoke the given HIP API function and report HIP error codes.
+///
+/// NOTE: This prints arguments to the given function so the arguments
+///       are evaluated twice on an error.
+#define CAMP_HIP_API_INVOKE_AND_CHECK_IMPLEMENTATION(func, ...)              \
+    /* Avoid shadowing by adding 56792578 to variable names */               \
+    hipError_t code_56792578 = func(__VA_ARGS__);                            \
+    if (code_56792578 != hipSuccess &&                                       \
+        code_56792578 != hipErrorNotReady) /* [[unlikely]] */                \
+    {                                                                        \
+      static constexpr auto func_name_56792578 = CAMP_STRINGIFY(func);       \
+      static constexpr auto arg_names_56792578 =                             \
+          ::camp::experimental::hip_get_api_arg_names(func_name_56792578);   \
+      ::camp::reportError(                                                   \
+          "HIP",                                                             \
+          hipGetErrorString(code_56792578),                                  \
+          func_name_56792578,                                                \
+          arg_names_56792578,                                                \
+          std::forward_as_tuple(__VA_ARGS__),                                \
+          __FILE__, __LINE__);                                               \
+    }
+///
+#define CAMP_HIP_API_INVOKE_AND_CHECK_RETURN(...)                            \
+  [&](){                                                                     \
+    CAMP_HIP_API_INVOKE_AND_CHECK_IMPLEMENTATION(__VA_ARGS__)                \
+    return code_56792578;                                                    \
+  }()
+///
+#define CAMP_HIP_API_INVOKE_AND_CHECK(...)                                   \
+  do {                                                                       \
+    CAMP_HIP_API_INVOKE_AND_CHECK_IMPLEMENTATION(__VA_ARGS__)                \
+  } while (false)
 
 #endif  //#ifdef CAMP_ENABLE_HIP
 

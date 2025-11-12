@@ -1,3 +1,10 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 /*
 Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
 Produced at the Lawrence Livermore National Laboratory
@@ -18,14 +25,14 @@ namespace camp
 {
 
 void throw_re(const char *s) { throw std::runtime_error(s); }
+void throw_re(std::string const& s) { throw std::runtime_error(s); }
 
 #ifdef CAMP_ENABLE_CUDA
 
-
 cudaError_t cudaAssert(cudaError_t code,
-                              const char *call,
-                              const char *file,
-                              int line)
+                       const char *call,
+                       const char *file,
+                       int line)
 {
   if (code != cudaSuccess && code != cudaErrorNotReady) {
     std::string msg;
@@ -47,9 +54,9 @@ cudaError_t cudaAssert(cudaError_t code,
 #ifdef CAMP_ENABLE_HIP
 
 hipError_t hipAssert(hipError_t code,
-                            const char *call,
-                            const char *file,
-                            int line)
+                     const char *call,
+                     const char *file,
+                     int line)
 {
   if (code != hipSuccess && code != hipErrorNotReady) {
     std::string msg;

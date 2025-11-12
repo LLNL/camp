@@ -1,8 +1,15 @@
-cmake_minimum_required (VERSION 3.9)
+##############################################################################
+# Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+# and Camp project contributors. See the camp/LICENSE file for details.
+#
+# SPDX-License-Identifier: (BSD-3-Clause)
+###############################################################################
+
+cmake_minimum_required (VERSION 3.10)
 
 project (camp
   LANGUAGES CXX C
-  VERSION 0.4.0)
+  VERSION 2025.09.2)
 
 set(camp_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(camp_VERSION_MINOR ${PROJECT_VERSION_MINOR})
@@ -10,7 +17,7 @@ set(camp_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 include(CheckCXXCompilerFlag)
 if(NOT DEFINED BLT_CXX_STD)
-  set(CXX_VERSIONS 17 14)
+  set(CXX_VERSIONS 17)
   foreach(cxxver ${CXX_VERSIONS})
     if("cxx_std_${cxxver}" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
       if (ENABLE_CUDA AND (NOT DEFINED CMAKE_CUDA_COMPILE_FEATURES OR (NOT "cuda_std_${cxxver}" IN_LIST CMAKE_CUDA_COMPILE_FEATURES)))
@@ -21,17 +28,17 @@ if(NOT DEFINED BLT_CXX_STD)
     endif()
   endforeach()
   if(NOT DEFINED CAMP_CXX_STD)
-    set(CAMP_CXX_STD 14)
+    set(CAMP_CXX_STD 17)
   endif()
   set(BLT_CXX_STD c++${CAMP_CXX_STD} CACHE STRING "Version of C++
   standard")
   message("Using C++ standard: ${BLT_CXX_STD}")
 else() #check BLT_CXX_STD is high enough by disallowing the only invalid option
-  set(_unsupported_cxx "c++98" "c++11")
+  set(_unsupported_cxx "c++98" "c++11" "c++14")
   if (BLT_CXX_STD IN_LIST _unsupported_cxx)
     message(FATAL_ERROR "CAMP and the RAJA framework no
     longer support ${_unsupported_cxx}, select a c++
-    standard of 14 or higher")
+    standard of 17 or higher")
   endif()
 endif(NOT DEFINED BLT_CXX_STD)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -39,6 +46,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(cmake/load_blt.cmake)
 
 
+cmake_dependent_option(CAMP_ENABLE_DOCUMENTATION "Build Docs" Off "ENABLE_DOCS" Off)
 cmake_dependent_option(CAMP_ENABLE_TESTS "Build tests" On "ENABLE_TESTS" Off)
 
 # if ENABLE_TESTS is defined by a parent project, and
@@ -99,12 +107,6 @@ if (ENABLE_CUDA)
   if("${CUDA_VERSION_STRING}" VERSION_LESS "10.1")
     message(FATAL_ERROR "Trying to use CUDA version ${CUDA_VERSION_STRING}. CAMP requires CUDA version 10.1 or newer.")
   endif()
-
-  if(ENABLE_NV_TOOLS_EXT)
-    set(camp_depends
-      ${camp_depends}
-      nvtoolsext)
-  endif ()
 endif ()
 
 if (ENABLE_HIP)
@@ -188,5 +190,9 @@ install(FILES
 if(CAMP_ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
+endif()
+
+if(CAMP_ENABLE_DOCUMENTATION)
+  add_subdirectory(docs)
 endif()
 

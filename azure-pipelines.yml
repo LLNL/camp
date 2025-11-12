@@ -7,7 +7,8 @@ variables:
   ver: latest
   pre_cmd: true
   build_type: RelWithDebInfo
-  ctest_extra: "-E '(.*offload|blt.*smoke)'"
+  # Disable cuda and hip tests since there are no GPUs on these platforms
+  ctest_extra: "-E '(.*offload|blt.*smoke|cuda_.*|hip_.*|CampEvent|CampResource)'"
   cmake_extra: ""
   parallel: 4
   cmake_build_opts: "--build build --verbose --parallel $(parallel)"
@@ -16,12 +17,12 @@ jobs:
 - job: Windows
   strategy:
     matrix:
-      # shared:
-      #   SHARED_ARGS: '-DBUILD_SHARED_LIBS=On -DCMAKE_CXX_FLAGS="/DRAJASHAREDDLL_EXPORTS" '
+      shared:
+        SHARED_ARGS: '-DBUILD_SHARED_LIBS=On'
       static:
         SHARED_ARGS: '-DBUILD_SHARED_LIBS=Off'
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
   variables:
     CMAKE_EXTRA_FLAGS: '-DENABLE_WARNINGS_AS_ERRORS=Off -DBLT_CXX_STD="" -DCMAKE_CXX_STANDARD=17'
   steps:
@@ -49,14 +50,14 @@ jobs:
   timeoutInMinutes: 360
   strategy:
     matrix:
-      gcc8-debug:
+      gcc10-debug:
         base_img: gcc
-        ver: 8
+        ver: 10
         cmake_extra: -DENABLE_WARNINGS_AS_ERRORS=On -DENABLE_COVERAGE=On
         build_type: Debug
-      gcc8:
+      gcc10:
         base_img: gcc
-        ver: 8
+        ver: 10
       gcc-latest:
         base_img: gcc
         ver: latest
@@ -78,20 +79,24 @@ jobs:
       # NVIDIA no longer supports "latest", must update manually
       nvcc11:
         base_img: nvcc
-        ver: 11.1.1
+        ver: 11.8.0
+        cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
       nvcc11-debug:
         base_img: nvcc
-        ver: 11.1.1
+        ver: 11.8.0
+        cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
         build_type: Debug
       nvcc12:
         base_img: nvcc
-        ver: 12.2.0
+        ver: 12.2.2
+        cmake_extra: -DENABLE_CUDA=On -DCMAKE_CUDA_ARCHITECTURES=70
       rocm:
         base_img: rocm
         cmake_extra: -DROCM_PATH=/opt/rocm -DENABLE_HIP=On -DENABLE_OPENMP=Off -DENABLE_CUDA=Off
         compiler: /opt/rocm/llvm/bin/amdclang++
       sycl:
         base_img: oneapi
+        cmake_extra: -DENABLE_SYCL=On
         compiler: dpcpp
   pool:
     vmImage: 'ubuntu-latest'

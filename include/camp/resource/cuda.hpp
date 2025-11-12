@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef __CAMP_CUDA_HPP
 #define __CAMP_CUDA_HPP
@@ -16,10 +13,12 @@ http://github.com/llnl/camp
 #ifdef CAMP_ENABLE_CUDA
 
 #include "camp/defines.hpp"
+#include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
 
 #include <cuda_runtime.h>
+#include <array>
 #include <mutex>
 
 namespace camp
@@ -35,9 +34,9 @@ namespace resources
       struct device_guard {
         device_guard(int device)
         {
-          campCudaErrchk(cudaGetDevice(&prev_device));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaGetDevice, &prev_device);
           if (device != prev_device) {
-            campCudaErrchk(cudaSetDevice(device));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaSetDevice, device);
           } else {
             prev_device = -1;
           }
@@ -46,7 +45,7 @@ namespace resources
         ~device_guard()
         {
           if (prev_device != -1) {
-            campCudaErrchk(cudaSetDevice(prev_device));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaSetDevice, prev_device);
           }
         }
 
@@ -64,9 +63,9 @@ namespace resources
 
       bool check() const
       {
-        return (campCudaErrchk(cudaEventQuery(m_event)) == cudaSuccess);
+        return (CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(cudaEventQuery, m_event) == cudaSuccess);
       }
-      void wait() const { campCudaErrchk(cudaEventSynchronize(m_event)); }
+      void wait() const { CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventSynchronize, m_event); }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -74,9 +73,9 @@ namespace resources
 
       void init(cudaStream_t stream)
       {
-        campCudaErrchk(
-            cudaEventCreateWithFlags(&m_event, cudaEventDisableTiming));
-        campCudaErrchk(cudaEventRecord(m_event, stream));
+        CAMP_CUDA_API_INVOKE_AND_CHECK(
+            cudaEventCreateWithFlags, &m_event, cudaEventDisableTiming);
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventRecord, m_event, stream);
       }
     };
 
@@ -84,28 +83,25 @@ namespace resources
     {
       static cudaStream_t get_a_stream(int num)
       {
-        static cudaStream_t streams[16] = {};
-        static int previous = 0;
+        static constexpr int num_streams = 16;
+        static std::array<cudaStream_t, num_streams> s_streams = [] {
+              std::array<cudaStream_t, num_streams> streams;
+              for (auto &s : streams) {
+                CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
+              }
+              return streams;
+            }();
 
-        static std::once_flag m_onceFlag;
-        static std::mutex m_mtx;
-
-        std::call_once(m_onceFlag, [] {
-          if (streams[0] == nullptr) {
-            for (auto &s : streams) {
-              campCudaErrchk(cudaStreamCreate(&s));
-            }
-          }
-        });
+        static std::mutex s_mtx;
+        static int s_previous = num_streams-1;
 
         if (num < 0) {
-          m_mtx.lock();
-          previous = (previous + 1) % 16;
-          m_mtx.unlock();
-          return streams[previous];
+          std::lock_guard<std::mutex> lock(s_mtx);
+          s_previous = (s_previous + 1) % num_streams;
+          return s_streams[s_previous];
         }
 
-        return streams[num % 16];
+        return s_streams[num % num_streams];
       }
 
       // Private from-stream constructor
@@ -144,7 +140,7 @@ namespace resources
       static Cuda CudaFromStream(cudaStream_t s, int dev = -1)
       {
         if (dev < 0) {
-          campCudaErrchk(cudaGetDevice(&dev));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaGetDevice, &dev);
         }
         return Cuda(s, dev);
       }
@@ -158,7 +154,7 @@ namespace resources
 #if CAMP_USE_PLATFORM_DEFAULT_STREAM
           s = 0;
 #else
-          campCudaErrchk(cudaStreamCreate(&s));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
 #endif
           return s;
         }());
@@ -172,7 +168,7 @@ namespace resources
       void wait()
       {
         auto d{device_guard(device)};
-        campCudaErrchk(cudaStreamSynchronize(stream));
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamSynchronize, stream);
       }
 
       void wait_for(Event *e)
@@ -180,9 +176,9 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          campCudaErrchk(cudaStreamWaitEvent(get_stream(),
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamWaitEvent, get_stream(),
                                              cuda_event->getCudaEvent_t(),
-                                             0));
+                                             0);
         } else {
           e->wait();
         }
@@ -198,15 +194,15 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              campCudaErrchk(cudaMalloc(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMalloc, &ret, sizeof(T) * size);
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              campCudaErrchk(cudaMallocHost(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocHost, &ret, sizeof(T) * size);
               break;
             case MemoryAccess::Managed:
-              campCudaErrchk(cudaMallocManaged(&ret, sizeof(T) * size));
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocManaged, &ret, sizeof(T) * size);
               break;
           }
         }
@@ -226,15 +222,15 @@ namespace resources
         }
         switch (ma) {
           case MemoryAccess::Device:
-            campCudaErrchk(cudaFree(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFree, p);
             break;
           case MemoryAccess::Pinned:
             // TODO: do a test here for whether managed is *actually* shared
             // so we can use the better performing memory
-            campCudaErrchk(cudaFreeHost(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFreeHost, p);
             break;
           case MemoryAccess::Managed:
-            campCudaErrchk(cudaFree(p));
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaFree, p);
             break;
           case MemoryAccess::Unknown:
             ::camp::throw_re("Unknown memory access type, cannot free");
@@ -244,20 +240,46 @@ namespace resources
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchk(
-              cudaMemcpyAsync(dst, src, size, cudaMemcpyDefault, stream));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(
+              cudaMemcpyAsync, dst, src, size, cudaMemcpyDefault, stream);
         }
       }
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
           auto d{device_guard(device)};
-          campCudaErrchk(cudaMemsetAsync(p, val, size, stream));
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMemsetAsync, p, val, size, stream);
         }
       }
 
-      cudaStream_t get_stream() { return stream; }
-      int get_device() { return device; }
+      cudaStream_t get_stream() const { return stream; }
+      int get_device() const { return device; }
+
+      /*
+       * \brief Compares two (Cuda) resources to see if they are equal
+       *
+       * \return True or false depending on if it is the same stream
+       */
+      bool operator==(Cuda const& c) const
+      {
+        return (get_stream() == c.get_stream());
+      }
+      
+      /*
+       * \brief Compares two (Cuda) resources to see if they are NOT equal
+       *
+       * \return Negation of == operator
+       */
+      bool operator!=(Cuda const& c) const
+      {
+        return !(*this == c);
+      }
+
+      size_t get_hash() const {
+        const size_t cuda_type = size_t(get_platform()) << 32;
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        return cuda_type | (stream_hash & 0xFFFFFFFF);
+      }
 
     private:
       cudaStream_t stream;
@@ -273,6 +295,24 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Cuda
+ * 
+ * Provides a hash function for cuda typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value 
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Cuda> {
+    std::size_t operator()(const camp::resources::Cuda& c) const {
+      return c.get_hash();
+    }
+  };
+}
+
 #endif  //#ifdef CAMP_ENABLE_CUDA
 
 #endif /* __CAMP_CUDA_HPP */

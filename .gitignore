@@ -16,7 +16,13 @@
 # build directories
 build/
 build-*/
+build_*/
 cmake-build-*/
 docker-*-build/
 /Debug/
 ./extern/googletest/*
+
+# install directories
+install/
+install-*/
+install_*/

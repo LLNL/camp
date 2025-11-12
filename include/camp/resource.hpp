@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef __CAMP_RESOURCE_HPP
 #define __CAMP_RESOURCE_HPP
@@ -16,6 +13,8 @@ http://github.com/llnl/camp
 #include <mutex>
 #include <type_traits>
 
+#include "camp/config.hpp"
+#include "camp/defines.hpp"
 #include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/host.hpp"
@@ -65,7 +64,7 @@ namespace resources
         return result ? result->get() : nullptr;
       }
       template <typename T>
-      T get()
+      T get() const
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         if (result == nullptr) {
@@ -94,17 +93,62 @@ namespace resources
       void wait_for(Event *e) { m_value->wait_for(e); }
       void wait() { m_value->wait(); }
 
+      /*
+       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
+       * have the platform and same stream/queue
+       *
+       * \return True if they have the same platform and stream/queue, false otherwise.
+       */
+      bool operator==(Resource const& r) const
+      {
+        if (get_platform() == r.get_platform()) {
+          return (m_value->compare(r));
+        }
+        return false;
+      }
+
+      /*
+       * \brief Compares two Resources to see if they are NOT equal.
+       *
+       * \return Negation of == operator.
+       */
+      bool operator!=(Resource const& r) const
+      {
+        return !(*this == r);
+      }
+
     private:
+
+      friend struct std::hash<camp::resources::Resource>;  
+  
+      /*
+       * \brief Retrieves the a hash for this Resource.
+       * The hash allows Resources to be used as keys in data structures
+       * like unordered maps.
+       * 
+       * \return A size_t hash value for this Resource's 
+       * platform and stream/queue combination.
+       *
+       */ 
+      size_t get_hash() const {
+        return m_value->get_hash();
+      }
+
       class ContextInterface
       {
       public:
         virtual ~ContextInterface() {}
         virtual Platform get_platform() const = 0;
+
+        virtual bool compare(Resource const& r) const = 0;
+        virtual size_t get_hash() const = 0;
+
         virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
+
         virtual Event get_event() = 0;
         virtual Event get_event_erased() = 0;
         virtual void wait_for(Event *e) = 0;
@@ -112,11 +156,15 @@ namespace resources
       };
 
       template <typename T>
-      class ContextModel : public ContextInterface
+      class ContextModel final : public ContextInterface
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
         Platform get_platform() const override { return m_modelVal.get_platform(); }
+
+        bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
+        size_t get_hash() const override { return m_modelVal.get_hash(); }
+
         void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
         void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
         void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
@@ -128,6 +176,7 @@ namespace resources
         {
           m_modelVal.memset(p, val, size);
         }
+
         Event get_event() override { return m_modelVal.get_event_erased(); }
         Event get_event_erased() override
         {
@@ -135,6 +184,7 @@ namespace resources
         }
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
         void wait() override { m_modelVal.wait(); }
+
         T *get() { return &m_modelVal; }
 
       private:
@@ -229,4 +279,22 @@ namespace resources
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
+
+/*
+ * \brief Specialization of std::hash for camp::resources::Resource
+ * 
+ * Provides a hash function for Resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
+ * \return A size_t hash value
+ */
+namespace std {
+  template <>
+  struct hash<camp::resources::Resource> {
+    std::size_t operator()(const camp::resources::Resource& r) const {
+      return r.get_hash();
+    }
+  };
+}
+
 #endif /* __CAMP_RESOURCE_HPP */

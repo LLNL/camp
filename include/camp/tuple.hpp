@@ -1,12 +1,9 @@
-/*
-Copyright (c) 2016-18, Lawrence Livermore National Security, LLC.
-Produced at the Lawrence Livermore National Laboratory
-Maintained by Tom Scogland <scogland1@llnl.gov>
-CODE-756261, All rights reserved.
-This file is part of camp.
-For details about use and distribution, please read LICENSE and NOTICE from
-http://github.com/llnl/camp
-*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+// and Camp project contributors. See the camp/LICENSE file for details.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #ifndef camp_tuple_HPP__
 #define camp_tuple_HPP__
@@ -282,7 +279,7 @@ public:
       camp::list<Elements...>,
       camp::make_idx_seq_t<sizeof...(Elements)>>::type;
   using type = tuple;
-  Base base;  // Place this back into private when XLC can handle this better. 
+  Base base;  // Place this back into private when XLC can handle this better.
 
 private:
 
@@ -627,6 +624,65 @@ CAMP_HOST_DEVICE constexpr auto tuple_cat_pair(L&& l, R&& r) noexcept
                         camp::idx_seq_from_t<R>{});
 }
 
+namespace detail
+{
+  template<template <typename> typename TypeTrait,
+          typename LHS,
+          typename... Params>
+  CAMP_HOST_DEVICE constexpr
+  concepts::enable_if_t<camp::tuple<LHS&, Params...>, TypeTrait<LHS>>
+  get_refs_to_elements_by_type_trait_impl_helper(LHS& lhs,
+                              camp::tuple<Params...> RHS)
+  {
+    return camp::tuple_cat_pair(camp::tuple<LHS&>(lhs),
+                                RHS);
+  }
+
+  template<template <typename> typename TypeTrait,
+           typename LHS,
+           typename... Params>
+  CAMP_HOST_DEVICE constexpr
+  concepts::enable_if_t<camp::tuple<Params...>, concepts::negate<TypeTrait<LHS>>>
+  get_refs_to_elements_by_type_trait_impl_helper(
+      LHS&,
+      camp::tuple<Params...> RHS)
+  {
+    return RHS;
+  }
+
+  template<camp::idx_t param_size,
+           template <typename> typename TypeTrait,
+           typename TupleType>
+  CAMP_HOST_DEVICE constexpr camp::tuple<>
+  get_refs_to_elements_by_type_trait_impl(TupleType&,
+                                          camp::num<0>)
+  {
+    return camp::tuple<> {};
+  }
+
+  template<camp::idx_t param_size,
+           template <typename> typename TypeTrait,
+           typename TupleType,
+           camp::idx_t idx>
+  CAMP_HOST_DEVICE constexpr auto
+  get_refs_to_elements_by_type_trait_impl(TupleType& param,
+                                          camp::num<idx>)
+  {
+    return get_refs_to_elements_by_type_trait_impl_helper<TypeTrait>(
+        camp::get<param_size - idx>(param),
+        get_refs_to_elements_by_type_trait_impl<param_size, TypeTrait>(
+            param, camp::num<idx - 1> {}));
+  }
+} // namespace detail
+
+template <template <typename> typename TypeTrait, typename... Elements>
+CAMP_HOST_DEVICE constexpr auto
+get_refs_to_elements_by_type_trait(tuple<Elements...>& tup)
+{
+  return detail::get_refs_to_elements_by_type_trait_impl<
+            sizeof...(Elements), TypeTrait>(tup, camp::num<sizeof...(Elements)>{});
+}
+
 CAMP_SUPPRESS_HD_WARN
 template <typename Fn, camp::idx_t... Sequence, typename TupleLike>
 CAMP_HOST_DEVICE constexpr auto invoke_with_order(TupleLike&& tup,
@@ -691,7 +747,6 @@ auto operator<<(std::ostream& os, camp::tuple<Args...> const& tup)
   return os << ")";
 }
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
 namespace std {
   /// This allows structured bindings to be used with camp::tuple
   /// e.g. auto t = make_tuple(1, 2.0);
@@ -721,6 +776,5 @@ namespace std {
     using type = ::camp::tuple_element_t<i, camp::tagged_tuple<TagList, Elements...>>;
   };
 } // namespace std
-#endif
 
 #endif /* camp_tuple_HPP__ */

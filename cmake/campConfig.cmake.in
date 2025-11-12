@@ -1,3 +1,10 @@
+###############################################################################
+# Copyright (c) 2018-25, Lawrence Livermore National Security, LLC
+# and Camp project contributors. See the camp/LICENSE file for details.
+#
+# SPDX-License-Identifier: (BSD-3-Clause)
+###############################################################################
+
 @PACKAGE_INIT@
 
 set(camp_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@" CACHE FILEPATH "camp install prefix path")
