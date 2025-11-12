@@ -282,9 +282,9 @@ TEST(CampResource, HostCompare)
 
   ASSERT_TRUE(Resource{h1} == h2);
   ASSERT_TRUE(Resource{h1} == h3);
-  ASSERT_TRUE(h2 == h1);
+  ASSERT_TRUE(h2 == Resource{h1});
   ASSERT_TRUE(h2 == h3);
-  ASSERT_TRUE(h3 == h1);
+  ASSERT_TRUE(h3 == Resource{h1});
   ASSERT_TRUE(h3 == h2);
 }
 
@@ -331,7 +331,7 @@ void test_select_stream(Resource r1, Resource r2)
 //
 TEST(CampResource, StreamSelect)
 {
-  test_select_stream(Host(), Host());
+  test_select_stream(Resource{Host()}, Resource{Host()});
 #if defined(CAMP_HAVE_CUDA)
   {
     cudaStream_t stream1, stream2;
@@ -348,8 +348,8 @@ TEST(CampResource, StreamSelect)
     hipStream_t stream1, stream2;
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream1);
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream2);
-    test_select_stream(Hip::HipFromStream(stream1),
-                       Hip::HipFromStream(stream2));
+    test_select_stream(Resource{Hip::HipFromStream(stream1)},
+                       Resource{Hip::HipFromStream(stream2)});
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream1);
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream2);
   }

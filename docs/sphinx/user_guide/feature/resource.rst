@@ -167,6 +167,11 @@ with a concrete resource, you have to convert the concrete (typed) resource to a
 
 The above code works because we converted the typed resource, ``c1``, to a generic resource with ``Resource{c1}``.
 
+.. warning::
+
+   Users should be aware that Resources are explicitly constructed. This means that in the code block above, if we
+   did not first convert the typed resource, ``c1``, to a generic resource, this would result in a compile error.
+
 While it is possible for two device resources to be different since each resource refers to a different
 device stream, all ``Host`` Camp resources will be the same since there is only one `stream of execution` 
 for the Host.
