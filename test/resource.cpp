@@ -282,9 +282,9 @@ TEST(CampResource, HostCompare)
 
   ASSERT_TRUE(Resource{h1} == h2);
   ASSERT_TRUE(Resource{h1} == h3);
-  ASSERT_TRUE(h2 == h1);
+  ASSERT_TRUE(h2 == Resource{h1});
   ASSERT_TRUE(h2 == h3);
-  ASSERT_TRUE(h3 == h1);
+  ASSERT_TRUE(h3 == Resource{h1});
   ASSERT_TRUE(h3 == h2);
 }
 
@@ -293,12 +293,12 @@ void test_reassignment()
 {
   Resource h1{Host()};
   Resource r1{Res()};
-  h1 = Res();
+  h1 = Resource{Res()};
   ASSERT_EQ(typeid(r1), typeid(h1));
 
   Resource h2{Host()};
   Resource r2{Res()};
-  r2 = Host();
+  r2 = Resource{Host()};
   ASSERT_EQ(typeid(r2), typeid(h2));
 }
 //
@@ -331,14 +331,14 @@ void test_select_stream(Resource r1, Resource r2)
 //
 TEST(CampResource, StreamSelect)
 {
-  test_select_stream(Host(), Host());
+  test_select_stream(Resource{Host()}, Resource{Host()});
 #if defined(CAMP_HAVE_CUDA)
   {
     cudaStream_t stream1, stream2;
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream1);
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &stream2);
-    test_select_stream(Cuda::CudaFromStream(stream1),
-                       Cuda::CudaFromStream(stream2));
+    test_select_stream(Resource{Cuda::CudaFromStream(stream1)},
+                       Resource{Cuda::CudaFromStream(stream2)});
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream1);
     CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamDestroy, stream2);
   }
@@ -348,8 +348,8 @@ TEST(CampResource, StreamSelect)
     hipStream_t stream1, stream2;
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream1);
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &stream2);
-    test_select_stream(Hip::HipFromStream(stream1),
-                       Hip::HipFromStream(stream2));
+    test_select_stream(Resource{Hip::HipFromStream(stream1)},
+                       Resource{Hip::HipFromStream(stream2)});
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream1);
     CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamDestroy, stream2);
   }
@@ -357,8 +357,8 @@ TEST(CampResource, StreamSelect)
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   {
     char a[2];
-    test_select_stream(Omp::OmpFromAddr(&a[0]),
-                       Omp::OmpFromAddr(&a[1]));
+    test_select_stream(Resource{Omp::OmpFromAddr(&a[0])},
+                       Resource{Omp::OmpFromAddr(&a[1])});
   }
 #endif
 #ifdef CAMP_HAVE_SYCL
@@ -369,8 +369,8 @@ TEST(CampResource, StreamSelect)
     sycl::context context;
     sycl::queue queue1(context, gpuSelector, propertyList);
     sycl::queue queue2(context, gpuSelector, propertyList);
-    test_select_stream(Sycl::SyclFromQueue(queue1),
-                       Sycl::SyclFromQueue(queue2));
+    test_select_stream(Resource{Sycl::SyclFromQueue(queue1)},
+                       Resource{Sycl::SyclFromQueue(queue2)});
   }
 #endif
 }
