@@ -16,6 +16,7 @@ http://github.com/llnl/camp
 #include <mutex>
 #include <type_traits>
 
+#include "camp/concepts.hpp"
 #include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/host.hpp"
@@ -43,6 +44,53 @@ namespace resources
 {
   inline namespace v1
   {
+    // Helper type traits for checking if a type is one of the concrete resource types
+    template <typename T>
+    struct is_host_resource : std::is_same<typename camp::decay<T>::type, Host> {};
+
+#if defined(CAMP_HAVE_CUDA)
+    template <typename T>
+    struct is_cuda_resource : std::is_same<typename camp::decay<T>::type, Cuda> {};
+#else
+    template <typename T>
+    struct is_cuda_resource : std::false_type {};
+#endif
+
+#if defined(CAMP_HAVE_HIP)
+    template <typename T>
+    struct is_hip_resource : std::is_same<typename camp::decay<T>::type, Hip> {};
+#else
+    template <typename T>
+    struct is_hip_resource : std::false_type {};
+#endif
+
+#if defined(CAMP_HAVE_SYCL)
+    template <typename T>
+    struct is_sycl_resource : std::is_same<typename camp::decay<T>::type, Sycl> {};
+#else
+    template <typename T>
+    struct is_sycl_resource : std::false_type {};
+#endif
+
+#if defined(CAMP_HAVE_OMP_OFFLOAD)
+    template <typename T>
+    struct is_omp_resource : std::is_same<typename camp::decay<T>::type, Omp> {};
+#else
+    template <typename T>
+    struct is_omp_resource : std::false_type {};
+#endif
+
+    // Type trait that checks if T is one of the concrete resource types
+    template <typename T>
+    struct is_resource
+      : camp::concepts::metalib::any_of_t<
+            is_host_resource<T>,
+            is_cuda_resource<T>,
+            is_hip_resource<T>,
+            is_sycl_resource<T>,
+            is_omp_resource<T>>
+    {};
+
     class Resource
     {
     public:
@@ -53,7 +101,8 @@ namespace resources
       template <typename T,
                 typename = typename std::enable_if<
                     !std::is_same<typename std::decay<T>::type,
-                                  Resource>::value>::type>
+                                  Resource>::value &&
+                    is_resource<T>::value>::type>
       Resource(T &&value)
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
