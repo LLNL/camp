@@ -266,16 +266,19 @@ namespace resources
       }
     };
 
+    template <>
+    struct is_concrete_resource_impl<Omp> : std::true_type {};
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
 
 /*
  * \brief Specialization of std::hash for camp::resources::Omp
- * 
+ *
  * Provides a hash function for Omp typed resource objects, enabling their use as keys
  * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
+ *
  * \return A size_t hash value
  */
 namespace std {
@@ -286,6 +289,7 @@ namespace std {
     }
   };
 }
+
 #endif  //#ifdef CAMP_ENABLE_TARGET_OPENMP
 
 #endif /* __CAMP_OMP_TARGET_HPP */

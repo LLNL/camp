@@ -312,16 +312,19 @@ private:
       sycl::queue *qu;
     };
 
+    template <>
+    struct is_concrete_resource_impl<Sycl> : std::true_type {};
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
 
 /*
  * \brief Specialization of std::hash for camp::resources::Sycl
- * 
+ *
  * Provides a hash function for Sycl typed resource objects, enabling their use as keys
  * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
+ *
  * \return A size_t hash value
  */
 namespace std {
@@ -332,6 +335,7 @@ namespace std {
     }
   };
 }
+
 #endif  //#ifdef CAMP_ENABLE_SYCL
 
 #endif /* __CAMP_SYCL_HPP */

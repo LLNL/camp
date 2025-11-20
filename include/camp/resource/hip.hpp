@@ -294,17 +294,20 @@ namespace resources
       init(res.get_stream());
     }
 
+    template <>
+    struct is_concrete_resource_impl<Hip> : std::true_type {};
+
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp
 
 /*
  * \brief Specialization of std::hash for camp::resources::Hip
- * 
+ *
  * Provides a hash function for hip typed resource objects, enabling their use as keys
  * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
- * \return A size_t hash value 
+ *
+ * \return A size_t hash value
  */
 namespace std {
   template <>

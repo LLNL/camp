@@ -7,6 +7,8 @@
 
 #include "camp/resource.hpp"
 
+#include <type_traits>
+
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
@@ -14,6 +16,17 @@ using namespace camp::resources;
 
 // compatible but different resource for conversion test
 struct Host2 : Host { };
+
+namespace camp
+{
+namespace resources
+{
+  template <>
+  struct is_concrete_resource_impl<Host2> : std::true_type {
+  };
+}  // namespace resources
+}  // namespace camp
+
 #ifdef CAMP_HAVE_CUDA
   struct Cuda2 : Cuda { };
 #endif
@@ -30,136 +43,7 @@ struct Host2 : Host { };
 struct NotAResource {
 };
 
-#define TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(RES, TRAIT)             \
-  static_assert(TRAIT<RES>::value, #RES " should satisfy " #TRAIT);   \
-  static_assert(TRAIT<RES&>::value, #RES "& should satisfy " #TRAIT); \
-  static_assert(TRAIT<const RES>::value,                              \
-                "const " #RES " should satisfy " #TRAIT);             \
-  static_assert(TRAIT<const RES&>::value,                             \
-                "const " #RES "& should satisfy " #TRAIT);
-
-#define TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(TRAIT)                   \
-  static_assert(!TRAIT<int>::value, "int should not satisfy " #TRAIT); \
-  static_assert(!TRAIT<NotAResource>::value,                           \
-                "NotAResource should not satisfy " #TRAIT);
-
-#define TEST_TRAIT_NEGATIVE_EXTRAS(TRAIT, DERIVED)                           \
-  static_assert(!TRAIT<void*>::value, "void* should not satisfy " #TRAIT);   \
-  static_assert(!TRAIT<DERIVED>::value,                                      \
-                #DERIVED " (derived type) should not satisfy " #TRAIT);
-
-#define TEST_IS_RESOURCE_POSITIVE(RES)                                        \
-  static_assert(is_resource<RES>::value, #RES " should satisfy is_resource"); \
-  static_assert(is_resource<RES&>::value,                                     \
-                #RES "& should satisfy is_resource");                         \
-  static_assert(is_resource<const RES>::value,                                \
-                "const " #RES " should satisfy is_resource");                 \
-  static_assert(is_resource<const RES&>::value,                               \
-                "const " #RES "& should satisfy is_resource");                \
-  static_assert(is_resource<RES&&>::value,                                    \
-                #RES "&& should satisfy is_resource");
-
-TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(Host, is_host_resource)
-
-// Cross-backend negative tests
-#ifdef CAMP_HAVE_CUDA
-static_assert(!is_host_resource<Cuda>::value,
-              "Cuda should not satisfy is_host_resource");
-#endif
-#ifdef CAMP_HAVE_HIP
-static_assert(!is_host_resource<Hip>::value,
-              "Hip should not satisfy is_host_resource");
-#endif
-#ifdef CAMP_HAVE_SYCL
-static_assert(!is_host_resource<Sycl>::value,
-              "Sycl should not satisfy is_host_resource");
-#endif
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-static_assert(!is_host_resource<Omp>::value,
-              "Omp should not satisfy is_host_resource");
-#endif
-
-TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(is_host_resource)
-TEST_TRAIT_NEGATIVE_EXTRAS(is_host_resource, Host2)
-
-#ifdef CAMP_HAVE_CUDA
-TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(Cuda, is_cuda_resource)
-
-static_assert(!is_cuda_resource<Host>::value,
-              "Host should not satisfy is_cuda_resource");
-#ifdef CAMP_HAVE_HIP
-static_assert(!is_cuda_resource<Hip>::value,
-              "Hip should not satisfy is_cuda_resource");
-#endif
-
-TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(is_cuda_resource)
-#endif
-
-#ifdef CAMP_HAVE_HIP
-TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(Hip, is_hip_resource)
-
-static_assert(!is_hip_resource<Host>::value,
-              "Host should not satisfy is_hip_resource");
-#ifdef CAMP_HAVE_CUDA
-static_assert(!is_hip_resource<Cuda>::value,
-              "Cuda should not satisfy is_hip_resource");
-#endif
-
-TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(is_hip_resource)
-#endif
-
-#ifdef CAMP_HAVE_SYCL
-TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(Sycl, is_sycl_resource)
-
-static_assert(!is_sycl_resource<Host>::value,
-              "Host should not satisfy is_sycl_resource");
-
-TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(is_sycl_resource)
-#endif
-
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-TEST_SPECIFIC_RESOURCE_TRAIT_POSITIVE(Omp, is_omp_resource)
-
-static_assert(!is_omp_resource<Host>::value,
-              "Host should not satisfy is_omp_resource");
-
-TEST_SPECIFIC_RESOURCE_TRAIT_NEGATIVE(is_omp_resource)
-#endif
-
-TEST_IS_RESOURCE_POSITIVE(Host)
-
-#ifdef CAMP_HAVE_CUDA
-TEST_IS_RESOURCE_POSITIVE(Cuda)
-#endif
-
-#ifdef CAMP_HAVE_HIP
-TEST_IS_RESOURCE_POSITIVE(Hip)
-#endif
-
-#ifdef CAMP_HAVE_SYCL
-TEST_IS_RESOURCE_POSITIVE(Sycl)
-#endif
-
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-TEST_IS_RESOURCE_POSITIVE(Omp)
-#endif
-
-// Test is_resource trait with non-resource types
-static_assert(!is_resource<int>::value, "int should not satisfy is_resource");
-static_assert(!is_resource<float>::value,
-              "float should not satisfy is_resource");
-static_assert(!is_resource<double>::value,
-              "double should not satisfy is_resource");
-static_assert(!is_resource<void*>::value,
-              "void* should not satisfy is_resource");
-static_assert(!is_resource<char*>::value,
-              "char* should not satisfy is_resource");
-static_assert(!is_resource<NotAResource>::value,
-              "NotAResource should not satisfy is_resource");
-static_assert(!is_resource<Host2>::value,
-              "Host2 (derived type) should not satisfy is_resource");
-
-template < typename Res >
+template <typename Res>
 void test_construct()
 {
   Resource r{Res()};
@@ -740,89 +624,43 @@ TEST(CampResource, Wait)
 #endif
 }
 
-// Template test functions for type traits to reduce code duplication
-template <typename Res, template <typename> class Trait>
-void test_specific_resource_trait()
-{
-  // Test positive cases - the trait should be true for its resource type
-  ASSERT_TRUE(Trait<Res>::value);
-  ASSERT_TRUE(Trait<Res&>::value);
-  ASSERT_TRUE(Trait<const Res>::value);
-  ASSERT_TRUE(Trait<const Res&>::value);
-  ASSERT_TRUE(Trait<Res&&>::value);
-
-  // Test negative cases - should be false for non-resource types
-  ASSERT_FALSE(Trait<int>::value);
-  ASSERT_FALSE(Trait<NotAResource>::value);
-}
-
 template <typename Res>
-void test_is_resource_trait()
+void test_concrete_resource_trait()
 {
-  ASSERT_TRUE(is_resource<Res>::value);
-  ASSERT_TRUE(is_resource<Res&>::value);
-  ASSERT_TRUE(is_resource<const Res>::value);
-  ASSERT_TRUE(is_resource<const Res&>::value);
-  ASSERT_TRUE(is_resource<Res&&>::value);
+  ASSERT_TRUE(is_concrete_resource<Res>::value);
+  ASSERT_TRUE(is_concrete_resource<Res&>::value);
+  ASSERT_TRUE(is_concrete_resource<const Res>::value);
+  ASSERT_TRUE(is_concrete_resource<const Res&>::value);
+  ASSERT_TRUE(is_concrete_resource<Res&&>::value);
 }
 //
-TEST(CampResourceTypeTraits, HelperTraits)
+TEST(CampResourceTypeTraits, ConcreteResource)
 {
-  // Test each specific resource trait
-  test_specific_resource_trait<Host, is_host_resource>();
-  ASSERT_FALSE(is_host_resource<Host2>::value);
+  test_concrete_resource_trait<Host>();
 
 #ifdef CAMP_HAVE_CUDA
-  test_specific_resource_trait<Cuda, is_cuda_resource>();
-  // Test cross-backend exclusivity
-  ASSERT_FALSE(is_host_resource<Cuda>::value);
-  ASSERT_FALSE(is_cuda_resource<Host>::value);
+  test_concrete_resource_trait<Cuda>();
 #endif
 
 #ifdef CAMP_HAVE_HIP
-  test_specific_resource_trait<Hip, is_hip_resource>();
-  ASSERT_FALSE(is_host_resource<Hip>::value);
-  ASSERT_FALSE(is_hip_resource<Host>::value);
+  test_concrete_resource_trait<Hip>();
 #endif
 
 #ifdef CAMP_HAVE_SYCL
-  test_specific_resource_trait<Sycl, is_sycl_resource>();
-  ASSERT_FALSE(is_host_resource<Sycl>::value);
-  ASSERT_FALSE(is_sycl_resource<Host>::value);
+  test_concrete_resource_trait<Sycl>();
 #endif
 
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_specific_resource_trait<Omp, is_omp_resource>();
-  ASSERT_FALSE(is_host_resource<Omp>::value);
-  ASSERT_FALSE(is_omp_resource<Host>::value);
-#endif
-}
-
-TEST(CampResourceTypeTraits, IsResourceTrait)
-{
-  test_is_resource_trait<Host>();
-
-#ifdef CAMP_HAVE_CUDA
-  test_is_resource_trait<Cuda>();
+  test_concrete_resource_trait<Omp>();
 #endif
 
-#ifdef CAMP_HAVE_HIP
-  test_is_resource_trait<Hip>();
-#endif
-
-#ifdef CAMP_HAVE_SYCL
-  test_is_resource_trait<Sycl>();
-#endif
-
-#ifdef CAMP_HAVE_OMP_OFFLOAD
-  test_is_resource_trait<Omp>();
-#endif
-
-  ASSERT_FALSE(is_resource<int>::value);
-  ASSERT_FALSE(is_resource<float>::value);
-  ASSERT_FALSE(is_resource<double>::value);
-  ASSERT_FALSE(is_resource<void*>::value);
-  ASSERT_FALSE(is_resource<char*>::value);
-  ASSERT_FALSE(is_resource<NotAResource>::value);
-  ASSERT_FALSE(is_resource<Host2>::value);
+  // Test is_concrete_resource with non-resource types
+  ASSERT_FALSE(is_concrete_resource<int>::value);
+  ASSERT_FALSE(is_concrete_resource<float>::value);
+  ASSERT_FALSE(is_concrete_resource<double>::value);
+  ASSERT_FALSE(is_concrete_resource<void*>::value);
+  ASSERT_FALSE(is_concrete_resource<char*>::value);
+  ASSERT_FALSE(is_concrete_resource<NotAResource>::value);
+  // Host2 has an overrlead of is_concrete_resource_impl
+  ASSERT_TRUE(is_concrete_resource<Host2>::value);
 }
