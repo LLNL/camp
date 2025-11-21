@@ -8,8 +8,8 @@
 #ifndef __CAMP_EVENT_HPP
 #define __CAMP_EVENT_HPP
 
-#include <type_traits>
 #include <memory>
+#include <type_traits>
 
 #include "camp/config.hpp"
 #include "camp/defines.hpp"
@@ -25,22 +25,22 @@ namespace resources
     {
       struct EventProxyBase {
       };  // helper to identify EventProxy in sfinae
-    }     // namespace detail
+    }  // namespace detail
     class Event
     {
     public:
       Event() = default;
       Event(Event const &e) = default;
       Event(Event &&e) = default;
-      Event& operator=(Event const &e) = default;
-      Event& operator=(Event &&e) = default;
+      Event &operator=(Event const &e) = default;
+      Event &operator=(Event &&e) = default;
 
-      template <typename T,
-                typename std::enable_if<
-                    !(std::is_convertible<
-                        typename std::decay<T>::type *,
-                        ::camp::resources::detail::EventProxyBase *>::value
-                      )>::type * = nullptr>
+      template <
+          typename T,
+          typename std::enable_if<
+              !(std::is_convertible<typename std::decay<T>::type *,
+                                    ::camp::resources::detail::EventProxyBase
+                                        *>::value)>::type * = nullptr>
       Event(T &&value)
       {
         m_value.reset(new EventModel<T>(value));

@@ -16,16 +16,16 @@ http://github.com/llnl/camp
 */
 
 #include <camp/camp.hpp>
+#include <exception>
 #include <stdexcept>
 #include <string>
-#include <exception>
 
 
 namespace camp
 {
 
 void throw_re(const char *s) { throw std::runtime_error(s); }
-void throw_re(std::string const& s) { throw std::runtime_error(s); }
+void throw_re(std::string const &s) { throw std::runtime_error(s); }
 
 #ifdef CAMP_ENABLE_CUDA
 
@@ -49,7 +49,7 @@ cudaError_t cudaAssert(cudaError_t code,
   return code;
 }
 
-#endif  //#ifdef CAMP_ENABLE_CUDA
+#endif  // #ifdef CAMP_ENABLE_CUDA
 
 #ifdef CAMP_ENABLE_HIP
 
@@ -73,6 +73,6 @@ hipError_t hipAssert(hipError_t code,
   return code;
 }
 
-#endif  //#ifdef CAMP_ENABLE_HIP
+#endif  // #ifdef CAMP_ENABLE_HIP
 
 }  // namespace camp

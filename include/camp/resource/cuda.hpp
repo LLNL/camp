@@ -12,14 +12,15 @@
 
 #ifdef CAMP_ENABLE_CUDA
 
+#include <cuda_runtime.h>
+
+#include <array>
+#include <mutex>
+
 #include "camp/defines.hpp"
 #include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
-
-#include <cuda_runtime.h>
-#include <array>
-#include <mutex>
 
 namespace camp
 {
@@ -63,9 +64,13 @@ namespace resources
 
       bool check() const
       {
-        return (CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(cudaEventQuery, m_event) == cudaSuccess);
+        return (CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(cudaEventQuery, m_event)
+                == cudaSuccess);
       }
-      void wait() const { CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventSynchronize, m_event); }
+      void wait() const
+      {
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventSynchronize, m_event);
+      }
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -73,8 +78,9 @@ namespace resources
 
       void init(cudaStream_t stream)
       {
-        CAMP_CUDA_API_INVOKE_AND_CHECK(
-            cudaEventCreateWithFlags, &m_event, cudaEventDisableTiming);
+        CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventCreateWithFlags,
+                                       &m_event,
+                                       cudaEventDisableTiming);
         CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventRecord, m_event, stream);
       }
     };
@@ -85,15 +91,15 @@ namespace resources
       {
         static constexpr int num_streams = 16;
         static std::array<cudaStream_t, num_streams> s_streams = [] {
-              std::array<cudaStream_t, num_streams> streams;
-              for (auto &s : streams) {
-                CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
-              }
-              return streams;
-            }();
+          std::array<cudaStream_t, num_streams> streams;
+          for (auto &s : streams) {
+            CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamCreate, &s);
+          }
+          return streams;
+        }();
 
         static std::mutex s_mtx;
-        static int s_previous = num_streams-1;
+        static int s_previous = num_streams - 1;
 
         if (num < 0) {
           std::lock_guard<std::mutex> lock(s_mtx);
@@ -107,11 +113,12 @@ namespace resources
       // Private from-stream constructor
       Cuda(cudaStream_t s, int dev = 0) : stream(s), device(dev) {}
 
-      MemoryAccess get_access_type(void *p) {
+      MemoryAccess get_access_type(void *p)
+      {
         cudaPointerAttributes a;
         cudaError_t status = cudaPointerGetAttributes(&a, p);
         if (status == cudaSuccess) {
-          switch(a.type){
+          switch (a.type) {
             case cudaMemoryTypeUnregistered:
               return MemoryAccess::Unknown;
             case cudaMemoryTypeHost:
@@ -125,9 +132,11 @@ namespace resources
         ::camp::throw_re("invalid pointer detected");
         // This return statement exists because compilers do not determine the
         // above unconditionally throws
-        // related: https://stackoverflow.com/questions/64523302/cuda-missing-return-statement-at-end-of-non-void-function-in-constexpr-if-fun
+        // related:
+        // https://stackoverflow.com/questions/64523302/cuda-missing-return-statement-at-end-of-non-void-function-in-constexpr-if-fun
         return MemoryAccess::Unknown;
       }
+
     public:
       Cuda(int group = -1, int dev = 0)
           : stream(get_a_stream(group)), device(dev)
@@ -176,9 +185,10 @@ namespace resources
         auto *cuda_event = e->try_get<CudaEvent>();
         if (cuda_event) {
           auto d{device_guard(device)};
-          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamWaitEvent, get_stream(),
-                                             cuda_event->getCudaEvent_t(),
-                                             0);
+          CAMP_CUDA_API_INVOKE_AND_CHECK(cudaStreamWaitEvent,
+                                         get_stream(),
+                                         cuda_event->getCudaEvent_t(),
+                                         0);
         } else {
           e->wait();
         }
@@ -194,15 +204,21 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMalloc, &ret, sizeof(T) * size);
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMalloc,
+                                             &ret,
+                                             sizeof(T) * size);
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocHost, &ret, sizeof(T) * size);
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocHost,
+                                             &ret,
+                                             sizeof(T) * size);
               break;
             case MemoryAccess::Managed:
-              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocManaged, &ret, sizeof(T) * size);
+              CAMP_CUDA_API_INVOKE_AND_CHECK(cudaMallocManaged,
+                                             &ret,
+                                             sizeof(T) * size);
               break;
           }
         }
@@ -217,7 +233,7 @@ namespace resources
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
-        if(ma == MemoryAccess::Unknown) {
+        if (ma == MemoryAccess::Unknown) {
           ma = get_access_type(p);
         }
         switch (ma) {
@@ -260,24 +276,22 @@ namespace resources
        *
        * \return True or false depending on if it is the same stream
        */
-      bool operator==(Cuda const& c) const
+      bool operator==(Cuda const &c) const
       {
         return (get_stream() == c.get_stream());
       }
-      
+
       /*
        * \brief Compares two (Cuda) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
-      bool operator!=(Cuda const& c) const
-      {
-        return !(*this == c);
-      }
+      bool operator!=(Cuda const &c) const { return !(*this == c); }
 
-      size_t get_hash() const {
+      size_t get_hash() const
+      {
         const size_t cuda_type = size_t(get_platform()) << 32;
-        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        size_t stream_hash = std::hash<void *>{}(static_cast<void *>(stream));
         return cuda_type | (stream_hash & 0xFFFFFFFF);
       }
 
@@ -298,21 +312,24 @@ namespace resources
 
 /*
  * \brief Specialization of std::hash for camp::resources::Cuda
- * 
- * Provides a hash function for cuda typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
- * \return A size_t hash value 
+ *
+ * Provides a hash function for cuda typed resource objects, enabling their use
+ * as keys in unordered associative containers (std::unordered_map,
+ * std::unordered_set, etc.)
+ *
+ * \return A size_t hash value
  */
-namespace std {
-  template <>
-  struct hash<camp::resources::Cuda> {
-    std::size_t operator()(const camp::resources::Cuda& c) const {
-      return c.get_hash();
-    }
-  };
-}
+namespace std
+{
+template <>
+struct hash<camp::resources::Cuda> {
+  std::size_t operator()(const camp::resources::Cuda &c) const
+  {
+    return c.get_hash();
+  }
+};
+}  // namespace std
 
-#endif  //#ifdef CAMP_ENABLE_CUDA
+#endif  // #ifdef CAMP_ENABLE_CUDA
 
 #endif /* __CAMP_CUDA_HPP */

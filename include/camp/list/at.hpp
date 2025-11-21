@@ -22,12 +22,12 @@ namespace detail
   template <typename T, idx_t Idx>
   struct _at;
 
-  #if CAMP_USE_TYPE_PACK_ELEMENT
+#if CAMP_USE_TYPE_PACK_ELEMENT
   template <idx_t Idx, template <class...> class T, typename... Pack>
   struct _at<T<Pack...>, Idx> {
     using type = __type_pack_element<Idx, Pack...>;
   };
-  #else
+#else
   // Lookup from metal::at machinery
   template <idx_t, typename>
   struct entry {
@@ -69,7 +69,7 @@ namespace detail
                                   make_idx_seq_t<sizeof...(Rest)>,
                                   Idx>::type;
   };
-  #endif
+#endif
 }  // namespace detail
 
 // TODO: document

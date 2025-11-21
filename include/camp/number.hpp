@@ -8,13 +8,12 @@
 #ifndef CAMP_NUMBER_HPP
 #define CAMP_NUMBER_HPP
 
+#include <type_traits>
+
+#include "camp/defines.hpp"
 #include "camp/helpers.hpp"
 #include "camp/number/if.hpp"
 #include "camp/number/number.hpp"
-
-#include "camp/defines.hpp"
-
-#include <type_traits>
 
 namespace camp
 {
@@ -125,8 +124,7 @@ struct seq_at;
 
 template <idx_t N, typename T, T Idx0, T... IdxRest>
 struct seq_at<N, camp::int_seq<T, Idx0, IdxRest...>> {
-  static constexpr T value =
-      seq_at<N - 1, camp::int_seq<T, IdxRest...>>::value;
+  static constexpr T value = seq_at<N - 1, camp::int_seq<T, IdxRest...>>::value;
 };
 
 template <typename T, T Idx0, T... IdxRest>

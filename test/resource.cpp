@@ -13,21 +13,26 @@
 using namespace camp::resources;
 
 // compatible but different resource for conversion test
-struct Host2 : Host { };
+struct Host2 : Host {
+};
 #ifdef CAMP_HAVE_CUDA
-  struct Cuda2 : Cuda { };
+struct Cuda2 : Cuda {
+};
 #endif
 #ifdef CAMP_HAVE_HIP
-  struct Hip2 : Hip { };
+struct Hip2 : Hip {
+};
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  struct Omp2 : Omp { };
+struct Omp2 : Omp {
+};
 #endif
 #ifdef CAMP_HAVE_SYCL
-  struct Sycl2 : Sycl { };
+struct Sycl2 : Sycl {
+};
 #endif
 
-template < typename Res >
+template <typename Res>
 void test_construct()
 {
   Resource r{Res()};
@@ -51,7 +56,7 @@ TEST(CampResource, Construct)
 #endif
 }
 
-template < typename Res >
+template <typename Res>
 void test_copy()
 {
   Resource r1{Res()};
@@ -78,7 +83,7 @@ TEST(CampResource, Copy)
 #endif
 }
 
-template < typename Res, typename Res2 >
+template <typename Res, typename Res2>
 void test_convert_fails()
 {
   Resource r{Res()};
@@ -104,7 +109,7 @@ TEST(CampResource, ConvertFails)
 #endif
 }
 
-template < typename Res >
+template <typename Res>
 void test_convert_works(Platform platform)
 {
   Resource r{Res()};
@@ -139,7 +144,8 @@ TEST(CampResource, GetPlatform)
   ASSERT_EQ(static_cast<const Resource>(Hip()).get_platform(), Platform::hip);
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  ASSERT_EQ(static_cast<const Resource>(Omp()).get_platform(), Platform::omp_target);
+  ASSERT_EQ(static_cast<const Resource>(Omp()).get_platform(),
+            Platform::omp_target);
 #endif
 #ifdef CAMP_HAVE_SYCL
   ASSERT_EQ(static_cast<const Resource>(Sycl()).get_platform(), Platform::sycl);
@@ -162,26 +168,39 @@ void test_map_key(Resource& h)
   Res r2;
 
   // Generic
-  map.insert({h, 10}); multimap.insert({h, 10});
-  map.insert({h, 20}); multimap.insert({h, 20});
-  map.insert({d1, 30}); multimap.insert({d1, 30});
-  map.insert({d2, 40}); multimap.insert({d2, 40});
-  map.insert({d2, 50}); multimap.insert({d2, 50});
+  map.insert({h, 10});
+  multimap.insert({h, 10});
+  map.insert({h, 20});
+  multimap.insert({h, 20});
+  map.insert({d1, 30});
+  multimap.insert({d1, 30});
+  map.insert({d2, 40});
+  multimap.insert({d2, 40});
+  map.insert({d2, 50});
+  multimap.insert({d2, 50});
 
   // Typed
-  rmap.insert({r1, 30}); rmultimap.insert({r1, 30});
-  rmap.insert({r2, 40}); rmultimap.insert({r2, 40});
-  rmap.insert({r2, 50}); rmultimap.insert({r2, 50});
+  rmap.insert({r1, 30});
+  rmultimap.insert({r1, 30});
+  rmap.insert({r2, 40});
+  rmultimap.insert({r2, 40});
+  rmap.insert({r2, 50});
+  rmultimap.insert({r2, 50});
 
   // Verify using Resource as a key to find entries works
   // Generic
-  ASSERT_EQ(map.count(h), 1); ASSERT_EQ(multimap.count(h), 2);
-  ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(multimap.count(d1), 1);
-  ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(multimap.count(d2), 2);
-  
+  ASSERT_EQ(map.count(h), 1);
+  ASSERT_EQ(multimap.count(h), 2);
+  ASSERT_EQ(map.count(d1), 1);
+  ASSERT_EQ(multimap.count(d1), 1);
+  ASSERT_EQ(map.count(d2), 1);
+  ASSERT_EQ(multimap.count(d2), 2);
+
   // Typed
-  ASSERT_EQ(rmap.count(r1), 1); ASSERT_EQ(rmultimap.count(r1), 1);
-  ASSERT_EQ(rmap.count(r2), 1); ASSERT_EQ(rmultimap.count(r2), 2);
+  ASSERT_EQ(rmap.count(r1), 1);
+  ASSERT_EQ(rmultimap.count(r1), 1);
+  ASSERT_EQ(rmap.count(r2), 1);
+  ASSERT_EQ(rmultimap.count(r2), 2);
 
   // Verify equal_range works
   // Generic
@@ -197,7 +216,8 @@ void test_map_key(Resource& h)
 //
 TEST(CampResource, UnorderedMapKey)
 {
-#if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)
+#if !defined(CAMP_HAVE_CUDA) && !defined(CAMP_HAVE_HIP) \
+    && !defined(CAMP_HAVE_OMP_OFFLOAD) && !defined(CAMP_HAVE_SYCL)
   // If only the Host is enabled, it doesn't make sense to use a map
   GTEST_SKIP() << "No device backend available (CUDA/HIP/OMP/SYCL)";
 #else
@@ -212,16 +232,17 @@ TEST(CampResource, UnorderedMapKey)
 #elif defined(CAMP_HAVE_SYCL)
   test_map_key<Sycl>(h);
 #endif
-  
+
 #endif
 }
 
-template < typename Res >
+template <typename Res>
 void test_id_compare(Resource& h1)
 {
   Resource r1{Res()};
-  Res r; Resource r2{r};
-  Resource r3{Res(0)}; //should be same as r1
+  Res r;
+  Resource r2{r};
+  Resource r3{Res(0)};  // should be same as r1
 
   EXPECT_EQ(r1, r3);
 
@@ -247,7 +268,8 @@ void test_id_compare(Resource& h1)
 TEST(CampResource, Compare)
 {
   Resource h1{Host()};
-  Host h; Resource h2{h};
+  Host h;
+  Resource h2{h};
 
   ASSERT_TRUE(h1 == h1);
   ASSERT_TRUE(h2 == h2);
@@ -277,7 +299,8 @@ TEST(CampResource, Compare)
 
 TEST(CampResource, HostCompare)
 {
-  Host h1; Resource h2{h1};
+  Host h1;
+  Resource h2{h1};
   Resource h3{Host().get_default()};
 
   ASSERT_TRUE(Resource{h1} == h2);
@@ -288,7 +311,7 @@ TEST(CampResource, HostCompare)
   ASSERT_TRUE(h3 == h2);
 }
 
-template < typename Res >
+template <typename Res>
 void test_reassignment()
 {
   Resource h1{Host()};
@@ -357,8 +380,7 @@ TEST(CampResource, StreamSelect)
 #ifdef CAMP_HAVE_OMP_OFFLOAD
   {
     char a[2];
-    test_select_stream(Omp::OmpFromAddr(&a[0]),
-                       Omp::OmpFromAddr(&a[1]));
+    test_select_stream(Omp::OmpFromAddr(&a[0]), Omp::OmpFromAddr(&a[1]));
   }
 #endif
 #ifdef CAMP_HAVE_SYCL
@@ -375,7 +397,7 @@ TEST(CampResource, StreamSelect)
 #endif
 }
 
-template < typename Res >
+template <typename Res>
 void test_get()
 {
   Resource dev_res{Res()};
@@ -401,7 +423,7 @@ TEST(CampResource, Get)
 #endif
 }
 
-template < typename Res, typename ResEvent, typename... EventArgs >
+template <typename Res, typename ResEvent, typename... EventArgs>
 void test_get_event(EventArgs&&... eventArgs)
 {
   Resource r{Res()};
@@ -447,7 +469,7 @@ TEST(CampResource, GetEvent)
 #endif
 }
 
-template < typename Res, typename ResEvent, typename... EventArgs >
+template <typename Res, typename ResEvent, typename... EventArgs>
 void test_get_typed_event(EventArgs&&... eventArgs)
 {
   Resource r{Res()};
@@ -494,13 +516,13 @@ TEST(CampEvent, Get)
 #endif
 }
 
-template<typename Res>
+template <typename Res>
 static EventProxy<Res> do_stuff(Res r)
 {
   return EventProxy<Res>(r);
 }
 //
-template < typename Res, typename ResEvent >
+template <typename Res, typename ResEvent>
 void test_event_proxy()
 {
   Res r{Res{}};
@@ -578,7 +600,7 @@ TEST(CampEventProxy, Get)
 #endif
 }
 
-template < typename Res >
+template <typename Res>
 void test_wait()
 {
   auto r = Res();
