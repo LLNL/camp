@@ -38,6 +38,7 @@ void test_construct()
   Resource r{Res()};
   CAMP_ALLOW_UNUSED_LOCAL(r);
 }
+
 //
 TEST(CampResource, Construct)
 {
@@ -65,6 +66,7 @@ void test_copy()
   CAMP_ALLOW_UNUSED_LOCAL(r2);
   CAMP_ALLOW_UNUSED_LOCAL(r3);
 }
+
 //
 TEST(CampResource, Copy)
 {
@@ -91,6 +93,7 @@ void test_convert_fails()
   ASSERT_THROW(r.get<Res2>(), std::runtime_error);
   ASSERT_FALSE(r.try_get<Res2>());
 }
+
 //
 TEST(CampResource, ConvertFails)
 {
@@ -116,6 +119,7 @@ void test_convert_works(Platform platform)
   ASSERT_TRUE(r.try_get<Res>());
   ASSERT_EQ(r.get<Res>().get_platform(), platform);
 }
+
 //
 TEST(CampResource, ConvertWorks)
 {
@@ -213,6 +217,7 @@ void test_map_key(Resource& h)
   auto rrange2 = rmultimap.equal_range(r2);
   ASSERT_EQ(std::distance(rrange2.first, rrange2.second), 2);
 }
+
 //
 TEST(CampResource, UnorderedMapKey)
 {
@@ -264,6 +269,7 @@ void test_id_compare(Resource& h1)
   ASSERT_FALSE(r1 == h1);
   ASSERT_FALSE(h1 == r1);
 }
+
 //
 TEST(CampResource, Compare)
 {
@@ -324,6 +330,7 @@ void test_reassignment()
   r2 = Host();
   ASSERT_EQ(typeid(r2), typeid(h2));
 }
+
 //
 TEST(CampResource, Reassignment)
 {
@@ -351,6 +358,7 @@ void test_select_stream(Resource r1, Resource r2)
   r1.deallocate(r_array1);
   r2.deallocate(r_array2);
 }
+
 //
 TEST(CampResource, StreamSelect)
 {
@@ -405,6 +413,7 @@ void test_get()
   Res pure_res;
   ASSERT_EQ(typeid(erased_res), typeid(pure_res));
 }
+
 //
 TEST(CampResource, Get)
 {
@@ -431,6 +440,7 @@ void test_get_event(EventArgs&&... eventArgs)
   Event event{ResEvent(std::forward<EventArgs>(eventArgs)...)};
   ASSERT_EQ(typeid(event), typeid(erased_event));
 }
+
 //
 TEST(CampResource, GetEvent)
 {
@@ -478,6 +488,7 @@ void test_get_typed_event(EventArgs&&... eventArgs)
   ResEvent event(std::forward<EventArgs>(eventArgs)...);
   ASSERT_EQ(typeid(event), typeid(typed_event));
 }
+
 //
 TEST(CampEvent, Get)
 {
@@ -521,6 +532,7 @@ static EventProxy<Res> do_stuff(Res r)
 {
   return EventProxy<Res>(r);
 }
+
 //
 template <typename Res, typename ResEvent>
 void test_event_proxy()
@@ -582,6 +594,7 @@ void test_event_proxy()
     do_stuff(r);
   }
 }
+
 //
 TEST(CampEventProxy, Get)
 {
@@ -610,6 +623,7 @@ void test_wait()
   Resource er(r);
   er.wait();
 }
+
 //
 TEST(CampResource, Wait)
 {

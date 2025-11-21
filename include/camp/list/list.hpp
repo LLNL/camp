@@ -24,10 +24,12 @@ namespace detail
 {
   template <typename T>
   struct _as_list;
+
   template <template <typename...> class T, typename... Args>
   struct _as_list<T<Args...>> {
     using type = list<Args...>;
   };
+
   template <typename T, T... Args>
   struct _as_list<int_seq<T, Args...>> {
     using type = list<integral_constant<T, Args>...>;

@@ -75,6 +75,7 @@ camp::true_type ___valid_expr___(T &&...) noexcept;
   template <typename... Args>                                       \
   struct TTName : camp::concepts::requires_<ConceptName, Args...> { \
   }
+
 namespace camp
 {
 namespace concepts
@@ -340,6 +341,7 @@ namespace type_traits
     struct SpecializationOf<Expected, Actual, true, Args...>
         : camp::concepts::metalib::is_same<Expected<Args...>, Actual<Args...>> {
     };
+
     /// \endcond
 
   }  // end namespace detail

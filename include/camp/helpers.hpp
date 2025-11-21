@@ -49,6 +49,7 @@ namespace detail
 {
   using __expand_array_type = int[];
 }
+
 #define CAMP_EXPAND(...) \
   static_cast<void>(     \
       ::camp::detail::__expand_array_type{0, ((void)(__VA_ARGS__), 0)...})
@@ -71,10 +72,12 @@ namespace type
     struct rem_s {
       using type = T;
     };
+
     template <class T>
     struct rem_s<T&> {
       using type = T;
     };
+
     template <class T>
     struct rem_s<T&&> {
       using type = T;
@@ -102,6 +105,7 @@ namespace type
     struct rem_s {
       using type = T;
     };
+
     template <class T>
     struct rem_s<T*> {
       using type = T;
@@ -122,6 +126,7 @@ namespace type
     struct rem_s {
       using type = T;
     };
+
     template <class T>
     struct rem_s<const T> {
       using type = T;
@@ -142,6 +147,7 @@ namespace type
     struct rem_s {
       using type = T;
     };
+
     template <class T>
     struct rem_s<volatile T> {
       using type = T;
@@ -162,14 +168,17 @@ namespace type
     struct rem_s {
       using type = T;
     };
+
     template <class T>
     struct rem_s<const T> {
       using type = T;
     };
+
     template <class T>
     struct rem_s<volatile T> {
       using type = T;
     };
+
     template <class T>
     struct rem_s<const volatile T> {
       using type = T;
@@ -204,6 +213,7 @@ CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>& t) noexcept
 {
   return static_cast<T&&>(t);
 }
+
 template <class T>
 CAMP_HOST_DEVICE constexpr T&& forward(type::ref::rem<T>&& t) noexcept
 {
@@ -240,7 +250,6 @@ CAMP_HOST_DEVICE void safe_swap(T& t1, T& t2)
   using std::swap;
   swap(t1, t2);
 }
-
 
 namespace experimental
 {
@@ -414,7 +423,6 @@ namespace experimental
   }
 
 }  // namespace experimental
-
 
 /// Report hip errors by throwing an exception or printing to cerr
 ///

@@ -59,13 +59,14 @@ struct tuple_size<tagged_tuple<L, Args...>> : ::camp::num<sizeof...(Args)> {
 template <typename T>
 struct tuple_size<const T> : num<tuple_size<T>::value> {
 };
+
 template <typename T>
 struct tuple_size<volatile T> : num<tuple_size<T>::value> {
 };
+
 template <typename T>
 struct tuple_size<const volatile T> : num<tuple_size<T>::value> {
 };
-
 
 namespace internal
 {
@@ -107,12 +108,14 @@ namespace internal
     {
       return val;
     }
+
     CAMP_HOST_DEVICE constexpr const Type&& get_inner() const&& noexcept
     {
       return static_cast<const Type&&>(val);
     }
 
     CAMP_HOST_DEVICE constexpr Type& get_inner() & noexcept { return val; }
+
     CAMP_HOST_DEVICE constexpr Type&& get_inner() && noexcept
     {
       return static_cast<Type&&>(val);
@@ -121,6 +124,7 @@ namespace internal
   public:
     Type val;
   };
+
   template <camp::idx_t index, typename Type>
   struct CAMP_EMPTY_BASES tuple_storage<index, Type, true> : private Type {
     CAMP_HOST_DEVICE constexpr tuple_storage() : Type(){};
@@ -139,6 +143,7 @@ namespace internal
     {
       return ((Type const*)this)[0];
     }
+
     CAMP_HOST_DEVICE constexpr const Type&& get_inner() const&& noexcept
     {
       return static_cast<const Type&&>(((Type const*)this)[0]);
@@ -148,6 +153,7 @@ namespace internal
     {
       return ((Type*)this)[0];
     }
+
     CAMP_HOST_DEVICE constexpr Type&& get_inner() && noexcept
     {
       return static_cast<Type&&>(((Type*)this)[0]);
@@ -251,6 +257,7 @@ namespace internal
 
   template <typename Types, typename Indices>
   struct tag_map;
+
   template <typename... Types, camp::idx_t... Indices>
   struct tag_map<camp::list<Types...>, camp::idx_seq<Indices...>> {
     using type = camp::list<camp::list<Types, camp::num<Indices>>...>;
@@ -268,6 +275,7 @@ private:
   template <typename... Ts>
   struct is_pack_this_tuple : false_type {
   };
+
   template <typename That>
   struct is_pack_this_tuple<That> : std::is_same<tuple, decay<That>> {
   };
@@ -409,6 +417,7 @@ public:
   }
 
   using Base::operator=;
+
   template <typename... RTypes>
   CAMP_HOST_DEVICE constexpr Self& operator=(const tagged_tuple<RTypes...>& rhs)
   {
@@ -436,7 +445,6 @@ template <typename... Tags, typename... Args>
 struct as_list_s<tagged_tuple<camp::list<Tags...>, Args...>> {
   using type = list<Args...>;
 };
-
 
 // by index
 template <camp::idx_t index, class... Types>
@@ -602,7 +610,6 @@ get(tagged_tuple<TagList, Types...>&& tt) noexcept
                                    index_type::value>&&>(tt.base)
       .get_inner();
 }
-
 
 template <typename... Args>
 CAMP_HOST_DEVICE constexpr auto make_tuple(Args&&... args)

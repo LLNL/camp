@@ -25,7 +25,9 @@ namespace resources
     {
     public:
       HostEvent() {}
+
       bool check() const { return true; }
+
       void wait() const {}
     };
 
@@ -36,18 +38,23 @@ namespace resources
 
       // Methods
       Platform get_platform() const { return Platform::host; }
+
       static Host get_default()
       {
         static Host h;
         return h;
       }
+
       HostEvent get_event() { return HostEvent(); }
+
       Event get_event_erased()
       {
         Event e{HostEvent()};
         return e;
       }
+
       void wait() {}
+
       void wait_for(Event *e) { e->wait(); }
 
       // Memory
@@ -56,20 +63,24 @@ namespace resources
       {
         return (T *)std::malloc(sizeof(T) * n);
       }
+
       void *calloc(size_t size, MemoryAccess = MemoryAccess::Device)
       {
         void *p = allocate<char>(size);
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void *p, MemoryAccess = MemoryAccess::Device)
       {
         std::free(p);
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         std::memcpy(dst, src, size);
       }
+
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
       /*

@@ -38,7 +38,6 @@ struct at_key_s {
       decltype(detail::lookup<Key>(declptr<detail::lookup_table<Seq>>()));
 };
 
-
 /**
  * @brief Get value at Key from Map
  *

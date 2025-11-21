@@ -33,8 +33,11 @@ namespace resources
     public:
       // TODO: make this actually work
       SyclEvent(sycl::queue* CAMP_UNUSED_ARG(qu)) { m_event = sycl::event(); }
+
       bool check() const { return true; }
+
       void wait() const { getSyclEvent_t().wait(); }
+
       sycl::event getSyclEvent_t() const { return m_event; }
 
     private:
@@ -254,8 +257,11 @@ namespace resources
 
       // Event
       SyclEvent get_event() { return SyclEvent(get_queue()); }
+
       Event get_event_erased() { return Event{SyclEvent(get_queue())}; }
+
       void wait() { qu->wait(); }
+
       void wait_for(Event* e)
       {
         auto* sycl_event = e->try_get<SyclEvent>();
@@ -288,23 +294,27 @@ namespace resources
         }
         return ret;
       }
+
       void* calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         void* p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void* p, MemoryAccess ma = MemoryAccess::Device)
       {
         CAMP_ALLOW_UNUSED_LOCAL(ma);
         sycl::free(p, *qu);
       }
+
       void memcpy(void* dst, const void* src, size_t size)
       {
         if (size > 0) {
           qu->memcpy(dst, src, size).wait();
         }
       }
+
       void memset(void* p, int val, size_t size)
       {
         if (size > 0) {
@@ -314,6 +324,7 @@ namespace resources
 
       // implementation specific
       sycl::queue* get_queue() { return qu; }
+
       sycl::queue const* get_queue() const { return qu; }
 
       /*

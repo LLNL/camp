@@ -54,6 +54,7 @@ namespace resources
       };
 
     }  // namespace
+
     class HipEvent
     {
     public:
@@ -66,10 +67,12 @@ namespace resources
         return (CAMP_HIP_API_INVOKE_AND_CHECK_RETURN(hipEventQuery, m_event)
                 == hipSuccess);
       }
+
       void wait() const
       {
         CAMP_HIP_API_INVOKE_AND_CHECK(hipEventSynchronize, m_event);
       }
+
       hipEvent_t getHipEvent_t() const { return m_event; }
 
     private:
@@ -156,6 +159,7 @@ namespace resources
 
       // Methods
       Platform get_platform() const { return Platform::hip; }
+
       static Hip get_default()
       {
         static Hip h([] {
@@ -224,12 +228,14 @@ namespace resources
         }
         return ret;
       }
+
       void *calloc(size_t size, MemoryAccess ma)
       {
         void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
@@ -253,6 +259,7 @@ namespace resources
             break;
         }
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
@@ -261,6 +268,7 @@ namespace resources
               hipMemcpyAsync, dst, src, size, hipMemcpyDefault, stream);
         }
       }
+
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
@@ -270,6 +278,7 @@ namespace resources
       }
 
       hipStream_t get_stream() const { return stream; }
+
       int get_device() const { return device; }
 
       /*

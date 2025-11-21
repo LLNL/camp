@@ -11,7 +11,6 @@
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
-
 struct MyInt {
   int i;
 };
@@ -37,7 +36,6 @@ namespace experimental
 
 }  // namespace experimental
 }  // namespace camp
-
 
 TEST(CampErrors, Throw)
 {
@@ -98,7 +96,6 @@ TEST(CampErrors, StreamInsertHelper)
     ASSERT_EQ(str.str(), expected_string);
   }
 }
-
 
 TEST(CampErrors, InsertArgsString)
 {

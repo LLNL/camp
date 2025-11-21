@@ -26,6 +26,7 @@ namespace resources
       struct EventProxyBase {
       };  // helper to identify EventProxy in sfinae
     }  // namespace detail
+
     class Event
     {
     public:
@@ -47,6 +48,7 @@ namespace resources
       }
 
       bool check() const { return m_value->check(); }
+
       void wait() const { m_value->wait(); }
 
       template <typename T>
@@ -55,6 +57,7 @@ namespace resources
         auto result = dynamic_cast<EventModel<T> *>(m_value.get());
         return result->get();
       }
+
       template <typename T>
       T get()
       {
@@ -70,6 +73,7 @@ namespace resources
       {
       public:
         virtual ~EventInterface() {}
+
         virtual bool check() const = 0;
         virtual void wait() const = 0;
       };
@@ -79,8 +83,11 @@ namespace resources
       {
       public:
         EventModel(T const &modelVal) : m_modelVal(modelVal) {}
+
         bool check() const override { return m_modelVal.check(); }
+
         void wait() const override { m_modelVal.wait(); }
+
         T *get() { return &m_modelVal; }
 
       private:

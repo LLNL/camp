@@ -38,11 +38,13 @@ namespace resources
         {
         }
       }
+
       bool check() const
       {
         // think up a way to do something better portably
         return false;
       }
+
       void wait() const
       {
         char *local_addr = addr;
@@ -52,6 +54,7 @@ namespace resources
         {
         }
       }
+
       void *getEventAddr() const { return addr; }
 
     private:
@@ -111,13 +114,17 @@ namespace resources
 
       // Methods
       Platform get_platform() const { return Platform::omp_target; }
+
       static Omp get_default()
       {
         static Omp o;
         return o;
       }
+
       OmpEvent get_event() { return OmpEvent(addr, dev); }
+
       Event get_event_erased() { return Event{get_event()}; }
+
       void wait()
       {
         char *local_addr = addr;
@@ -126,6 +133,7 @@ namespace resources
         {
         }
       }
+
       void wait_for(Event *e)
       {
         OmpEvent *oe = e->try_get<OmpEvent>();
@@ -152,6 +160,7 @@ namespace resources
         register_ptr_dev(ret, dev);
         return ret;
       }
+
       void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         check_ma(ma);
@@ -159,6 +168,7 @@ namespace resources
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
       {
         check_ma(ma);
@@ -168,6 +178,7 @@ namespace resources
         }
         omp_target_free(p, dev);
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         // this is truly, insanely awful, need to think of something better
@@ -176,6 +187,7 @@ namespace resources
         // extra cast due to GCC openmp header bug
         omp_target_memcpy(dst, (void *)src, size, 0, 0, dd, sd);
       }
+
       void memset(void *p, int val, size_t size)
       {
         char *local_addr = addr;
@@ -195,6 +207,7 @@ namespace resources
           get_dev_register()[p] = device;
         }
       }
+
       int get_ptr_dev(void const *p)
       {
         int ret = omp_get_initial_device();
@@ -260,6 +273,7 @@ namespace resources
     private:
       char *addr;
       int dev;
+
       template <typename always_void_odr_helper = void>
       std::map<const void *, int> &get_dev_register()
       {

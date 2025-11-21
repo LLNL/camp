@@ -24,12 +24,14 @@ namespace detail
 {
   template <template <typename...> class Cond, typename... Elements>
   struct _find_if;
+
   template <template <typename...> class Cond, typename First, typename... Rest>
   struct _find_if<Cond, First, Rest...> {
     using type = if_<typename Cond<First>::type,
                      First,
                      typename _find_if<Cond, Rest...>::type>;
   };
+
   template <template <typename...> class Cond>
   struct _find_if<Cond> {
     using type = nil;

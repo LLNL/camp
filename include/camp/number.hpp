@@ -23,6 +23,7 @@ template <typename T, T... vs>
 struct int_seq {
   using type = int_seq;
 };
+
 /// Index list, use for indexing into parameter packs and lists
 template <idx_t... vs>
 using idx_seq = int_seq<idx_t, vs...>;
@@ -63,6 +64,7 @@ namespace detail
   template <typename T>
   struct gen_seq<T, integral_constant<T, 0>> : int_seq<T> {
   };
+
   template <typename T>
   struct gen_seq<T, integral_constant<T, 1>> : int_seq<T, 0> {
   };
@@ -75,7 +77,6 @@ struct make_idx_seq {
   using type =
       typename detail::gen_seq<idx_t, integral_constant<idx_t, Upper>>::type;
 };
-
 
 // TODO: document
 template <idx_t Upper>

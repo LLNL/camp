@@ -170,10 +170,10 @@ CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const &&, const &&, &&)
 CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const &, const &&, const &)
 CAMP_TEST_TAGGED_TUPLE_GET_T_REFS(const &&, const &&, const &&)
 
-
 // Size tests, ensure that EBO is being applied
 struct A {
 };
+
 struct B {
 };
 
@@ -319,7 +319,9 @@ TEST(CampTuple, CatPairFwd)
 
 struct NoDefCon {
   NoDefCon() = delete;
+
   NoDefCon(int i) : num{i} { (void)num; }
+
   NoDefCon(NoDefCon const &) = default;
 
 private:

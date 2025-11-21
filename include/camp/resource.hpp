@@ -49,6 +49,7 @@ namespace resources
       Resource(Resource const &) = default;
       Resource &operator=(Resource &&) = default;
       Resource &operator=(Resource const &) = default;
+
       template <typename T,
                 typename = typename std::enable_if<
                     !std::is_same<typename std::decay<T>::type,
@@ -57,12 +58,14 @@ namespace resources
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
       }
+
       template <typename T>
       T *try_get()
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         return result ? result->get() : nullptr;
       }
+
       template <typename T>
       T get() const
       {
@@ -72,31 +75,41 @@ namespace resources
         }
         return *result->get();
       }
+
       Platform get_platform() const { return m_value->get_platform(); }
+
       template <typename T>
       T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         return (T *)m_value->allocate(size * sizeof(T), ma);
       }
+
       void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         return m_value->calloc(size, ma);
       }
+
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
       {
         m_value->deallocate(p, ma);
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         m_value->memcpy(dst, src, size);
       }
+
       void memset(void *p, int val, size_t size)
       {
         m_value->memset(p, val, size);
       }
+
       Event get_event() { return m_value->get_event(); }
+
       Event get_event_erased() { return m_value->get_event_erased(); }
+
       void wait_for(Event *e) { m_value->wait_for(e); }
+
       void wait() { m_value->wait(); }
 
       /*
@@ -139,6 +152,7 @@ namespace resources
       {
       public:
         virtual ~ContextInterface() {}
+
         virtual Platform get_platform() const = 0;
 
         virtual bool compare(Resource const &r) const = 0;
@@ -164,6 +178,7 @@ namespace resources
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
+
         Platform get_platform() const override
         {
           return m_modelVal.get_platform();
@@ -173,6 +188,7 @@ namespace resources
         {
           return m_modelVal == r.get<T>();
         }
+
         size_t get_hash() const override { return m_modelVal.get_hash(); }
 
         void *allocate(size_t size,
@@ -180,31 +196,38 @@ namespace resources
         {
           return m_modelVal.template allocate<char>(size, ma);
         }
+
         void *calloc(size_t size,
                      MemoryAccess ma = MemoryAccess::Device) override
         {
           return m_modelVal.calloc(size, ma);
         }
+
         void deallocate(void *p,
                         MemoryAccess ma = MemoryAccess::Device) override
         {
           m_modelVal.deallocate(p, ma);
         }
+
         void memcpy(void *dst, const void *src, size_t size) override
         {
           m_modelVal.memcpy(dst, src, size);
         }
+
         void memset(void *p, int val, size_t size) override
         {
           m_modelVal.memset(p, val, size);
         }
 
         Event get_event() override { return m_modelVal.get_event_erased(); }
+
         Event get_event_erased() override
         {
           return m_modelVal.get_event_erased();
         }
+
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
+
         void wait() override { m_modelVal.wait(); }
 
         T *get() { return &m_modelVal; }
@@ -218,6 +241,7 @@ namespace resources
 
     template <Platform p>
     struct resource_from_platform;
+
     template <>
     struct resource_from_platform<Platform::host> {
       using type = ::camp::resources::Host;

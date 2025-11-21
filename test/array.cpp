@@ -84,6 +84,7 @@ CAMP_TEST_BEGIN(array, subscript)
 
   return passed && a[0] == 3 && a[1] == 8;
 }
+
 CAMP_TEST_END(array, subscript);
 
 CAMP_TEST_BEGIN(array, front)
@@ -335,7 +336,6 @@ CAMP_TEST_BEGIN(array, to_array)
          && b[2] == 10;
 }
 CAMP_TEST_END(array, to_array)
-
 
 CAMP_TEST_BEGIN(array, tuple_size)
 {

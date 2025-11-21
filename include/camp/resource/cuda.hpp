@@ -67,10 +67,12 @@ namespace resources
         return (CAMP_CUDA_API_INVOKE_AND_CHECK_RETURN(cudaEventQuery, m_event)
                 == cudaSuccess);
       }
+
       void wait() const
       {
         CAMP_CUDA_API_INVOKE_AND_CHECK(cudaEventSynchronize, m_event);
       }
+
       cudaEvent_t getCudaEvent_t() const { return m_event; }
 
     private:
@@ -156,6 +158,7 @@ namespace resources
 
       // Methods
       Platform get_platform() const { return Platform::cuda; }
+
       static Cuda get_default()
       {
         static Cuda c([] {
@@ -224,12 +227,14 @@ namespace resources
         }
         return ret;
       }
+
       void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         void *p = allocate<char>(size, ma);
         this->memset(p, 0, size);
         return p;
       }
+
       void deallocate(void *p, MemoryAccess ma = MemoryAccess::Unknown)
       {
         auto d{device_guard(device)};
@@ -252,6 +257,7 @@ namespace resources
             ::camp::throw_re("Unknown memory access type, cannot free");
         }
       }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         if (size > 0) {
@@ -260,6 +266,7 @@ namespace resources
               cudaMemcpyAsync, dst, src, size, cudaMemcpyDefault, stream);
         }
       }
+
       void memset(void *p, int val, size_t size)
       {
         if (size > 0) {
@@ -269,6 +276,7 @@ namespace resources
       }
 
       cudaStream_t get_stream() const { return stream; }
+
       int get_device() const { return device; }
 
       /*
