@@ -28,22 +28,21 @@ namespace resources
 }  // namespace camp
 
 #ifdef CAMP_HAVE_CUDA
-  struct Cuda2 : Cuda { };
+struct Cuda2 : Cuda { };
 #endif
 #ifdef CAMP_HAVE_HIP
-  struct Hip2 : Hip { };
+struct Hip2 : Hip { };
 #endif
 #ifdef CAMP_HAVE_OMP_OFFLOAD
-  struct Omp2 : Omp { };
+struct Omp2 : Omp { };
 #endif
 #ifdef CAMP_HAVE_SYCL
-  struct Sycl2 : Sycl { };
+struct Sycl2 : Sycl { };
 #endif
 
-struct NotAResource {
-};
+struct NotAResource { };
 
-template <typename Res>
+template < typename Res >
 void test_construct()
 {
   Resource r{Res()};
@@ -77,8 +76,6 @@ void test_copy()
   CAMP_ALLOW_UNUSED_LOCAL(r3);
 }
 //
-
-
 TEST(CampResource, Copy)
 {
   test_copy<Host>();
@@ -196,7 +193,7 @@ void test_map_key(Resource& h)
   ASSERT_EQ(map.count(h), 1); ASSERT_EQ(multimap.count(h), 2);
   ASSERT_EQ(map.count(d1), 1); ASSERT_EQ(multimap.count(d1), 1);
   ASSERT_EQ(map.count(d2), 1); ASSERT_EQ(multimap.count(d2), 2);
-  
+
   // Typed
   ASSERT_EQ(rmap.count(r1), 1); ASSERT_EQ(rmultimap.count(r1), 1);
   ASSERT_EQ(rmap.count(r2), 1); ASSERT_EQ(rmultimap.count(r2), 2);
@@ -230,7 +227,7 @@ TEST(CampResource, UnorderedMapKey)
 #elif defined(CAMP_HAVE_SYCL)
   test_map_key<Sycl>(h);
 #endif
-  
+
 #endif
 }
 
@@ -661,6 +658,6 @@ TEST(CampResourceTypeTraits, ConcreteResource)
   ASSERT_FALSE(is_concrete_resource<void*>::value);
   ASSERT_FALSE(is_concrete_resource<char*>::value);
   ASSERT_FALSE(is_concrete_resource<NotAResource>::value);
-  // Host2 has an overrlead of is_concrete_resource_impl
+  // Host2 has an overload of is_concrete_resource_impl
   ASSERT_TRUE(is_concrete_resource<Host2>::value);
 }

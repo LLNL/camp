@@ -13,9 +13,9 @@
 #include <mutex>
 #include <type_traits>
 
+#include "camp/concepts.hpp"
 #include "camp/config.hpp"
 #include "camp/defines.hpp"
-#include "camp/concepts.hpp"
 #include "camp/helpers.hpp"
 
 namespace camp

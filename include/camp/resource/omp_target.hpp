@@ -12,14 +12,14 @@
 
 #ifdef CAMP_ENABLE_TARGET_OPENMP
 
+#include "camp/resource/event.hpp"
+#include "camp/resource/platform.hpp"
+
 #include <omp.h>
 
 #include <map>
 #include <memory>
 #include <mutex>
-
-#include "camp/resource/event.hpp"
-#include "camp/resource/platform.hpp"
 
 namespace camp
 {
@@ -67,7 +67,7 @@ namespace resources
         static char s_addrs[num_addrs] = {};
 
         static std::mutex s_mtx;
-        static int s_previous = num_addrs - 1;
+        static int s_previous = num_addrs-1;
 
         if (num < 0) {
           std::lock_guard<std::mutex> lock(s_mtx);
@@ -79,19 +79,13 @@ namespace resources
       }
 
       // Private from-address constructor
-      Omp(char *a, int device = omp_get_default_device()) : addr(a), dev(device)
-      {
-      }
+      Omp(char* a, int device = omp_get_default_device()) : addr(a), dev(device) {}
 
-      void check_ma(MemoryAccess ma)
-      {
-        if (ma != MemoryAccess::Device) {
-          ::camp::throw_re(
-              "OpenMP Target currently does not support allocating shared or "
-              "managed memory");
+      void check_ma(MemoryAccess ma) {
+        if(ma != MemoryAccess::Device) {
+          ::camp::throw_re("OpenMP Target currently does not support allocating shared or managed memory");
         }
       }
-
     public:
       Omp(int group = -1, int device = omp_get_default_device())
           : addr(get_addr(group)), dev(device)
@@ -101,7 +95,7 @@ namespace resources
       /// Create a resource from a custom address
       /// The device specified must match the address, if none is specified the
       /// currently selected device is used.
-      static Omp OmpFromAddr(char *a, int device = -1)
+      static Omp OmpFromAddr(char* a, int device = -1)
       {
         if (device < 0) {
           device = omp_get_default_device();
@@ -134,8 +128,9 @@ namespace resources
           char *other_addr = (char *)oe->getEventAddr();
           CAMP_ALLOW_UNUSED_LOCAL(local_addr);
           CAMP_ALLOW_UNUSED_LOCAL(other_addr);
-#pragma omp target depend(inout : local_addr[0]) depend(in : other_addr[0]) \
-    nowait
+#pragma omp target depend(inout                      \
+                          : local_addr[0]) depend(in \
+                                                  : other_addr[0]) nowait
           {
           }
         } else {
@@ -182,7 +177,8 @@ namespace resources
         CAMP_ALLOW_UNUSED_LOCAL(local_addr);
         char *pc = (char *)p;
 #pragma omp target teams distribute parallel for device(dev) \
-    depend(inout : local_addr[0]) is_device_ptr(pc) nowait
+    depend(inout                                             \
+           : local_addr[0]) is_device_ptr(pc) nowait
         for (size_t i = 0; i < size; ++i) {
           pc[i] = val;
         }
@@ -231,29 +227,31 @@ namespace resources
        *
        * \return The depend address of this Omp resource.
        */
-      char *get_depend_location() const { return addr; }
+      char* get_depend_location() const { return addr; }
 
       /*
        * \brief Compares two (Omp) resources to see if they are equal
        *
        * \return True or false depending on if this is the same dev and addr ptr
        */
-      bool operator==(Omp const &o) const
+      bool operator==(Omp const& o) const
       {
         return (dev == o.dev && addr == o.addr);
       }
-
+      
       /*
        * \brief Compares two (Omp) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
-      bool operator!=(Omp const &o) const { return !(*this == o); }
-
-      size_t get_hash() const
+      bool operator!=(Omp const& o) const
       {
+        return !(*this == o);
+      }
+
+      size_t get_hash() const {
         const size_t omp_type = size_t(get_platform()) << 32;
-        size_t stream_hash = std::hash<void *>{}(static_cast<void *>(addr));
+        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(addr));
         return omp_type | (stream_hash & 0xFFFFFFFF);
       }
 
@@ -267,6 +265,7 @@ namespace resources
         return dev_register;
       }
     };
+
   }  // namespace v1
 
   template <>
@@ -277,24 +276,20 @@ namespace resources
 
 /*
  * \brief Specialization of std::hash for camp::resources::Omp
- *
- * Provides a hash function for Omp typed resource objects, enabling their use
- * as keys in unordered associative containers (std::unordered_map,
- * std::unordered_set, etc.)
- *
+ * 
+ * Provides a hash function for Omp typed resource objects, enabling their use as keys
+ * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * 
  * \return A size_t hash value
  */
-namespace std
-{
-template <>
-struct hash<camp::resources::Omp> {
-  std::size_t operator()(const camp::resources::Omp &o) const
-  {
-    return o.get_hash();
-  }
-};
-}  // namespace std
-
-#endif  // #ifdef CAMP_ENABLE_TARGET_OPENMP
+namespace std {
+  template <>
+  struct hash<camp::resources::Omp> {
+    std::size_t operator()(const camp::resources::Omp& o) const {
+      return o.get_hash();
+    }
+  };
+}
+#endif  //#ifdef CAMP_ENABLE_TARGET_OPENMP
 
 #endif /* __CAMP_OMP_TARGET_HPP */
