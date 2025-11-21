@@ -13,9 +13,26 @@
 #include <mutex>
 #include <type_traits>
 
+#include "camp/concepts.hpp"
 #include "camp/config.hpp"
 #include "camp/defines.hpp"
 #include "camp/helpers.hpp"
+
+namespace camp
+{
+namespace resources
+{
+  template <typename T>
+  struct is_concrete_resource_impl : std::false_type {
+  };
+
+  template <typename T>
+  struct is_concrete_resource
+      : is_concrete_resource_impl<typename std::decay<T>::type> {
+  };
+}  // namespace resources
+}  // namespace camp
+
 #include "camp/resource/event.hpp"
 #include "camp/resource/host.hpp"
 
@@ -51,8 +68,9 @@ namespace resources
       Resource &operator=(Resource const &) = default;
       template <typename T,
                 typename = typename std::enable_if<
-                    !std::is_same<typename std::decay<T>::type,
-                                  Resource>::value>::type>
+                    !std::is_same<typename std::decay<T>::type, Resource>::value
+                    && is_concrete_resource<
+                        typename std::decay<T>::type>::value>::type>
       Resource(T &&value)
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));

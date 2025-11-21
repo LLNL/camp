@@ -93,6 +93,11 @@ namespace resources
     };
 
   }  // namespace v1
+
+  template <>
+  struct is_concrete_resource_impl<Host> : std::true_type {
+  };
+
 }  // namespace resources
 }  // namespace camp
 
