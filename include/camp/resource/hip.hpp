@@ -12,14 +12,15 @@
 
 #ifdef CAMP_ENABLE_HIP
 
+#include <hip/hip_runtime.h>
+
+#include <array>
+#include <mutex>
+
 #include "camp/defines.hpp"
 #include "camp/helpers.hpp"
 #include "camp/resource/event.hpp"
 #include "camp/resource/platform.hpp"
-
-#include <hip/hip_runtime.h>
-#include <array>
-#include <mutex>
 
 namespace camp
 {
@@ -62,9 +63,13 @@ namespace resources
 
       bool check() const
       {
-        return (CAMP_HIP_API_INVOKE_AND_CHECK_RETURN(hipEventQuery, m_event) == hipSuccess);
+        return (CAMP_HIP_API_INVOKE_AND_CHECK_RETURN(hipEventQuery, m_event)
+                == hipSuccess);
       }
-      void wait() const { CAMP_HIP_API_INVOKE_AND_CHECK(hipEventSynchronize, m_event); }
+      void wait() const
+      {
+        CAMP_HIP_API_INVOKE_AND_CHECK(hipEventSynchronize, m_event);
+      }
       hipEvent_t getHipEvent_t() const { return m_event; }
 
     private:
@@ -72,7 +77,9 @@ namespace resources
 
       void init(hipStream_t stream)
       {
-        CAMP_HIP_API_INVOKE_AND_CHECK(hipEventCreateWithFlags, &m_event, hipEventDisableTiming);
+        CAMP_HIP_API_INVOKE_AND_CHECK(hipEventCreateWithFlags,
+                                      &m_event,
+                                      hipEventDisableTiming);
         CAMP_HIP_API_INVOKE_AND_CHECK(hipEventRecord, m_event, stream);
       }
     };
@@ -83,15 +90,15 @@ namespace resources
       {
         static constexpr int num_streams = 16;
         static std::array<hipStream_t, num_streams> s_streams = [] {
-              std::array<hipStream_t, num_streams> streams;
-              for (auto &s : streams) {
-                CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &s);
-              }
-              return streams;
-            }();
+          std::array<hipStream_t, num_streams> streams;
+          for (auto &s : streams) {
+            CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamCreate, &s);
+          }
+          return streams;
+        }();
 
         static std::mutex s_mtx;
-        static int s_previous = num_streams-1;
+        static int s_previous = num_streams - 1;
 
         if (num < 0) {
           std::lock_guard<std::mutex> lock(s_mtx);
@@ -178,8 +185,10 @@ namespace resources
         auto *hip_event = e->try_get<HipEvent>();
         if (hip_event) {
           auto d{device_guard(device)};
-          CAMP_HIP_API_INVOKE_AND_CHECK(
-              hipStreamWaitEvent, get_stream(), hip_event->getHipEvent_t(), 0);
+          CAMP_HIP_API_INVOKE_AND_CHECK(hipStreamWaitEvent,
+                                        get_stream(),
+                                        hip_event->getHipEvent_t(),
+                                        0);
         } else {
           e->wait();
         }
@@ -195,15 +204,21 @@ namespace resources
           switch (ma) {
             case MemoryAccess::Unknown:
             case MemoryAccess::Device:
-              CAMP_HIP_API_INVOKE_AND_CHECK(hipMalloc, (void**)&ret, sizeof(T) * size);
+              CAMP_HIP_API_INVOKE_AND_CHECK(hipMalloc,
+                                            (void **)&ret,
+                                            sizeof(T) * size);
               break;
             case MemoryAccess::Pinned:
               // TODO: do a test here for whether managed is *actually* shared
               // so we can use the better performing memory
-              CAMP_HIP_API_INVOKE_AND_CHECK(hipHostMalloc, (void**)&ret, sizeof(T) * size);
+              CAMP_HIP_API_INVOKE_AND_CHECK(hipHostMalloc,
+                                            (void **)&ret,
+                                            sizeof(T) * size);
               break;
             case MemoryAccess::Managed:
-              CAMP_HIP_API_INVOKE_AND_CHECK(hipMallocManaged, (void**)&ret, sizeof(T) * size);
+              CAMP_HIP_API_INVOKE_AND_CHECK(hipMallocManaged,
+                                            (void **)&ret,
+                                            sizeof(T) * size);
               break;
           }
         }
@@ -262,24 +277,22 @@ namespace resources
        *
        * \return True or false depending on if this is the same stream
        */
-      bool operator==(Hip const& h) const
+      bool operator==(Hip const &h) const
       {
         return (get_stream() == h.get_stream());
       }
-      
+
       /*
        * \brief Compares two (Hip) resources to see if they are NOT equal
        *
        * \return Negation of == operator
        */
-      bool operator!=(Hip const& h) const
-      {
-        return !(*this == h);
-      }
+      bool operator!=(Hip const &h) const { return !(*this == h); }
 
-      size_t get_hash() const {
+      size_t get_hash() const
+      {
         const size_t hip_type = size_t(get_platform()) << 32;
-        size_t stream_hash = std::hash<void*>{}(static_cast<void*>(stream));
+        size_t stream_hash = std::hash<void *>{}(static_cast<void *>(stream));
         return hip_type | (stream_hash & 0xFFFFFFFF);
       }
 
@@ -293,31 +306,34 @@ namespace resources
       auto d{device_guard(res.get_device())};
       init(res.get_stream());
     }
-
-    template <>
-    struct is_concrete_resource_impl<Hip> : std::true_type {};
-
   }  // namespace v1
+
+  template <>
+  struct is_concrete_resource_impl<Hip> : std::true_type {
+  };
 }  // namespace resources
 }  // namespace camp
 
 /*
  * \brief Specialization of std::hash for camp::resources::Hip
  *
- * Provides a hash function for hip typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
+ * Provides a hash function for hip typed resource objects, enabling their use
+ * as keys in unordered associative containers (std::unordered_map,
+ * std::unordered_set, etc.)
  *
  * \return A size_t hash value
  */
-namespace std {
-  template <>
-  struct hash<camp::resources::Hip> {
-    std::size_t operator()(const camp::resources::Hip& h) const {
-      return h.get_hash();
-    }
-  };
-}
+namespace std
+{
+template <>
+struct hash<camp::resources::Hip> {
+  std::size_t operator()(const camp::resources::Hip &h) const
+  {
+    return h.get_hash();
+  }
+};
+}  // namespace std
 
-#endif  //#ifdef CAMP_ENABLE_HIP
+#endif  // #ifdef CAMP_ENABLE_HIP
 
 #endif /* __CAMP_HIP_HPP */
