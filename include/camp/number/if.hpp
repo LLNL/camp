@@ -8,9 +8,9 @@
 #ifndef CAMP_NUMBER_IF_HPP
 #define CAMP_NUMBER_IF_HPP
 
-#include "camp/value.hpp"
-
 #include <type_traits>
+
+#include "camp/value.hpp"
 
 namespace camp
 {

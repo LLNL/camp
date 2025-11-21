@@ -14,7 +14,6 @@
 #include "camp/list/at.hpp"
 #include "camp/list/list.hpp"
 
-
 namespace camp
 {
 
@@ -26,6 +25,7 @@ struct lambda {
 
 template <typename Lambda, typename Seq>
 struct apply_l;
+
 template <typename Lambda, typename... Args>
 struct apply_l<Lambda, list<Args...>> {
   using type = typename Lambda::template expr<Args...>::type;
@@ -58,6 +58,7 @@ namespace detail
   struct get_bound_arg {
     using type = T;
   };
+
   template <idx_t i, typename... Args>
   struct get_bound_arg<arg<i>, Args...> {
     using type = typename arg<i>::template expr<Args...>;

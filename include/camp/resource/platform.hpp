@@ -24,12 +24,7 @@ namespace resources
       sycl = 16
     };
 
-    enum class MemoryAccess {
-      Unknown,
-      Device,
-      Pinned,
-      Managed
-    };
+    enum class MemoryAccess { Unknown, Device, Pinned, Managed };
   }  // namespace v1
 }  // namespace resources
 }  // namespace camp

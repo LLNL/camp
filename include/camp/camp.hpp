@@ -8,9 +8,10 @@
 #ifndef __CAMP_HPP
 #define __CAMP_HPP
 
+#include <camp/defines.hpp>
 #include <type_traits>
 
-#include <camp/defines.hpp>
+#include "camp/detail/test.hpp"
 #include "camp/helpers.hpp"
 #include "camp/lambda.hpp"
 #include "camp/list.hpp"
@@ -20,8 +21,6 @@
 #include "camp/size.hpp"
 #include "camp/tuple.hpp"
 #include "camp/value.hpp"
-
-#include "camp/detail/test.hpp"
 
 namespace camp
 {
@@ -34,6 +33,7 @@ struct flatten;
 
 template <typename Seq, typename T>
 struct append;
+
 template <typename... Elements, typename T>
 struct append<list<Elements...>, T> {
   using type = list<Elements..., T>;
@@ -41,6 +41,7 @@ struct append<list<Elements...>, T> {
 
 template <typename Seq, typename T>
 struct prepend;
+
 template <typename... Elements, typename T>
 struct prepend<list<Elements...>, T> {
   using type = list<Elements..., T>;
@@ -48,6 +49,7 @@ struct prepend<list<Elements...>, T> {
 
 template <typename Seq, typename T>
 struct extend;
+
 template <typename... Elements, typename... NewElements>
 struct extend<list<Elements...>, list<NewElements...>> {
   using type = list<Elements..., NewElements...>;
@@ -57,10 +59,12 @@ namespace detail
 {
   template <typename CurSeq, size_t N, typename... Rest>
   struct flatten_impl;
+
   template <typename CurSeq>
   struct flatten_impl<CurSeq, 0> {
     using type = CurSeq;
   };
+
   template <typename... CurSeqElements,
             size_t N,
             typename First,
@@ -70,6 +74,7 @@ namespace detail
                                        N - 1,
                                        Rest...>::type;
   };
+
   template <typename... CurSeqElements,
             size_t N,
             typename... FirstInnerElements,
@@ -95,14 +100,17 @@ struct flatten<list<Elements...>>
 
 template <typename... Seqs>
 struct join;
+
 template <typename Seq1, typename Seq2, typename... Rest>
 struct join<Seq1, Seq2, Rest...> {
-      using type = typename join<typename extend<Seq1, Seq2>::type, Rest...>::type;
+  using type = typename join<typename extend<Seq1, Seq2>::type, Rest...>::type;
 };
+
 template <typename Seq1>
 struct join<Seq1> {
-      using type = Seq1;
+  using type = Seq1;
 };
+
 template <>
 struct join<> {
   using type = list<>;
@@ -110,6 +118,7 @@ struct join<> {
 
 template <template <typename...> class Op, typename T>
 struct transform;
+
 template <template <typename...> class Op, typename... Elements>
 struct transform<Op, list<Elements...>> {
   using type = list<typename Op<Elements>::type...>;
@@ -119,6 +128,7 @@ namespace detail
 {
   template <template <typename...> class Op, typename Current, typename... Rest>
   struct accumulate_impl;
+
   template <template <typename...> class Op,
             typename Current,
             typename First,
@@ -127,6 +137,7 @@ namespace detail
     using current = typename Op<Current, First>::type;
     using type = typename accumulate_impl<Op, current, Rest...>::type;
   };
+
   template <template <typename...> class Op, typename Current>
   struct accumulate_impl<Op, Current> {
     using type = Current;
@@ -135,6 +146,7 @@ namespace detail
 
 template <template <typename...> class Op, typename Initial, typename Seq>
 struct accumulate;
+
 template <template <typename...> class Op,
           typename Initial,
           typename... Elements>
@@ -142,24 +154,30 @@ struct accumulate<Op, Initial, list<Elements...>> {
   using type = typename detail::accumulate_impl<Op, Initial, Elements...>::type;
 };
 
-
 namespace detail
 {
-  template<class, class>
-  struct product_impl{};
-  template<class... Xs, class... Ys>
-    struct product_impl<list<Xs...>, list<Ys...>> {
-      using type = list<list<Xs..., Ys>...>;
-    };
-  template<class, class>
-  struct product{};
-  template<class... Seqs, class... vals>
-    struct product<list<Seqs...>, list<vals...>> {
-      using type = typename join<typename product_impl<Seqs, list<vals...>>::type...>::type;
-    };
-} /* detail */
-template<class ... Seqs>
-using cartesian_product = typename accumulate<detail::product, list<list<>>, list<Seqs...>>::type;
+  template <class, class>
+  struct product_impl {
+  };
+
+  template <class... Xs, class... Ys>
+  struct product_impl<list<Xs...>, list<Ys...>> {
+    using type = list<list<Xs..., Ys>...>;
+  };
+
+  template <class, class>
+  struct product {
+  };
+
+  template <class... Seqs, class... vals>
+  struct product<list<Seqs...>, list<vals...>> {
+    using type = typename join<
+        typename product_impl<Seqs, list<vals...>>::type...>::type;
+  };
+}  // namespace detail
+template <class... Seqs>
+using cartesian_product =
+    typename accumulate<detail::product, list<list<>>, list<Seqs...>>::type;
 
 CAMP_MAKE_L(accumulate);
 
@@ -168,6 +186,7 @@ CAMP_MAKE_L(accumulate);
  */
 template <typename T, typename L>
 struct index_of;
+
 template <typename T, typename... Elements>
 struct index_of<T, list<Elements...>> {
   template <typename Seq, typename Item>
