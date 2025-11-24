@@ -315,6 +315,11 @@ namespace resources
     }
 
   }  // namespace v1
+
+  template <>
+  struct is_concrete_resource_impl<Cuda> : std::true_type {
+  };
+
 }  // namespace resources
 }  // namespace camp
 

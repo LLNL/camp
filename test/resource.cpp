@@ -7,6 +7,8 @@
 
 #include "camp/resource.hpp"
 
+#include <type_traits>
+
 #include "camp/camp.hpp"
 #include "gtest/gtest.h"
 
@@ -640,4 +642,45 @@ TEST(CampResource, Wait)
 #ifdef CAMP_HAVE_SYCL
   test_wait<Sycl>();
 #endif
+}
+
+template <typename Res>
+void test_concrete_resource_trait()
+{
+  ASSERT_TRUE(is_concrete_resource<Res>::value);
+  ASSERT_TRUE(is_concrete_resource<Res&>::value);
+  ASSERT_TRUE(is_concrete_resource<const Res>::value);
+  ASSERT_TRUE(is_concrete_resource<const Res&>::value);
+  ASSERT_TRUE(is_concrete_resource<Res&&>::value);
+}
+//
+TEST(CampResourceTypeTraits, ConcreteResource)
+{
+  test_concrete_resource_trait<Host>();
+
+#ifdef CAMP_HAVE_CUDA
+  test_concrete_resource_trait<Cuda>();
+#endif
+
+#ifdef CAMP_HAVE_HIP
+  test_concrete_resource_trait<Hip>();
+#endif
+
+#ifdef CAMP_HAVE_SYCL
+  test_concrete_resource_trait<Sycl>();
+#endif
+
+#ifdef CAMP_HAVE_OMP_OFFLOAD
+  test_concrete_resource_trait<Omp>();
+#endif
+
+  // Test is_concrete_resource with non-resource types
+  ASSERT_FALSE(is_concrete_resource<int>::value);
+  ASSERT_FALSE(is_concrete_resource<float>::value);
+  ASSERT_FALSE(is_concrete_resource<double>::value);
+  ASSERT_FALSE(is_concrete_resource<void*>::value);
+  ASSERT_FALSE(is_concrete_resource<char*>::value);
+  ASSERT_FALSE(is_concrete_resource<NotAResource>::value);
+  // Host2 has an overload of is_concrete_resource_impl
+  ASSERT_TRUE(is_concrete_resource<Host2>::value);
 }

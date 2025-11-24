@@ -283,6 +283,10 @@ namespace resources
     };
 
   }  // namespace v1
+
+  template <>
+  struct is_concrete_resource_impl<Omp> : std::true_type {
+  };
 }  // namespace resources
 }  // namespace camp
 
