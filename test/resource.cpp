@@ -34,6 +34,8 @@ struct Sycl2 : Sycl {
 };
 #endif
 
+struct NotAResource { };
+
 template <typename Res>
 void test_construct()
 {
