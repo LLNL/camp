@@ -22,12 +22,12 @@ namespace detail
   template <typename T, idx_t Idx>
   struct _at;
 
-  #if CAMP_USE_TYPE_PACK_ELEMENT
+#if CAMP_USE_TYPE_PACK_ELEMENT
   template <idx_t Idx, template <class...> class T, typename... Pack>
   struct _at<T<Pack...>, Idx> {
     using type = __type_pack_element<Idx, Pack...>;
   };
-  #else
+#else
   // Lookup from metal::at machinery
   template <idx_t, typename>
   struct entry {
@@ -55,6 +55,7 @@ namespace detail
   struct _at<T<X, Rest...>, 0> {
     using type = X;
   };
+
   template <template <class...> class T,
             typename X,
             typename Y,
@@ -62,6 +63,7 @@ namespace detail
   struct _at<T<X, Y, Rest...>, 1> {
     using type = Y;
   };
+
   template <template <class...> class T, idx_t Idx, typename... Rest>
   struct _at<T<Rest...>, Idx> {
     static_assert(Idx < sizeof...(Rest), "at: index out of range");
@@ -69,17 +71,17 @@ namespace detail
                                   make_idx_seq_t<sizeof...(Rest)>,
                                   Idx>::type;
   };
-  #endif
+#endif
 }  // namespace detail
 
 // TODO: document
 template <typename Seq, typename Num>
 struct at;
+
 template <typename T, idx_t Val>
 struct at<T, num<Val>> {
   using type = typename detail::_at<T, Val>::type;
 };
-
 
 template <typename T>
 using first = typename at<T, num<0>>::type;

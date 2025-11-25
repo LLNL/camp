@@ -8,11 +8,11 @@
 #ifndef __CAMP_HOST_HPP
 #define __CAMP_HOST_HPP
 
-#include "camp/resource/event.hpp"
-#include "camp/resource/platform.hpp"
-
 #include <cstdlib>
 #include <cstring>
+
+#include "camp/resource/event.hpp"
+#include "camp/resource/platform.hpp"
 
 namespace camp
 {
@@ -25,7 +25,9 @@ namespace resources
     {
     public:
       HostEvent() {}
+
       bool check() const { return true; }
+
       void wait() const {}
     };
 
@@ -36,18 +38,23 @@ namespace resources
 
       // Methods
       Platform get_platform() const { return Platform::host; }
+
       static Host get_default()
       {
         static Host h;
         return h;
       }
+
       HostEvent get_event() { return HostEvent(); }
+
       Event get_event_erased()
       {
         Event e{HostEvent()};
         return e;
       }
+
       void wait() {}
+
       void wait_for(Event *e) { e->wait(); }
 
       // Memory
@@ -56,14 +63,24 @@ namespace resources
       {
         return (T *)std::malloc(sizeof(T) * n);
       }
+
       void *calloc(size_t size, MemoryAccess = MemoryAccess::Device)
       {
         void *p = allocate<char>(size);
         this->memset(p, 0, size);
         return p;
       }
-      void deallocate(void *p, MemoryAccess = MemoryAccess::Device) { std::free(p); }
-      void memcpy(void *dst, const void *src, size_t size) { std::memcpy(dst, src, size); }
+
+      void deallocate(void *p, MemoryAccess = MemoryAccess::Device)
+      {
+        std::free(p);
+      }
+
+      void memcpy(void *dst, const void *src, size_t size)
+      {
+        std::memcpy(dst, src, size);
+      }
+
       void memset(void *p, int val, size_t size) { std::memset(p, val, size); }
 
       /*
@@ -71,24 +88,18 @@ namespace resources
        *
        * \return Always return true since Host resources are always the same
        */
-      bool operator==(Host const&) const
-      {
-        return true;
-      }
-      
+      bool operator==(Host const &) const { return true; }
+
       /*
        * \brief Compares two (Host) resources to see if they are NOT equal
        *
        * \return Always return false. Host resources are always the same
        */
-      bool operator!=(Host const&) const
-      {
-        return false;
-      }
+      bool operator!=(Host const &) const { return false; }
 
       size_t get_hash() const
       {
-        return size_t(get_platform()) << 32; // All Host resources are the same
+        return size_t(get_platform()) << 32;  // All Host resources are the same
       }
     };
 
@@ -103,18 +114,21 @@ namespace resources
 
 /*
  * \brief Specialization of std::hash for camp::resources::Host
- * 
- * Provides a hash function for Host typed resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
+ *
+ * Provides a hash function for Host typed resource objects, enabling their use
+ * as keys in unordered associative containers (std::unordered_map,
+ * std::unordered_set, etc.)
+ *
  * \return Hash value for the host (always the value of get_platform())
  */
-namespace std {
-  template <>
-  struct hash<camp::resources::Host> {
-    std::size_t operator()(const camp::resources::Host& h) const {
-      return h.get_hash();
-    }
-  };
-}
+namespace std
+{
+template <>
+struct hash<camp::resources::Host> {
+  std::size_t operator()(const camp::resources::Host &h) const
+  {
+    return h.get_hash();
+  }
+};
+}  // namespace std
 #endif /* __CAMP_DEVICES_HPP */

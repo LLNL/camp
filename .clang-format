@@ -26,3 +26,4 @@ AlignOperands : true
 AlwaysBreakTemplateDeclarations : true
 Cpp11BracedListStyle : true
 
+SeparateDefinitionBlocks: Always

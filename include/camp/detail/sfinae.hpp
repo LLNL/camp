@@ -8,11 +8,11 @@
 #ifndef CAMP_DETAIL_SFINAE_HPP
 #define CAMP_DETAIL_SFINAE_HPP
 
+#include <type_traits>
+
 #include "camp/helpers.hpp"
 #include "camp/number/number.hpp"
 #include "camp/value.hpp"
-
-#include <type_traits>
 
 namespace camp
 {
@@ -34,8 +34,7 @@ namespace detail
   value<> sfinae(...);
 
   template <template <typename...> class expr, typename... vals>
-  struct caller : decltype(sfinae(declptr<caller<expr, vals...>>())) {
-  };
+  struct caller : decltype(sfinae(declptr<caller<expr, vals...>>())){};
 
   template <template <typename...> class Expr, typename... Vals>
   struct call_s : caller<Expr, Vals...> {
@@ -44,6 +43,7 @@ namespace detail
   template <template <typename...> class Expr, typename... Vals>
   using call = Expr<Vals...>;
 };  // namespace detail
+
 /// \endcond
 
 }  // end namespace camp

@@ -10,17 +10,15 @@
 
 #include <memory>
 
-namespace camp {
+namespace camp
+{
 
 template <typename T, typename... Args>
-constexpr 
-inline
-std::unique_ptr<T> make_unique(Args&&... args)
+constexpr inline std::unique_ptr<T> make_unique(Args&&... args)
 {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
-} // end of namespace umpire
+}  // namespace camp
 
 #endif /* __CAMP_make_unique_hpp */
-

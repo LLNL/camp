@@ -19,7 +19,9 @@ struct integral_constant {
   static constexpr NumT value = v;
   using value_type = NumT;
   using type = integral_constant;
+
   constexpr operator value_type() const noexcept { return value; }
+
   constexpr value_type operator()() const noexcept { return value; }
 };
 

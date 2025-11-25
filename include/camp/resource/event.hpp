@@ -8,8 +8,8 @@
 #ifndef __CAMP_EVENT_HPP
 #define __CAMP_EVENT_HPP
 
-#include <type_traits>
 #include <memory>
+#include <type_traits>
 
 #include "camp/config.hpp"
 #include "camp/defines.hpp"
@@ -25,28 +25,30 @@ namespace resources
     {
       struct EventProxyBase {
       };  // helper to identify EventProxy in sfinae
-    }     // namespace detail
+    }  // namespace detail
+
     class Event
     {
     public:
       Event() = default;
       Event(Event const &e) = default;
       Event(Event &&e) = default;
-      Event& operator=(Event const &e) = default;
-      Event& operator=(Event &&e) = default;
+      Event &operator=(Event const &e) = default;
+      Event &operator=(Event &&e) = default;
 
-      template <typename T,
-                typename std::enable_if<
-                    !(std::is_convertible<
-                        typename std::decay<T>::type *,
-                        ::camp::resources::detail::EventProxyBase *>::value
-                      )>::type * = nullptr>
+      template <
+          typename T,
+          typename std::enable_if<
+              !(std::is_convertible<typename std::decay<T>::type *,
+                                    ::camp::resources::detail::EventProxyBase
+                                        *>::value)>::type * = nullptr>
       Event(T &&value)
       {
         m_value.reset(new EventModel<T>(value));
       }
 
       bool check() const { return m_value->check(); }
+
       void wait() const { m_value->wait(); }
 
       template <typename T>
@@ -55,6 +57,7 @@ namespace resources
         auto result = dynamic_cast<EventModel<T> *>(m_value.get());
         return result->get();
       }
+
       template <typename T>
       T get()
       {
@@ -70,6 +73,7 @@ namespace resources
       {
       public:
         virtual ~EventInterface() {}
+
         virtual bool check() const = 0;
         virtual void wait() const = 0;
       };
@@ -79,8 +83,11 @@ namespace resources
       {
       public:
         EventModel(T const &modelVal) : m_modelVal(modelVal) {}
+
         bool check() const override { return m_modelVal.check(); }
+
         void wait() const override { m_modelVal.wait(); }
+
         T *get() { return &m_modelVal; }
 
       private:

@@ -69,6 +69,7 @@ namespace resources
       Resource(Resource const &) = default;
       Resource &operator=(Resource &&) = default;
       Resource &operator=(Resource const &) = default;
+
       template <typename T,
                 typename = typename std::enable_if_t<
                     !std::is_same_v<typename std::decay_t<T>, Resource>
@@ -78,12 +79,14 @@ namespace resources
       {
         m_value.reset(new ContextModel<type::ref::rem<T>>(forward<T>(value)));
       }
+
       template <typename T>
       T *try_get()
       {
         auto result = dynamic_cast<ContextModel<T> *>(m_value.get());
         return result ? result->get() : nullptr;
       }
+
       template <typename T>
       T get() const
       {
@@ -93,34 +96,51 @@ namespace resources
         }
         return *result->get();
       }
+
       Platform get_platform() const { return m_value->get_platform(); }
+
       template <typename T>
       T *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device)
       {
         return (T *)m_value->allocate(size * sizeof(T), ma);
       }
-      void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) { return m_value->calloc(size, ma); }
-      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) { m_value->deallocate(p, ma); }
+
+      void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device)
+      {
+        return m_value->calloc(size, ma);
+      }
+
+      void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device)
+      {
+        m_value->deallocate(p, ma);
+      }
+
       void memcpy(void *dst, const void *src, size_t size)
       {
         m_value->memcpy(dst, src, size);
       }
+
       void memset(void *p, int val, size_t size)
       {
         m_value->memset(p, val, size);
       }
+
       Event get_event() { return m_value->get_event(); }
+
       Event get_event_erased() { return m_value->get_event_erased(); }
+
       void wait_for(Event *e) { m_value->wait_for(e); }
+
       void wait() { m_value->wait(); }
 
       /*
-       * \brief Compares two Resources to see if they are equal. Two Resources are equal if they
-       * have the platform and same stream/queue
+       * \brief Compares two Resources to see if they are equal. Two Resources
+       * are equal if they have the platform and same stream/queue
        *
-       * \return True if they have the same platform and stream/queue, false otherwise.
+       * \return True if they have the same platform and stream/queue, false
+       * otherwise.
        */
-      bool operator==(Resource const& r) const
+      bool operator==(Resource const &r) const
       {
         if (get_platform() == r.get_platform()) {
           return (m_value->compare(r));
@@ -133,40 +153,38 @@ namespace resources
        *
        * \return Negation of == operator.
        */
-      bool operator!=(Resource const& r) const
-      {
-        return !(*this == r);
-      }
+      bool operator!=(Resource const &r) const { return !(*this == r); }
 
     private:
+      friend struct std::hash<camp::resources::Resource>;
 
-      friend struct std::hash<camp::resources::Resource>;  
-  
       /*
        * \brief Retrieves the a hash for this Resource.
        * The hash allows Resources to be used as keys in data structures
        * like unordered maps.
-       * 
-       * \return A size_t hash value for this Resource's 
+       *
+       * \return A size_t hash value for this Resource's
        * platform and stream/queue combination.
        *
-       */ 
-      size_t get_hash() const {
-        return m_value->get_hash();
-      }
+       */
+      size_t get_hash() const { return m_value->get_hash(); }
 
       class ContextInterface
       {
       public:
         virtual ~ContextInterface() {}
+
         virtual Platform get_platform() const = 0;
 
-        virtual bool compare(Resource const& r) const = 0;
+        virtual bool compare(Resource const &r) const = 0;
         virtual size_t get_hash() const = 0;
 
-        virtual void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
-        virtual void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) = 0;
-        virtual void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) = 0;
+        virtual void *allocate(size_t size,
+                               MemoryAccess ma = MemoryAccess::Device) = 0;
+        virtual void *calloc(size_t size,
+                             MemoryAccess ma = MemoryAccess::Device) = 0;
+        virtual void deallocate(void *p,
+                                MemoryAccess ma = MemoryAccess::Device) = 0;
         virtual void memcpy(void *dst, const void *src, size_t size) = 0;
         virtual void memset(void *p, int val, size_t size) = 0;
 
@@ -181,29 +199,56 @@ namespace resources
       {
       public:
         ContextModel(T const &modelVal) : m_modelVal(modelVal) {}
-        Platform get_platform() const override { return m_modelVal.get_platform(); }
 
-        bool compare(Resource const& r) const override { return m_modelVal == r.get<T>(); }
+        Platform get_platform() const override
+        {
+          return m_modelVal.get_platform();
+        }
+
+        bool compare(Resource const &r) const override
+        {
+          return m_modelVal == r.get<T>();
+        }
+
         size_t get_hash() const override { return m_modelVal.get_hash(); }
 
-        void *allocate(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.template allocate<char>(size, ma); }
-        void *calloc(size_t size, MemoryAccess ma = MemoryAccess::Device) override { return m_modelVal.calloc(size, ma); }
-        void deallocate(void *p, MemoryAccess ma = MemoryAccess::Device) override { m_modelVal.deallocate(p, ma); }
+        void *allocate(size_t size,
+                       MemoryAccess ma = MemoryAccess::Device) override
+        {
+          return m_modelVal.template allocate<char>(size, ma);
+        }
+
+        void *calloc(size_t size,
+                     MemoryAccess ma = MemoryAccess::Device) override
+        {
+          return m_modelVal.calloc(size, ma);
+        }
+
+        void deallocate(void *p,
+                        MemoryAccess ma = MemoryAccess::Device) override
+        {
+          m_modelVal.deallocate(p, ma);
+        }
+
         void memcpy(void *dst, const void *src, size_t size) override
         {
           m_modelVal.memcpy(dst, src, size);
         }
+
         void memset(void *p, int val, size_t size) override
         {
           m_modelVal.memset(p, val, size);
         }
 
         Event get_event() override { return m_modelVal.get_event_erased(); }
+
         Event get_event_erased() override
         {
           return m_modelVal.get_event_erased();
         }
+
         void wait_for(Event *e) override { m_modelVal.wait_for(e); }
+
         void wait() override { m_modelVal.wait(); }
 
         T *get() { return &m_modelVal; }
@@ -217,6 +262,7 @@ namespace resources
 
     template <Platform p>
     struct resource_from_platform;
+
     template <>
     struct resource_from_platform<Platform::host> {
       using type = ::camp::resources::Host;
@@ -303,19 +349,22 @@ namespace resources
 
 /*
  * \brief Specialization of std::hash for camp::resources::Resource
- * 
+ *
  * Provides a hash function for Resource objects, enabling their use as keys
- * in unordered associative containers (std::unordered_map, std::unordered_set, etc.)
- * 
+ * in unordered associative containers (std::unordered_map, std::unordered_set,
+ * etc.)
+ *
  * \return A size_t hash value
  */
-namespace std {
-  template <>
-  struct hash<camp::resources::Resource> {
-    std::size_t operator()(const camp::resources::Resource& r) const {
-      return r.get_hash();
-    }
-  };
-}
+namespace std
+{
+template <>
+struct hash<camp::resources::Resource> {
+  std::size_t operator()(const camp::resources::Resource &r) const
+  {
+    return r.get_hash();
+  }
+};
+}  // namespace std
 
 #endif /* __CAMP_RESOURCE_HPP */
