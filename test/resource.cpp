@@ -34,6 +34,16 @@ struct Sycl2 : Sycl {
 };
 #endif
 
+namespace camp
+{
+namespace resources
+{
+  template <>
+  struct is_concrete_resource_impl<Host2> : std::true_type {
+  };
+}  // namespace resources
+}  // namespace camp
+
 struct NotAResource { };
 
 template <typename Res>
